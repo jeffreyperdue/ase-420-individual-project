@@ -1,0 +1,29 @@
+R001: Line 1
+  The system shall allow users to login with email and password
+
+R002: Line 2
+  The system shall display user dashboard after successful login
+
+R003: Line 3
+  The system shall allow users to reset their password via email verification
+
+R004: Line 4
+  The system shall log unsuccessful login attempts
+
+R005: Line 5
+  The system shall allow administrators to add new user accounts
+
+R006: Line 6
+  The system shall allow users to update their profile information
+
+R007: Line 7
+  The system shall provide a search feature to find items by name
+
+R008: Line 8
+  The system shall generate a daily activity report for administrators
+
+R009: Line 9
+  The system shall support exporting reports in PDF and CSV formats
+
+R010: Line 10
+  The system shall log out users automatically after 30 minutes of inactivity
