@@ -1,0 +1,13 @@
+# StressSpec - Requirements Stress Tester
+# Python dependencies for the project
+#
+# BEGINNER NOTES:
+# - This file lists all the external libraries our project needs
+# - It's like a shopping list for Python packages
+# - pip install -r requirements.txt will install all of these
+# - Version numbers (>=7.0.0) ensure we get compatible versions
+
+pytest>=7.0.0      # Testing framework - runs our unit tests
+argparse            # Command-line argument parsing (built into Python 3.2+)
+pathlib             # Modern file path handling (built into Python 3.4+)
+typing-extensions   # Additional type hints for older Python versions
