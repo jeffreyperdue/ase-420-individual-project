@@ -11,6 +11,7 @@ BEGINNER NOTES:
 """
 
 from .requirement import Requirement  # Import our Requirement data model
+from .risk import Risk, RiskCategory, SeverityLevel  # Import our Risk data models
 
 # Define what gets imported when someone does "from src.models import *"
-__all__ = ['Requirement']
+__all__ = ['Requirement', 'Risk', 'RiskCategory', 'SeverityLevel']
