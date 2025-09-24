@@ -23,6 +23,9 @@ from typing import List, Optional  # For type hints (makes code more readable)
 from src.file_loader import FileLoader          # Loads and processes requirement files
 from src.requirement_parser import RequirementParser  # Converts raw text into structured requirements
 from src.models.requirement import Requirement  # The data structure that represents a single requirement
+from src.factories.detector_factory import RiskDetectorFactory
+from src.analyzer import analyze_requirements
+from src.reporting import ReportFormat, ReportData, MarkdownReporter, CsvReporter, JsonReporter
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -61,6 +64,20 @@ Examples:
         action="store_true",      # If present, sets to True; if absent, sets to False
         help="Enable verbose output"
     )
+
+    # Reporting options
+    parser.add_argument(
+        "--report-format",
+        choices=[f.value for f in ReportFormat],
+        default=ReportFormat.MD.value,
+        help="Report output format"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output file path (defaults: report.md/csv/json)"
+    )
     
     # Parse the arguments and return them
     return parser.parse_args()
@@ -98,20 +115,35 @@ def main() -> None:
         # Step 5: Convert raw lines into structured Requirement objects
         requirements = parser.parse_requirements(raw_lines)
         
-        # Step 6: Display the results to the user
-        print(f"Successfully parsed {len(requirements)} requirements:")
-        print("-" * 50)
-        
-        # Loop through each requirement and display it
-        for req in requirements:
-            print(f"{req.id}: Line {req.line_number}")  # Show ID and line number
-            print(f"  {req.text}")                      # Show the actual requirement text
-            print()                                     # Empty line for readability
-        
-        # Step 7: Show completion message if verbose
+        # Step 6: Run risk detectors
+        # BEGINNER NOTES:
+        # - The factory creates the detector objects (ambiguity, security, etc.)
+        # - We then analyze each requirement with every detector
+        factory = RiskDetectorFactory()
+        detectors = factory.create_enabled_detectors() or factory.create_all_detectors()
+        risks_by_requirement = analyze_requirements(requirements, detectors)
+
+        # Step 7: Generate report
+        # BEGINNER NOTES:
+        # - We pack the data in ReportData and hand it to the chosen reporter
+        # - The reporter writes to disk and returns the output file path
+        data = ReportData(
+            requirements=requirements,
+            risks_by_requirement=risks_by_requirement,
+            source_file=args.file,
+        )
+
+        fmt = ReportFormat(args.report_format)
+        if fmt is ReportFormat.MD:
+            reporter = MarkdownReporter()
+        elif fmt is ReportFormat.CSV:
+            reporter = CsvReporter()
+        else:
+            reporter = JsonReporter()
+
+        output_path = reporter.write(data, args.output)
         if args.verbose:
-            print("=" * 50)
-            print("Parsing completed successfully!")
+            print(f"Report written to: {output_path}")
             
     # Error handling - different types of errors get different messages
     except FileNotFoundError as e:

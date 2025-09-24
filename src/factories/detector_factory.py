@@ -18,6 +18,8 @@ from src.detectors.ambiguity_detector import AmbiguityDetector
 from src.detectors.missing_detail_detector import MissingDetailDetector
 from src.detectors.security_detector import SecurityDetector
 from src.detectors.conflict_detector import ConflictDetector
+from src.detectors.performance_detector import PerformanceDetector
+from src.detectors.availability_detector import AvailabilityDetector
 
 
 class RiskDetectorFactory:
@@ -43,6 +45,8 @@ class RiskDetectorFactory:
         'missing_detail': MissingDetailDetector,
         'security': SecurityDetector,
         'conflict': ConflictDetector,
+        'performance': PerformanceDetector,
+        'availability': AvailabilityDetector,
     }
     
     def __init__(self, rules_file: str = "data/rules.json"):

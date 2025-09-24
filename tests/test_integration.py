@@ -10,6 +10,8 @@ import tempfile
 import os
 from src.file_loader import FileLoader
 from src.requirement_parser import RequirementParser
+from src.factories.detector_factory import RiskDetectorFactory
+from src.analyzer import analyze_requirements
 
 
 class TestIntegration:
@@ -52,6 +54,12 @@ class TestIntegration:
             assert requirements[2].line_number == 3  # Line number in processed list
             assert requirements[2].text == "The system shall handle errors gracefully"
             
+            # Run detectors end-to-end and ensure risks dict exists
+            factory = RiskDetectorFactory()
+            detectors = factory.create_enabled_detectors() or factory.create_all_detectors()
+            risks_by_req = analyze_requirements(requirements, detectors)
+            assert set(risks_by_req.keys()) == {"R001", "R002", "R003"}
+
         finally:
             os.unlink(temp_path)
     
