@@ -6,37 +6,56 @@ A Python-based tool for analyzing requirement documents and detecting potential 
 
 StressSpec acts as a "wind tunnel" for requirements, helping project managers, business analysts, and development teams identify hidden risks in requirement documents early in the development process.
 
-## Week 1 Implementation Status ✅
+## Current Implementation Status ✅
 
 ### Completed Features
 
 1. **Input Ingestion** - Accepts .txt and .md files with one requirement per line
 2. **Requirement Parsing & Labeling** - Assigns unique IDs (R001, R002, etc.) and line numbers
-3. **Error Handling** - Comprehensive error handling for missing files, invalid extensions, and empty files
-4. **CLI Interface** - Command-line interface with argument parsing
-5. **Unit Testing** - Complete test suite with 24 passing tests
+3. **Risk Detection** - Ambiguity, Missing Detail, Security, Conflict, Performance, Availability
+4. **Configurable Rules** - JSON-driven rules in `data/rules.json` with severities and enable switches
+5. **Reporting** - Multi-format outputs: Markdown, CSV, JSON
+6. **CLI Interface** - Report format selection and output path
+7. **Testing** - Comprehensive unit and integration tests (31 passing)
 
 ### Project Structure
 
 ```
 StressSpec/
-├── main.py                 # Main entry point with CLI
-├── requirements.txt        # Python dependencies
+├── main.py                        # CLI entry point
+├── requirements.txt               # Dependencies
 ├── src/
-│   ├── __init__.py
-│   ├── file_loader.py      # File loading and processing
-│   ├── requirement_parser.py # Requirement parsing logic
-│   └── models/
-│       ├── __init__.py
-│       └── requirement.py  # Requirement data model
+│   ├── file_loader.py             # File loading and processing
+│   ├── requirement_parser.py      # Requirement parsing logic
+│   ├── analyzer.py                # Runs detectors and aggregates risks
+│   ├── models/
+│   │   ├── requirement.py         # Requirement data model
+│   │   └── risk.py                # Risk data model + severity
+│   ├── detectors/
+│   │   ├── base.py                # BaseRiskDetector + helpers
+│   │   ├── ambiguity_detector.py
+│   │   ├── missing_detail_detector.py
+│   │   ├── security_detector.py
+│   │   ├── conflict_detector.py
+│   │   ├── performance_detector.py
+│   │   └── availability_detector.py
+│   ├── factories/
+│   │   └── detector_factory.py    # Factory Method for detectors
+│   └── reporting/
+│       ├── base.py                # Reporter interface + types
+│       ├── markdown_reporter.py   # MD writer
+│       ├── csv_reporter.py        # CSV writer
+│       └── json_reporter.py       # JSON writer
 ├── data/
-│   ├── sample_requirements.txt
-│   └── sample_requirements.md
-└── tests/
-    ├── __init__.py
+│   ├── rules.json                 # Configurable rules & severities
+│   └── sample_requirements.txt    # Sample data
+└── tests/                         # Unit & integration tests (31)
     ├── test_requirement.py
     ├── test_file_loader.py
-    └── test_requirement_parser.py
+    ├── test_requirement_parser.py
+    ├── test_integration.py
+    ├── test_performance_detector.py
+    └── test_availability_detector.py
 ```
 
 ## Usage
@@ -44,11 +63,12 @@ StressSpec/
 ### Basic Usage
 
 ```bash
-# Parse a requirements file
-python main.py --file data/sample_requirements.txt
+# Parse a requirements file and generate Markdown report
+python main.py --file data/sample_requirements.txt --report-format md --verbose
 
-# Verbose output
-python main.py --file data/sample_requirements.md --verbose
+# Generate CSV or JSON reports
+python main.py --file data/sample_requirements.txt --report-format csv --output report.csv
+python main.py --file data/sample_requirements.txt --report-format json --output report.json
 ```
 
 ### Supported File Formats
@@ -60,6 +80,8 @@ python main.py --file data/sample_requirements.md --verbose
 
 - **Automatic ID Assignment**: Each requirement gets a unique ID (R001, R002, etc.)
 - **Line Number Tracking**: Maintains traceability to original file location
+- **Configurable Risk Detection**: 6 detector categories enabled via JSON rules
+- **Multi-format Reporting**: Markdown, CSV, JSON outputs
 - **Comment Filtering**: Automatically ignores lines starting with `#` or `//`
 - **Whitespace Handling**: Strips leading/trailing whitespace and filters empty lines
 - **Error Handling**: Comprehensive error messages for common issues
@@ -76,22 +98,22 @@ python main.py --file data/sample_requirements.md --verbose
 ### Design Patterns
 
 - **Data Classes**: Used `@dataclass` for clean, immutable data structures
-- **Factory Pattern**: Parser creates Requirement objects with consistent IDs
-- **Strategy Pattern**: Extensible file loading for different formats
+- **Factory Method**: Detector creation via `RiskDetectorFactory`
+- **Strategy + Template Method**: Extensible detection algorithms with shared workflow
 
 ## Testing
 
-Run the complete test suite:
+Run the project tests:
 
 ```bash
-python -m pytest tests/ -v
+python -m pytest -q tests
 ```
 
-All 24 tests pass, covering:
-- Requirement model validation
-- File loading with various scenarios
-- Parser functionality and ID generation
-- Error handling for edge cases
+All 31 tests pass, covering:
+- Requirement and risk models
+- File loading and parsing
+- Detectors (ambiguity, missing detail, security, conflict, performance, availability)
+- Reporting integration and end-to-end pipeline
 
 ## Sample Output
 
@@ -109,16 +131,14 @@ R003: Line 3
 ...
 ```
 
-## Next Steps (Week 2)
+## Documentation
 
-- Risk detection modules (ambiguity, availability, performance, security)
-- Configurable rules system (rules.json)
-- Basic severity scoring
-- Multi-format reporting (Markdown, CSV, JSON)
+- See `docs/HOWTO.md` for a step-by-step guide and examples.
+-
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.10+
 - pytest (for testing)
 
 ## Installation

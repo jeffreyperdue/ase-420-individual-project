@@ -96,8 +96,8 @@
       }
     },
     "performance": {
-      "enabled": false,
-      "severity": "medium",
+      "enabled": true,
+      "severity": "high",
       "description": "Detects missing performance requirements",
       "rules": {
         "missing_performance_specs": {
@@ -108,7 +108,7 @@
       }
     },
     "availability": {
-      "enabled": false,
+      "enabled": true,
       "severity": "medium",
       "description": "Detects missing availability requirements",
       "rules": {
