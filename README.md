@@ -134,7 +134,6 @@ R003: Line 3
 ## Documentation
 
 - See `docs/HOWTO.md` for a step-by-step guide and examples.
--
 
 ## Requirements
 
