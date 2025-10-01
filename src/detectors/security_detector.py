@@ -233,3 +233,4 @@ class SecurityDetector(BaseRiskDetector):
             RiskCategory enum value for security
         """
         return RiskCategory.SECURITY
+

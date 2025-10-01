@@ -207,3 +207,4 @@ class ConflictDetector(BaseRiskDetector):
             RiskCategory enum value for conflict
         """
         return RiskCategory.CONFLICT
+

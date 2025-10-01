@@ -175,3 +175,4 @@ class AmbiguityDetector(BaseRiskDetector):
             RiskCategory enum value for ambiguity
         """
         return RiskCategory.AMBIGUITY
+

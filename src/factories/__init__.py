@@ -14,3 +14,4 @@ from .detector_factory import RiskDetectorFactory
 
 # Define what gets imported when someone does "from src.factories import *"
 __all__ = ['RiskDetectorFactory']
+

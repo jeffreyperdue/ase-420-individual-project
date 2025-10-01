@@ -275,3 +275,4 @@ class BaseRiskDetector(RiskDetector):
     def get_category(self) -> RiskCategory:
         """Get risk category. Must be implemented by subclasses."""
         pass
+

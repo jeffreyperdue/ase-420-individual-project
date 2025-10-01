@@ -163,3 +163,4 @@ class Risk:
             True if severity is HIGH, CRITICAL, or BLOCKER
         """
         return self.severity.value >= SeverityLevel.HIGH.value
+

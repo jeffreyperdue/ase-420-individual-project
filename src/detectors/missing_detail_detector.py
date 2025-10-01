@@ -249,3 +249,4 @@ class MissingDetailDetector(BaseRiskDetector):
             RiskCategory enum value for missing detail
         """
         return RiskCategory.MISSING_DETAIL
+

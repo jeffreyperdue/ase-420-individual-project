@@ -215,3 +215,4 @@ class RiskDetectorFactory:
                 info[detector_type] = f"{detector_type} (error creating)"
         
         return info
+
