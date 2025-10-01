@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}StressSpec - Requirements Stress Tester{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Welcome Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4">StressSpec</h1>
+            <p class="lead">Requirements Stress Tester</p>
+            <p class="text-muted">
+                Analyze your requirement documents for hidden risks and issues before development begins.
+            </p>
+        </div>
+        
+        <!-- File Upload Section -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-upload"></i>
+                    Upload Requirements File
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="fileInput" class="form-label">Choose a requirements file</label>
+                        <input 
+                            type="file" 
+                            class="form-control" 
+                            id="fileInput" 
+                            name="file"
+                            accept=".txt,.md"
+                            required
+                        >
+                        <div class="form-text">
+                            Supported formats: .txt, .md (one requirement per line)
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-upload"></i>
+                            Upload & Analyze
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Upload Progress -->
+                <div id="uploadProgress" class="mt-3" style="display: none;">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <small class="text-muted">Uploading file...</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analysis Section -->
+        <div id="analysisSection" class="card shadow-sm mt-4" style="display: none;">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-search"></i>
+                    Analysis Progress
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="analysisProgress">
+                    <div class="progress mb-3">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div id="progressText" class="text-muted">Preparing analysis...</div>
+                </div>
+                
+                <div id="analysisResults" style="display: none;">
+                    <h6>Analysis Complete!</h6>
+                    <div id="resultsSummary" class="row">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-shield-check fs-4"></i>
+                    </div>
+                    <h5 class="mt-3">Risk Detection</h5>
+                    <p class="text-muted">
+                        Identifies ambiguity, security gaps, conflicts, and missing details in requirements.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-graph-up fs-4"></i>
+                    </div>
+                    <h5 class="mt-3">Real-time Analysis</h5>
+                    <p class="text-muted">
+                        Get instant feedback on your requirements with detailed risk analysis.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-file-earmark-text fs-4"></i>
+                    </div>
+                    <h5 class="mt-3">Multiple Formats</h5>
+                    <p class="text-muted">
+                        Export results in Markdown, CSV, JSON, or view interactive HTML reports.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sample Files Section -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-download"></i>
+                    Sample Files
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Try StressSpec with these sample requirement files:</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="/static/samples/sample_requirements.txt" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-download"></i>
+                            Sample Requirements (.txt)
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="/static/samples/sample_requirements.md" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-download"></i>
+                            Sample Requirements (.md)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// File upload handling
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Please select a file to upload');
+        return;
+    }
+    
+    // Show upload progress
+    document.getElementById('uploadProgress').style.display = 'block';
+    
+    try {
+        // Upload file
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const uploadResponse = await fetch('/api/upload/', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const uploadResult = await uploadResponse.json();
+        
+        if (uploadResult.success) {
+            // Start analysis
+            document.getElementById('analysisSection').style.display = 'block';
+            
+            const analysisResponse = await fetch('/api/analysis/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    file_id: uploadResult.file_id
+                })
+            });
+            
+            const analysisResult = await analysisResponse.json();
+            
+            if (analysisResult.success) {
+                // Poll for analysis status
+                pollAnalysisStatus(analysisResult.analysis_id);
+            }
+        } else {
+            alert('Upload failed: ' + uploadResult.message);
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('Upload failed: ' + error.message);
+    }
+});
+
+// Poll analysis status
+async function pollAnalysisStatus(analysisId) {
+    const maxAttempts = 60; // 5 minutes max
+    let attempts = 0;
+    
+    const poll = async () => {
+        try {
+            const response = await fetch(`/api/analysis/status/${analysisId}`);
+            const status = await response.json();
+            
+            // Update progress bar
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = status.progress + '%';
+            progressText.textContent = status.message;
+            
+            if (status.status === 'completed') {
+                // Analysis complete
+                document.getElementById('analysisResults').style.display = 'block';
+                displayResults(status.results);
+            } else if (status.status === 'error') {
+                alert('Analysis failed: ' + status.message);
+            } else if (attempts < maxAttempts) {
+                // Continue polling
+                attempts++;
+                setTimeout(poll, 5000); // Poll every 5 seconds
+            } else {
+                alert('Analysis timeout. Please try again.');
+            }
+        } catch (error) {
+            console.error('Status polling error:', error);
+            alert('Failed to check analysis status');
+        }
+    };
+    
+    poll();
+}
+
+// Display analysis results
+function displayResults(results) {
+    const summaryDiv = document.getElementById('resultsSummary');
+    
+    if (results && results.summary) {
+        const summary = results.summary;
+        
+        summaryDiv.innerHTML = `
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">${summary.total_requirements || 0}</h5>
+                        <p class="card-text">Requirements</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">${summary.total_risks || 0}</h5>
+                        <p class="card-text">Risks Found</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">${summary.requirements_with_risks || 0}</h5>
+                        <p class="card-text">With Risks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <a href="/api/reports/generate" class="btn btn-primary btn-sm">
+                            <i class="bi bi-download"></i>
+                            Download Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+</script>
+{% endblock %}

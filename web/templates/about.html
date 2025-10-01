@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}About StressSpec{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="text-center mb-5">
+            <h1 class="display-4">About StressSpec</h1>
+            <p class="lead">Requirements Stress Tester</p>
+        </div>
+        
+        <!-- What is StressSpec -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">What is StressSpec?</h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    StressSpec is a Python-based tool for analyzing requirement documents and detecting 
+                    potential risks and issues before development begins. It acts as a "wind tunnel" for 
+                    requirements, helping project managers, business analysts, and development teams 
+                    identify hidden risks early in the development process.
+                </p>
+                <p>
+                    Most software project failures stem from unclear, unrealistic, or incomplete 
+                    requirements. Studies show that fixing requirement defects late can cost 5–10x more, 
+                    and around 37% of enterprise project failures are linked to poor requirements.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Features -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Key Features</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-shield-check text-primary"></i> Risk Detection</h6>
+                        <ul class="list-unstyled">
+                            <li>• Ambiguity detection</li>
+                            <li>• Security gap identification</li>
+                            <li>• Conflict detection</li>
+                            <li>• Missing detail analysis</li>
+                            <li>• Performance requirements</li>
+                            <li>• Availability specifications</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-gear text-success"></i> Analysis Features</h6>
+                        <ul class="list-unstyled">
+                            <li>• Real-time processing</li>
+                            <li>• Severity scoring</li>
+                            <li>• Configurable rules</li>
+                            <li>• Multiple output formats</li>
+                            <li>• Interactive reports</li>
+                            <li>• Web-based interface</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How it Works -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">How It Works</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <span class="fw-bold">1</span>
+                        </div>
+                        <h6>Upload</h6>
+                        <p class="text-muted small">Upload your requirements file (.txt or .md)</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <span class="fw-bold">2</span>
+                        </div>
+                        <h6>Analyze</h6>
+                        <p class="text-muted small">Our detectors analyze each requirement</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <span class="fw-bold">3</span>
+                        </div>
+                        <h6>Report</h6>
+                        <p class="text-muted small">Get detailed risk analysis and recommendations</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <span class="fw-bold">4</span>
+                        </div>
+                        <h6>Export</h6>
+                        <p class="text-muted small">Download reports in multiple formats</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technology Stack -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Technology Stack</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Backend</h6>
+                        <ul class="list-unstyled">
+                            <li>• <strong>Python 3.8+</strong> - Core language</li>
+                            <li>• <strong>FastAPI</strong> - Modern web framework</li>
+                            <li>• <strong>Uvicorn</strong> - ASGI server</li>
+                            <li>• <strong>Jinja2</strong> - Template engine</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Frontend</h6>
+                        <ul class="list-unstyled">
+                            <li>• <strong>HTMX</strong> - Dynamic interactions</li>
+                            <li>• <strong>Bootstrap 5</strong> - Responsive design</li>
+                            <li>• <strong>JavaScript</strong> - Client-side logic</li>
+                            <li>• <strong>CSS3</strong> - Styling and animations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Documentation -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">API Documentation</h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    StressSpec provides a RESTful API for programmatic access to all functionality.
+                    The API is fully documented with interactive examples.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="/api/docs" class="btn btn-primary">
+                        <i class="bi bi-book"></i>
+                        View API Documentation
+                    </a>
+                    <a href="/api/redoc" class="btn btn-outline-primary">
+                        <i class="bi bi-file-text"></i>
+                        Alternative Documentation
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Getting Started -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Getting Started</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li><strong>Upload a file:</strong> Choose a .txt or .md file with your requirements</li>
+                    <li><strong>Start analysis:</strong> Click "Upload & Analyze" to begin processing</li>
+                    <li><strong>Review results:</strong> Examine the risk analysis and recommendations</li>
+                    <li><strong>Export reports:</strong> Download results in your preferred format</li>
+                </ol>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Tip:</strong> Try the sample files to see StressSpec in action!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
