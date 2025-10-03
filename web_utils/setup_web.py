@@ -73,8 +73,9 @@ def download_htmx():
 
 def create_env_file():
     """Create .env file from template if it doesn't exist."""
-    env_file = Path(".env")
-    env_example = Path("env.example")
+    project_root = Path(__file__).parent.parent
+    env_file = project_root / ".env"
+    env_example = project_root / "env.example"
     
     if not env_file.exists() and env_example.exists():
         print("[INFO] Creating .env file from template...")
@@ -101,7 +102,7 @@ def verify_setup():
     
     all_good = True
     for file_path in key_files:
-        if Path(file_path).exists():
+        if (project_root / file_path).exists():
             print(f"  [SUCCESS] {file_path}")
         else:
             print(f"  [ERROR] {file_path} (missing)")

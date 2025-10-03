@@ -22,14 +22,15 @@ def main():
     print("Starting StressSpec Web UI Development Server")
     print("=" * 50)
     
-    # Check if we're in the right directory
-    if not Path("requirements.txt").exists():
+    # Check if we're in the right directory (now in web_utils subdirectory)
+    project_root = Path(__file__).parent.parent
+    if not (project_root / "requirements.txt").exists():
         print("[ERROR] requirements.txt not found")
         print("Please run this script from the project root directory")
         sys.exit(1)
     
     # Check if web directory exists
-    if not Path("web").exists():
+    if not (project_root / "web").exists():
         print("[ERROR] web directory not found")
         print("Please run setup_web.py first to create the web structure")
         sys.exit(1)
@@ -48,6 +49,10 @@ def main():
     print("Server will be available at: http://127.0.0.1:8000")
     print("Press Ctrl+C to stop the server")
     print()
+    
+    # Change to project root directory and add to Python path
+    os.chdir(project_root)
+    sys.path.insert(0, str(project_root))
     
     try:
         # Start the server

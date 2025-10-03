@@ -24,6 +24,15 @@ StressSpec acts as a "wind tunnel" for requirements, helping project managers, b
 StressSpec/
 ├── main.py                        # CLI entry point
 ├── requirements.txt               # Dependencies
+├── web_utils/                     # Web interface utilities
+│   ├── run_web.py                 # Development server
+│   ├── setup_web.py               # Web setup script
+│   ├── WEB_SETUP.md               # Web setup guide
+│   └── QUICK_START.md             # Web quick start
+├── web/                           # Web application
+│   ├── main.py                    # FastAPI web server
+│   ├── static/                    # CSS, JS, images
+│   └── templates/                 # HTML templates
 ├── src/
 │   ├── file_loader.py             # File loading and processing
 │   ├── requirement_parser.py      # Requirement parsing logic
@@ -60,7 +69,7 @@ StressSpec/
 
 ## Usage
 
-### Basic Usage
+### CLI Usage
 
 ```bash
 # Parse a requirements file and generate Markdown report
@@ -70,6 +79,17 @@ python main.py --file data/sample_requirements.txt --report-format md --verbose
 python main.py --file data/sample_requirements.txt --report-format csv --output report.csv
 python main.py --file data/sample_requirements.txt --report-format json --output report.json
 ```
+
+### Web Interface Usage
+
+```bash
+# Start the web development server
+python web_utils/run_web.py
+
+# Then visit http://127.0.0.1:8000 in your browser
+```
+
+For detailed web setup instructions, see `web_utils/WEB_SETUP.md` and `web_utils/QUICK_START.md`.
 
 ### Supported File Formats
 
