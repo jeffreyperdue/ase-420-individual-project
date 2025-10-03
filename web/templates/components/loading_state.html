@@ -1,0 +1,403 @@
+<!--
+Loading State Component for StressSpec Web UI
+
+This component provides consistent loading indicators and states
+throughout the web application.
+
+BEGINNER NOTES:
+- This component shows loading states while operations are in progress
+- It provides visual feedback to users about what's happening
+- It helps maintain a good user experience during async operations
+-->
+
+<div class="loading-state" id="loading-{{ loading_id or 'default' }}" style="display: none;">
+    <div class="loading-content">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        
+        <div class="loading-text">
+            <h4 class="loading-title">
+                {% if loading_title %}{{ loading_title }}{% else %}Loading...{% endif %}
+            </h4>
+            
+            <p class="loading-message">
+                {% if loading_message %}{{ loading_message }}{% else %}
+                Please wait while we process your request.
+                {% endif %}
+            </p>
+            
+            {% if show_progress %}
+            <div class="loading-progress">
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" 
+                         style="width: 0%" 
+                         id="progress-bar-{{ loading_id or 'default' }}"
+                         aria-valuenow="0" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <small class="text-muted mt-1" id="progress-text-{{ loading_id or 'default' }}">
+                    0%
+                </small>
+            </div>
+            {% endif %}
+            
+            {% if show_steps %}
+            <div class="loading-steps">
+                <div class="step" id="step-1-{{ loading_id or 'default' }}">
+                    <i class="bi bi-circle"></i>
+                    <span>Initializing</span>
+                </div>
+                <div class="step" id="step-2-{{ loading_id or 'default' }}">
+                    <i class="bi bi-circle"></i>
+                    <span>Processing</span>
+                </div>
+                <div class="step" id="step-3-{{ loading_id or 'default' }}">
+                    <i class="bi bi-circle"></i>
+                    <span>Finalizing</span>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if allow_cancel %}
+            <div class="loading-actions mt-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="cancelOperation('{{ loading_id or 'default' }}')">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay for full page -->
+<div class="loading-overlay" id="loading-overlay-{{ loading_id or 'default' }}" style="display: none;">
+    <div class="loading-overlay-content">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        
+        <h4 class="text-primary">
+            {% if loading_title %}{{ loading_title }}{% else %}Loading...{% endif %}
+        </h4>
+        
+        <p class="text-muted">
+            {% if loading_message %}{{ loading_message }}{% else %}
+            Please wait while we process your request.
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<script>
+// Loading state JavaScript functionality
+window.LoadingState = {
+    // Show loading state
+    show: function(loadingId, options = {}) {
+        const loadingEl = document.getElementById(`loading-${loadingId}`);
+        const overlayEl = document.getElementById(`loading-overlay-${loadingId}`);
+        
+        if (loadingEl) {
+            // Update content if provided
+            if (options.title) {
+                const titleEl = loadingEl.querySelector('.loading-title');
+                if (titleEl) titleEl.textContent = options.title;
+            }
+            
+            if (options.message) {
+                const messageEl = loadingEl.querySelector('.loading-message');
+                if (messageEl) messageEl.textContent = options.message;
+            }
+            
+            // Show loading state
+            loadingEl.style.display = 'block';
+            
+            // Hide parent content if specified
+            if (options.hideParent) {
+                const parent = loadingEl.parentElement;
+                const siblings = Array.from(parent.children).filter(child => child !== loadingEl);
+                siblings.forEach(sibling => sibling.style.display = 'none');
+            }
+        }
+        
+        // Show overlay if specified
+        if (options.overlay && overlayEl) {
+            overlayEl.style.display = 'flex';
+        }
+        
+        // Store loading state info
+        window[`loading_${loadingId}`] = {
+            startTime: Date.now(),
+            options: options
+        };
+    },
+    
+    // Hide loading state
+    hide: function(loadingId) {
+        const loadingEl = document.getElementById(`loading-${loadingId}`);
+        const overlayEl = document.getElementById(`loading-overlay-${loadingId}`);
+        
+        if (loadingEl) {
+            loadingEl.style.display = 'none';
+            
+            // Show parent content if it was hidden
+            const parent = loadingEl.parentElement;
+            const siblings = Array.from(parent.children).filter(child => child !== loadingEl);
+            siblings.forEach(sibling => sibling.style.display = '');
+        }
+        
+        if (overlayEl) {
+            overlayEl.style.display = 'none';
+        }
+        
+        // Clear loading state info
+        delete window[`loading_${loadingId}`];
+    },
+    
+    // Update progress
+    updateProgress: function(loadingId, progress, message = null) {
+        const progressBar = document.getElementById(`progress-bar-${loadingId}`);
+        const progressText = document.getElementById(`progress-text-${loadingId}`);
+        
+        if (progressBar) {
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', progress);
+        }
+        
+        if (progressText) {
+            progressText.textContent = message || `${Math.round(progress)}%`;
+        }
+    },
+    
+    // Update step
+    updateStep: function(loadingId, stepNumber, status = 'active') {
+        const stepEl = document.getElementById(`step-${stepNumber}-${loadingId}`);
+        
+        if (stepEl) {
+            const icon = stepEl.querySelector('i');
+            
+            // Remove existing classes
+            icon.classList.remove('bi-circle', 'bi-check-circle', 'bi-exclamation-circle', 'text-primary', 'text-success', 'text-danger');
+            
+            // Add appropriate class based on status
+            switch (status) {
+                case 'active':
+                    icon.classList.add('bi-circle', 'text-primary');
+                    break;
+                case 'completed':
+                    icon.classList.add('bi-check-circle', 'text-success');
+                    break;
+                case 'error':
+                    icon.classList.add('bi-exclamation-circle', 'text-danger');
+                    break;
+                default:
+                    icon.classList.add('bi-circle');
+            }
+        }
+    },
+    
+    // Register cancel function
+    registerCancelFunction: function(loadingId, cancelFunction) {
+        window[`cancelOperation_${loadingId}`] = cancelFunction;
+    }
+};
+
+// Global cancel operation function
+function cancelOperation(loadingId) {
+    // Check if a specific cancel function is registered
+    const specificCancel = window[`cancelOperation_${loadingId}`];
+    if (specificCancel && typeof specificCancel === 'function') {
+        specificCancel();
+        return;
+    }
+    
+    // Default cancel behavior
+    console.log(`Cancelling operation for loading state: ${loadingId}`);
+    
+    // Hide loading state
+    window.LoadingState.hide(loadingId);
+    
+    // Show error boundary or notification
+    if (window.ErrorBoundary) {
+        window.ErrorBoundary.show(loadingId, {
+            title: 'Operation Cancelled',
+            message: 'The operation was cancelled by the user.',
+            hideParent: false
+        });
+    }
+}
+
+// Utility functions for common loading patterns
+window.LoadingUtils = {
+    // Show loading with automatic timeout
+    showWithTimeout: function(loadingId, timeoutMs = 30000, options = {}) {
+        window.LoadingState.show(loadingId, options);
+        
+        // Set timeout to hide loading state
+        setTimeout(() => {
+            if (window[`loading_${loadingId}`]) {
+                window.LoadingState.hide(loadingId);
+                
+                if (window.ErrorBoundary) {
+                    window.ErrorBoundary.show(loadingId, {
+                        title: 'Operation Timeout',
+                        message: 'The operation took longer than expected. Please try again.',
+                        hideParent: false
+                    });
+                }
+            }
+        }, timeoutMs);
+    },
+    
+    // Show loading with progress simulation
+    showWithProgress: function(loadingId, options = {}) {
+        window.LoadingState.show(loadingId, { ...options, show_progress: true });
+        
+        // Simulate progress
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 10;
+            
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+            }
+            
+            window.LoadingState.updateProgress(loadingId, progress);
+        }, 200);
+        
+        // Store interval for cleanup
+        window[`progress_interval_${loadingId}`] = interval;
+    },
+    
+    // Show loading with steps
+    showWithSteps: function(loadingId, options = {}) {
+        window.LoadingState.show(loadingId, { ...options, show_steps: true });
+        
+        // Simulate step progression
+        let currentStep = 1;
+        const stepInterval = setInterval(() => {
+            if (currentStep <= 3) {
+                window.LoadingState.updateStep(loadingId, currentStep, 'active');
+                currentStep++;
+            } else {
+                clearInterval(stepInterval);
+            }
+        }, 1000);
+        
+        // Store interval for cleanup
+        window[`step_interval_${loadingId}`] = stepInterval;
+    }
+};
+</script>
+
+<style>
+/* Loading state styles */
+.loading-state {
+    padding: 2rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.loading-text {
+    max-width: 400px;
+}
+
+.loading-title {
+    color: var(--bs-primary);
+    margin-bottom: 0.5rem;
+}
+
+.loading-message {
+    color: var(--bs-secondary);
+    margin-bottom: 0;
+}
+
+.loading-progress {
+    width: 100%;
+    max-width: 300px;
+}
+
+.loading-steps {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 1rem;
+}
+
+.loading-steps .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+}
+
+.loading-steps .step i {
+    font-size: 1.25rem;
+}
+
+/* Loading overlay styles */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+}
+
+.loading-overlay-content {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    max-width: 400px;
+    width: 90%;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .loading-state {
+        background: rgba(33, 37, 41, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .loading-overlay-content {
+        background: rgba(33, 37, 41, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}
+</style>

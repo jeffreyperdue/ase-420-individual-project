@@ -1,0 +1,71 @@
+# Sample Requirements Document for Testing
+
+## Functional Requirements
+
+REQ-001: The system must allow users to login with username and password
+REQ-002: The system should validate user credentials against the database
+REQ-003: The system must display an error message for invalid credentials
+REQ-004: The system should redirect users to the dashboard after successful login
+
+## Non-Functional Requirements
+
+REQ-005: The system must respond to user requests within 2 seconds
+REQ-006: The system should support up to 1000 concurrent users
+REQ-007: The system must be available 99.9% of the time
+REQ-008: The system should encrypt all user data
+
+## Business Requirements
+
+REQ-009: The system must comply with GDPR regulations
+REQ-010: The system should generate monthly reports
+REQ-011: The system must integrate with existing CRM system
+REQ-012: The system should support multiple languages
+
+## Technical Requirements
+
+REQ-013: The system must use HTTPS for all communications
+REQ-014: The system should be deployed on cloud infrastructure
+REQ-015: The system must have automated backup procedures
+REQ-016: The system should use microservices architecture
+
+## User Interface Requirements
+
+REQ-017: The system must have a responsive web interface
+REQ-018: The system should support keyboard navigation
+REQ-019: The system must be accessible to users with disabilities
+REQ-020: The system should provide help documentation
+
+## Security Requirements
+
+REQ-021: The system must implement role-based access control
+REQ-022: The system should log all user activities
+REQ-023: The system must prevent SQL injection attacks
+REQ-024: The system should use secure authentication protocols
+
+## Performance Requirements
+
+REQ-025: The system must handle 10,000 requests per minute
+REQ-026: The system should have a maximum response time of 500ms
+REQ-027: The system must support horizontal scaling
+REQ-028: The system should cache frequently accessed data
+
+## Integration Requirements
+
+REQ-029: The system must integrate with payment gateway
+REQ-030: The system should support REST API endpoints
+REQ-031: The system must work with existing LDAP directory
+REQ-032: The system should support webhook notifications
+
+## Data Requirements
+
+REQ-033: The system must store user data in encrypted format
+REQ-034: The system should maintain data integrity
+REQ-035: The system must support data export functionality
+REQ-036: The system should implement data retention policies
+
+## Compliance Requirements
+
+REQ-037: The system must comply with SOX regulations
+REQ-038: The system should maintain audit trails
+REQ-039: The system must support data privacy controls
+REQ-040: The system should implement access logging

@@ -1,0 +1,255 @@
+<!--
+Error Boundary Component for StressSpec Web UI
+
+This component provides graceful error handling and recovery options
+for various error states in the web application.
+
+BEGINNER NOTES:
+- This component handles errors gracefully without breaking the entire page
+- It provides user-friendly error messages and recovery options
+- It helps maintain a good user experience even when errors occur
+-->
+
+<div class="error-boundary" id="error-boundary-{{ error_id or 'default' }}" style="display: none;">
+    <div class="error-content">
+        <div class="error-icon">
+            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+        </div>
+        
+        <h3 class="error-title">
+            {% if error_title %}{{ error_title }}{% else %}Something went wrong{% endif %}
+        </h3>
+        
+        <p class="error-message">
+            {% if error_message %}{{ error_message }}{% else %}
+            An unexpected error occurred. Don't worry, your data is safe.
+            {% endif %}
+        </p>
+        
+        {% if error_code %}
+        <div class="error-code">
+            <small class="text-muted">Error Code: {{ error_code }}</small>
+        </div>
+        {% endif %}
+        
+        <div class="error-actions">
+            <button type="button" class="btn btn-primary" onclick="retryOperation('{{ error_id or 'default' }}')">
+                <i class="bi bi-arrow-clockwise"></i> Try Again
+            </button>
+            
+            <button type="button" class="btn btn-outline-secondary" onclick="reportError('{{ error_id or 'default' }}')">
+                <i class="bi bi-bug"></i> Report Issue
+            </button>
+            
+            <button type="button" class="btn btn-outline-secondary" onclick="goHome()">
+                <i class="bi bi-house"></i> Go Home
+            </button>
+        </div>
+        
+        {% if show_details and error_details %}
+        <div class="error-details mt-3">
+            <details>
+                <summary class="btn btn-sm btn-outline-info">
+                    <i class="bi bi-info-circle"></i> Technical Details
+                </summary>
+                <div class="error-details-content mt-2">
+                    <pre><code>{{ error_details }}</code></pre>
+                </div>
+            </details>
+        </div>
+        {% endif %}
+        
+        <div class="error-help mt-3">
+            <small class="text-muted">
+                <i class="bi bi-lightbulb"></i>
+                <strong>Need help?</strong> 
+                {% if help_url %}
+                <a href="{{ help_url }}" target="_blank">Check our help documentation</a>
+                {% else %}
+                Try refreshing the page or contact support if the problem persists.
+                {% endif %}
+            </small>
+        </div>
+    </div>
+</div>
+
+<script>
+// Error boundary JavaScript functionality
+window.ErrorBoundary = {
+    // Show error boundary
+    show: function(errorId, options = {}) {
+        const errorBoundary = document.getElementById(`error-boundary-${errorId}`);
+        if (errorBoundary) {
+            // Update content if provided
+            if (options.title) {
+                const titleEl = errorBoundary.querySelector('.error-title');
+                if (titleEl) titleEl.textContent = options.title;
+            }
+            
+            if (options.message) {
+                const messageEl = errorBoundary.querySelector('.error-message');
+                if (messageEl) messageEl.textContent = options.message;
+            }
+            
+            if (options.code) {
+                const codeEl = errorBoundary.querySelector('.error-code small');
+                if (codeEl) codeEl.textContent = `Error Code: ${options.code}`;
+            }
+            
+            // Show the error boundary
+            errorBoundary.style.display = 'block';
+            
+            // Hide parent content if specified
+            if (options.hideParent) {
+                const parent = errorBoundary.parentElement;
+                const siblings = Array.from(parent.children).filter(child => child !== errorBoundary);
+                siblings.forEach(sibling => sibling.style.display = 'none');
+            }
+            
+            // Log error for debugging
+            console.error('Error boundary triggered:', {
+                errorId: errorId,
+                options: options,
+                timestamp: new Date().toISOString()
+            });
+        }
+    },
+    
+    // Hide error boundary
+    hide: function(errorId) {
+        const errorBoundary = document.getElementById(`error-boundary-${errorId}`);
+        if (errorBoundary) {
+            errorBoundary.style.display = 'none';
+            
+            // Show parent content if it was hidden
+            const parent = errorBoundary.parentElement;
+            const siblings = Array.from(parent.children).filter(child => child !== errorBoundary);
+            siblings.forEach(sibling => sibling.style.display = '');
+        }
+    },
+    
+    // Register retry function for an error boundary
+    registerRetryFunction: function(errorId, retryFunction) {
+        window[`retryOperation_${errorId}`] = retryFunction;
+    }
+};
+
+// Global retry operation function
+function retryOperation(errorId) {
+    // Check if a specific retry function is registered
+    const specificRetry = window[`retryOperation_${errorId}`];
+    if (specificRetry && typeof specificRetry === 'function') {
+        specificRetry();
+        return;
+    }
+    
+    // Default retry behavior
+    console.log(`Retrying operation for error boundary: ${errorId}`);
+    
+    // Hide error boundary
+    window.ErrorBoundary.hide(errorId);
+    
+    // Show loading state
+    const parent = document.getElementById(`error-boundary-${errorId}`).parentElement;
+    const loadingEl = parent.querySelector('.loading-state');
+    if (loadingEl) {
+        loadingEl.style.display = 'block';
+    }
+    
+    // Reload the page after a short delay
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+}
+
+// Report error function
+function reportError(errorId) {
+    // Collect error information
+    const errorBoundary = document.getElementById(`error-boundary-${errorId}`);
+    const errorInfo = {
+        errorId: errorId,
+        timestamp: new Date().toISOString(),
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        title: errorBoundary?.querySelector('.error-title')?.textContent,
+        message: errorBoundary?.querySelector('.error-message')?.textContent,
+        code: errorBoundary?.querySelector('.error-code small')?.textContent
+    };
+    
+    // Show error reporting modal or redirect to support
+    if (window.StressSpec && window.StressSpec.showErrorReportModal) {
+        window.StressSpec.showErrorReportModal(errorInfo);
+    } else {
+        // Fallback: copy error info to clipboard
+        navigator.clipboard.writeText(JSON.stringify(errorInfo, null, 2)).then(() => {
+            Utils.showNotification({
+                type: 'info',
+                title: 'Error Information Copied',
+                message: 'Error details have been copied to your clipboard. Please paste them in your support request.',
+                duration: 5000
+            });
+        }).catch(() => {
+            // Fallback: show error info in alert
+            alert('Error Information:\n\n' + JSON.stringify(errorInfo, null, 2));
+        });
+    }
+}
+
+// Go home function
+function goHome() {
+    window.location.href = '/';
+}
+
+// Auto-retry functionality
+function setupAutoRetry(errorId, maxRetries = 3, delay = 5000) {
+    let retryCount = 0;
+    
+    const autoRetry = () => {
+        if (retryCount < maxRetries) {
+            retryCount++;
+            console.log(`Auto-retry ${retryCount}/${maxRetries} for error boundary: ${errorId}`);
+            
+            setTimeout(() => {
+                retryOperation(errorId);
+            }, delay);
+        }
+    };
+    
+    // Store auto-retry function
+    window[`autoRetry_${errorId}`] = autoRetry;
+    
+    // Start auto-retry
+    autoRetry();
+}
+
+// Error boundary initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up global error handling
+    window.addEventListener('error', function(event) {
+        console.error('Global error caught:', event.error);
+        
+        // Show error boundary for unhandled errors
+        if (window.ErrorBoundary) {
+            window.ErrorBoundary.show('global', {
+                title: 'Unexpected Error',
+                message: 'An unexpected error occurred. The page may not function correctly.',
+                hideParent: false
+            });
+        }
+    });
+    
+    // Set up unhandled promise rejection handling
+    window.addEventListener('unhandledrejection', function(event) {
+        console.error('Unhandled promise rejection:', event.reason);
+        
+        // Show error boundary for unhandled promise rejections
+        if (window.ErrorBoundary) {
+            window.ErrorBoundary.show('global', {
+                title: 'Network Error',
+                message: 'A network request failed. Please check your connection and try again.',
+                hideParent: false
+            });
+        }
+    });
+});
+</script>
