@@ -252,10 +252,18 @@ async def get_analysis_status(analysis_id: str):
     - It returns the current status and progress
     - Useful for showing progress bars in the web interface
     """
-    if analysis_id not in analysis_status:
-        raise HTTPException(status_code=404, detail="Analysis not found")
-    
-    return analysis_status[analysis_id]
+    try:
+        if analysis_id not in analysis_status:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        
+        return analysis_status[analysis_id]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get analysis status: {str(e)}"
+        )
 
 @router.get("/results/{analysis_id}", response_model=AnalysisResults)
 async def get_analysis_results(analysis_id: str):
@@ -267,10 +275,18 @@ async def get_analysis_results(analysis_id: str):
     - Only works for completed analyses
     - Returns all requirements and their associated risks
     """
-    if analysis_id not in analysis_results:
-        raise HTTPException(status_code=404, detail="Analysis results not found")
-    
-    return analysis_results[analysis_id]
+    try:
+        if analysis_id not in analysis_results:
+            raise HTTPException(status_code=404, detail="Analysis results not found")
+        
+        return analysis_results[analysis_id]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get analysis results: {str(e)}"
+        )
 
 @router.get("/list")
 async def list_analyses():

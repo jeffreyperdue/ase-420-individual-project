@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - StressSpec{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mx-auto text-center">
+        <div class="error-page">
+            <h1 class="display-1 text-primary">404</h1>
+            <h2 class="mb-4">Page Not Found</h2>
+            <p class="lead text-muted mb-4">
+                The page you're looking for doesn't exist or has been moved.
+            </p>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i class="bi bi-house"></i> Go Home
+                </a>
+                <a href="/about" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-info-circle"></i> About StressSpec
+                </a>
+            </div>
+            
+            <div class="mt-5">
+                <h5>Popular Pages</h5>
+                <div class="list-group list-group-flush">
+                    <a href="/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-house"></i> Home - Upload and analyze requirements
+                    </a>
+                    <a href="/about" class="list-group-item list-group-item-action">
+                        <i class="bi bi-info-circle"></i> About - Learn about StressSpec
+                    </a>
+                    <a href="/api/docs" class="list-group-item list-group-item-action">
+                        <i class="bi bi-book"></i> API Documentation
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

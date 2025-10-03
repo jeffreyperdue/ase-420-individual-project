@@ -84,9 +84,9 @@
         
         <!-- Features Section -->
         <div class="row mt-5">
-            <div class="col-md-4">
+            <div class="col-md-4 mb-4">
                 <div class="text-center">
-                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center feature-icon">
                         <i class="bi bi-shield-check fs-4"></i>
                     </div>
                     <h5 class="mt-3">Risk Detection</h5>
@@ -95,9 +95,9 @@
                     </p>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 mb-4">
                 <div class="text-center">
-                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center feature-icon">
                         <i class="bi bi-graph-up fs-4"></i>
                     </div>
                     <h5 class="mt-3">Real-time Analysis</h5>
@@ -106,9 +106,9 @@
                     </p>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 mb-4">
                 <div class="text-center">
-                    <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center feature-icon">
                         <i class="bi bi-file-earmark-text fs-4"></i>
                     </div>
                     <h5 class="mt-3">Multiple Formats</h5>
@@ -225,9 +225,8 @@ async function pollAnalysisStatus(analysisId) {
             progressText.textContent = status.message;
             
             if (status.status === 'completed') {
-                // Analysis complete
-                document.getElementById('analysisResults').style.display = 'block';
-                displayResults(status.results);
+                // Analysis complete - redirect to results page
+                window.location.href = `/results/${analysisId}`;
             } else if (status.status === 'error') {
                 alert('Analysis failed: ' + status.message);
             } else if (attempts < maxAttempts) {

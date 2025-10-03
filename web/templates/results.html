@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - StressSpec{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Results Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="display-6">Analysis Results</h1>
+                <p class="text-muted">Risk analysis for uploaded requirements</p>
+            </div>
+            <div>
+                <button class="btn btn-outline-primary" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Print
+                </button>
+                <a href="/" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> New Analysis
+                </a>
+            </div>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">{{ summary.total_requirements }}</h5>
+                        <p class="card-text">Total Requirements</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-warning">{{ summary.total_risks }}</h5>
+                        <p class="card-text">Risks Found</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-danger">{{ summary.requirements_with_risks }}</h5>
+                        <p class="card-text">Requirements with Risks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">{{ summary.total_requirements - summary.requirements_with_risks }}</h5>
+                        <p class="card-text">Risk-Free Requirements</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Risk Categories -->
+        {% if summary.risk_categories %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart"></i>
+                    Risk Categories
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for category, count in summary.risk_categories.items() %}
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-secondary">{{ category|title }}</span>
+                            <span class="fw-bold">{{ count }} risks</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Requirements and Risks -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-check"></i>
+                    Detailed Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for requirement in requirements %}
+                <div class="requirement-item mb-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="mb-0">
+                            <span class="badge bg-primary me-2">{{ requirement.id }}</span>
+                            {{ requirement.text }}
+                        </h6>
+                        <small class="text-muted">Line {{ requirement.line_number }}</small>
+                    </div>
+                    
+                    {% set req_risks = risks_by_requirement.get(requirement.id, []) %}
+                    {% if req_risks %}
+                        <div class="risks-container">
+                            {% for risk in req_risks %}
+                            <div class="risk risk-{{ risk.severity }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="badge bg-{{ 'danger' if risk.severity == 'critical' else 'warning' if risk.severity == 'high' else 'info' if risk.severity == 'medium' else 'success' }}">
+                                            {{ risk.severity|title }}
+                                        </span>
+                                        <strong>{{ risk.category|title }}</strong>
+                                    </div>
+                                </div>
+                                <p class="mb-1 mt-2">{{ risk.description }}</p>
+                                {% if risk.evidence %}
+                                <small class="text-muted">
+                                    <i class="bi bi-quote"></i> {{ risk.evidence }}
+                                </small>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success alert-sm">
+                            <i class="bi bi-check-circle"></i> No risks detected
+                        </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Export Options -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-download"></i>
+                    Export Results
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="/api/reports/generate?format=html" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-file-earmark-text"></i> HTML Report
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/api/reports/generate?format=markdown" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-markdown"></i> Markdown
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/api/reports/generate?format=csv" class="btn btn-outline-success w-100">
+                            <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/api/reports/generate?format=json" class="btn btn-outline-info w-100">
+                            <i class="bi bi-file-earmark-code"></i> JSON
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+});
+
+// Print styles
+window.addEventListener('beforeprint', function() {
+    document.body.classList.add('printing');
+});
+
+window.addEventListener('afterprint', function() {
+    document.body.classList.remove('printing');
+});
+</script>
+
+<style>
+@media print {
+    .btn, .navbar, .footer {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .risk {
+        border: 1px solid #ccc !important;
+        margin: 5px 0 !important;
+    }
+}
+</style>
+{% endblock %}

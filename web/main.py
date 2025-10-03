@@ -115,6 +115,34 @@ async def about(request: Request):
         "title": "About StressSpec"
     })
 
+@app.get("/results/{analysis_id}", response_class=HTMLResponse)
+async def results_page(request: Request, analysis_id: str):
+    """
+    Results page for displaying analysis results.
+    
+    BEGINNER NOTES:
+    - This displays the results of a completed analysis
+    - Shows requirements, risks, and summary statistics
+    - Provides export options for the results
+    """
+    # Import analysis results (in production, this would come from a database)
+    from web.api.analysis import analysis_results
+    
+    if analysis_id not in analysis_results:
+        raise HTTPException(status_code=404, detail="Analysis results not found")
+    
+    results = analysis_results[analysis_id]
+    
+    return templates.TemplateResponse("results.html", {
+        "request": request,
+        "title": "Analysis Results",
+        "analysis_id": analysis_id,
+        "requirements": results.requirements,
+        "risks_by_requirement": results.risks_by_requirement,
+        "summary": results.summary,
+        "completed_at": results.completed_at
+    })
+
 # Error handlers
 @app.exception_handler(404)
 async def not_found_handler(request: Request, exc: HTTPException):

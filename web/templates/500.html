@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - StressSpec{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mx-auto text-center">
+        <div class="error-page">
+            <h1 class="display-1 text-danger">500</h1>
+            <h2 class="mb-4">Internal Server Error</h2>
+            <p class="lead text-muted mb-4">
+                Something went wrong on our end. We're working to fix this issue.
+            </p>
+            
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>What happened?</strong><br>
+                The server encountered an unexpected error while processing your request.
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i class="bi bi-house"></i> Go Home
+                </a>
+                <button onclick="window.location.reload()" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-arrow-clockwise"></i> Try Again
+                </button>
+            </div>
+            
+            <div class="mt-5">
+                <h5>Need Help?</h5>
+                <p class="text-muted">
+                    If this problem persists, please check our documentation or contact support.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="/about" class="btn btn-outline-secondary">
+                        <i class="bi bi-info-circle"></i> About StressSpec
+                    </a>
+                    <a href="/api/docs" class="btn btn-outline-secondary">
+                        <i class="bi bi-book"></i> API Documentation
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

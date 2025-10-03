@@ -1,0 +1,5 @@
+The system shall process user requests within 2 seconds.
+The system shall handle 1000 concurrent users.
+The system shall be available 99.9% of the time.
+The system shall support multiple languages.
+The system shall be secure and encrypted.

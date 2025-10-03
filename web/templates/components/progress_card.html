@@ -1,0 +1,26 @@
+<!-- Progress Card Component -->
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-{{ card_icon }}"></i>
+            {{ card_title }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="progress mb-3">
+            <div class="progress-bar" role="progressbar" style="width: {{ progress }}%"></div>
+        </div>
+        <div class="text-muted">{{ progress_text }}</div>
+        
+        {% if show_details %}
+        <div class="mt-3">
+            <small class="text-muted">
+                <i class="bi bi-clock"></i> {{ elapsed_time }} elapsed
+                {% if estimated_time %}
+                | <i class="bi bi-hourglass-split"></i> {{ estimated_time }} remaining
+                {% endif %}
+            </small>
+        </div>
+        {% endif %}
+    </div>
+</div>
