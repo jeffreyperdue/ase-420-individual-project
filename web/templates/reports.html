@@ -1,0 +1,2737 @@
+{% extends "base.html" %}
+
+{% block title %}Reports Dashboard - StressSpec{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Reports Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="display-6">Reports Dashboard</h1>
+                <p class="text-muted">Manage and view your analysis reports</p>
+            </div>
+            <div>
+                <button class="btn btn-outline-primary me-2" onclick="refreshReports()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+                <button class="btn btn-primary me-2" onclick="showGenerateReportModal()">
+                    <i class="bi bi-plus-circle"></i> Generate Report
+                </button>
+                <button class="btn btn-outline-secondary me-2" onclick="showCompareReportsModal()">
+                    <i class="bi bi-arrow-left-right"></i> Compare
+                </button>
+                <button class="btn btn-outline-success" onclick="showBulkExportModal()">
+                    <i class="bi bi-download"></i> Bulk Export
+                </button>
+                <button class="btn btn-outline-info" onclick="showAnalyticsModal()">
+                    <i class="bi bi-graph-up"></i> Analytics
+                </button>
+                <button class="btn btn-outline-warning" onclick="showSchedulingModal()">
+                    <i class="bi bi-clock"></i> Schedule
+                </button>
+            </div>
+        </div>
+
+        <!-- Report Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary" id="totalReports">0</h5>
+                        <p class="card-text">Total Reports</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-success" id="recentReports">0</h5>
+                        <p class="card-text">Recent (7 days)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-warning" id="totalAnalyses">0</h5>
+                        <p class="card-text">Total Analyses</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-info" id="avgRisksPerReport">0</h5>
+                        <p class="card-text">Avg Risks/Report</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter and Search -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel"></i>
+                    Filter Reports
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="formatFilter" class="form-label">Format</label>
+                        <select class="form-select" id="formatFilter">
+                            <option value="">All Formats</option>
+                            <option value="html">HTML</option>
+                            <option value="markdown">Markdown</option>
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateFilter" class="form-label">Date Range</label>
+                        <select class="form-select" id="dateFilter">
+                            <option value="">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchReports" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="searchReports" placeholder="Search reports...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="sortReports" class="form-label">Sort By</label>
+                        <select class="form-select" id="sortReports">
+                            <option value="date_desc">Date (Newest)</option>
+                            <option value="date_asc">Date (Oldest)</option>
+                            <option value="format">Format</option>
+                            <option value="analysis_id">Analysis ID</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+                            <i class="bi bi-x-circle"></i> Clear Filters
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="exportFilteredReports()">
+                            <i class="bi bi-download"></i> Export Filtered
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports List -->
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-text"></i>
+                    Generated Reports
+                </h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-secondary me-2" id="filteredCount">0 reports</span>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="toggleView('grid')" id="gridViewBtn">
+                            <i class="bi bi-grid-3x3-gap"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary active" onclick="toggleView('list')" id="listViewBtn">
+                            <i class="bi bi-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Loading State -->
+                <div id="reportsLoading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading reports...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading reports...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="reportsEmpty" class="text-center py-5" style="display: none;">
+                    <i class="bi bi-file-earmark-text display-1 text-muted"></i>
+                    <h4 class="mt-3">No Reports Found</h4>
+                    <p class="text-muted">Generate your first report to get started.</p>
+                    <button class="btn btn-primary" onclick="showGenerateReportModal()">
+                        <i class="bi bi-plus-circle"></i> Generate Report
+                    </button>
+                </div>
+
+                <!-- Reports Grid/List -->
+                <div id="reportsContainer" class="reports-list">
+                    <!-- Reports will be populated here -->
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Reports pagination" class="mt-4">
+                    <ul class="pagination justify-content-center" id="reportsPagination">
+                        <!-- Pagination will be populated here -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Generate Report Modal -->
+<div class="modal fade" id="generateReportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-earmark-plus"></i>
+                    Generate New Report
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="generateReportForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="reportAnalysisId" class="form-label">Analysis ID</label>
+                            <select class="form-select" id="reportAnalysisId" required>
+                                <option value="">Select an analysis...</option>
+                                <!-- Analysis options will be populated here -->
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="reportFormat" class="form-label">Report Format</label>
+                            <select class="form-select" id="reportFormat" required onchange="updateFormatOptions()">
+                                <option value="html">HTML (Web-friendly)</option>
+                                <option value="markdown">Markdown (Documentation)</option>
+                                <option value="csv">CSV (Spreadsheet)</option>
+                                <option value="json">JSON (Data)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label for="reportTemplate" class="form-label">Report Template</label>
+                            <select class="form-select" id="reportTemplate" onchange="updateFormatOptions()">
+                                <option value="technical_detailed">Technical Detailed</option>
+                                <option value="executive_summary">Executive Summary</option>
+                                <option value="compliance_audit">Compliance Audit</option>
+                                <option value="risk_assessment">Risk Assessment</option>
+                                <option value="custom">Custom Template</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Template Description</label>
+                            <div id="templateDescription" class="form-text">
+                                Comprehensive technical analysis with all details
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label class="form-label">Report Options</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeSummary" checked>
+                                <label class="form-check-label" for="includeSummary">
+                                    Include Summary Statistics
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeDetails" checked>
+                                <label class="form-check-label" for="includeDetails">
+                                    Include Detailed Risk Information
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeRecommendations">
+                                <label class="form-check-label" for="includeRecommendations">
+                                    Include Risk Mitigation Recommendations
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label class="form-label">Filters (Optional)</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="filterSeverity" class="form-label">Severity</label>
+                                    <select class="form-select" id="filterSeverity" multiple>
+                                        <option value="critical">Critical</option>
+                                        <option value="high">High</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="low">Low</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="filterCategory" class="form-label">Category</label>
+                                    <select class="form-select" id="filterCategory" multiple>
+                                        <option value="ambiguity">Ambiguity</option>
+                                        <option value="missing_detail">Missing Detail</option>
+                                        <option value="performance">Performance</option>
+                                        <option value="availability">Availability</option>
+                                        <option value="security">Security</option>
+                                        <option value="conflict">Conflict</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="generateReport()">
+                    <i class="bi bi-file-earmark-plus"></i> Generate Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Comparison Modal -->
+<div class="modal fade" id="compareReportsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-files"></i>
+                    Compare Reports
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Report 1</h6>
+                        <select class="form-select" id="compareReport1">
+                            <option value="">Select first report...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Report 2</h6>
+                        <select class="form-select" id="compareReport2">
+                            <option value="">Select second report...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4" id="comparisonResults">
+                    <!-- Comparison results will be displayed here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="performComparison()">
+                    <i class="bi bi-arrow-left-right"></i> Compare
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Export Modal -->
+<div class="modal fade" id="bulkExportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-download"></i>
+                    Bulk Export Reports
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Reports to Export</label>
+                    <div id="bulkExportReports" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                        <!-- Reports will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="bulkExportFormat" class="form-label">Export Format</label>
+                    <select class="form-select" id="bulkExportFormat">
+                        <option value="json">JSON (Single file with all reports)</option>
+                        <option value="zip">ZIP (Individual files in archive)</option>
+                    </select>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Selected Reports:</strong> <span id="bulkExportCount">0</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="performBulkExport()">
+                    <i class="bi bi-download"></i> Export Selected
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Report Modal -->
+<div class="modal fade" id="shareReportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-share"></i>
+                    Share Report
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Shareable Link</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="shareUrl" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyShareUrl()">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Note:</strong> This link provides public access to your report. Anyone with the link can view it.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report History Modal -->
+<div class="modal fade" id="reportHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-clock-history"></i>
+                    Report History
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="historyContent">
+                    <!-- History content will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Modal -->
+<div class="modal fade" id="analyticsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-graph-up"></i>
+                    Report Analytics & Insights
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="analyticsContent">
+                    <!-- Analytics content will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scheduling Modal -->
+<div class="modal fade" id="schedulingModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-clock"></i>
+                    Report Scheduling & Automation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="schedulesList">
+                            <!-- Schedules list will be populated here -->
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Create New Schedule</h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="scheduleForm">
+                                    <div class="mb-3">
+                                        <label for="scheduleName" class="form-label">Schedule Name</label>
+                                        <input type="text" class="form-control" id="scheduleName" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="scheduleAnalysisId" class="form-label">Analysis ID</label>
+                                        <select class="form-select" id="scheduleAnalysisId" required>
+                                            <option value="">Select analysis...</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="scheduleTemplate" class="form-label">Template</label>
+                                        <select class="form-select" id="scheduleTemplate">
+                                            <option value="technical_detailed">Technical Detailed</option>
+                                            <option value="executive_summary">Executive Summary</option>
+                                            <option value="compliance_audit">Compliance Audit</option>
+                                            <option value="risk_assessment">Risk Assessment</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="scheduleFormat" class="form-label">Format</label>
+                                        <select class="form-select" id="scheduleFormat">
+                                            <option value="html">HTML</option>
+                                            <option value="markdown">Markdown</option>
+                                            <option value="csv">CSV</option>
+                                            <option value="json">JSON</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="scheduleType" class="form-label">Schedule Type</label>
+                                        <select class="form-select" id="scheduleType" onchange="updateScheduleConfig()">
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                            <option value="custom">Custom</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div id="scheduleConfig" class="mb-3">
+                                        <!-- Schedule configuration will be populated here -->
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="scheduleEnabled" checked>
+                                        <label class="form-check-label" for="scheduleEnabled">
+                                            Enable schedule
+                                        </label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-plus-circle"></i> Create Schedule
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Collaboration Modal -->
+<div class="modal fade" id="collaborationModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-people"></i>
+                    Report Collaboration
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="commentsSection">
+                            <!-- Comments will be populated here -->
+                        </div>
+                        
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Add Comment</h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="commentForm">
+                                    <div class="mb-3">
+                                        <label for="commentAuthor" class="form-label">Your Name</label>
+                                        <input type="text" class="form-control" id="commentAuthor" value="Anonymous" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="commentContent" class="form-label">Comment</label>
+                                        <textarea class="form-control" id="commentContent" rows="3" required placeholder="Share your thoughts about this report..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-chat"></i> Add Comment
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Permissions</h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="permissionsForm">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="publicRead">
+                                        <label class="form-check-label" for="publicRead">
+                                            Public Read Access
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="allowComments" checked>
+                                        <label class="form-check-label" for="allowComments">
+                                            Allow Comments
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="allowDownload" checked>
+                                        <label class="form-check-label" for="allowDownload">
+                                            Allow Download
+                                        </label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="allowedUsers" class="form-label">Allowed Users (comma-separated)</label>
+                                        <input type="text" class="form-control" id="allowedUsers" placeholder="user1, user2, user3">
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-shield-check"></i> Update Permissions
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Global variables
+let allReports = [];
+let filteredReports = [];
+let currentView = 'list';
+let currentPage = 1;
+const reportsPerPage = 10;
+
+// Initialize the reports page
+document.addEventListener('DOMContentLoaded', function() {
+    initializeReportsPage();
+    loadReports();
+    initializeFilters();
+    
+    // Add form event listeners
+    const scheduleForm = document.getElementById('scheduleForm');
+    if (scheduleForm) {
+        scheduleForm.addEventListener('submit', createSchedule);
+    }
+    
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        commentForm.addEventListener('submit', addComment);
+    }
+    
+    const permissionsForm = document.getElementById('permissionsForm');
+    if (permissionsForm) {
+        permissionsForm.addEventListener('submit', updatePermissions);
+    }
+});
+
+/**
+ * Initialize the reports page
+ */
+function initializeReportsPage() {
+    // Initialize view toggle
+    const gridViewBtn = document.getElementById('gridViewBtn');
+    const listViewBtn = document.getElementById('listViewBtn');
+    
+    if (gridViewBtn) {
+        gridViewBtn.addEventListener('click', () => toggleView('grid'));
+    }
+    
+    if (listViewBtn) {
+        listViewBtn.addEventListener('click', () => toggleView('list'));
+    }
+}
+
+/**
+ * Load reports from the API
+ */
+async function loadReports() {
+    try {
+        showLoading(true);
+        
+        const response = await fetch('/api/reports/list');
+        const data = await response.json();
+        
+        if (data.success) {
+            allReports = data.reports || [];
+            applyFilters();
+            updateStatistics();
+        } else {
+            showError('Failed to load reports: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error loading reports:', error);
+        showError('Failed to load reports: ' + error.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+/**
+ * Initialize filter functionality
+ */
+function initializeFilters() {
+    const formatFilter = document.getElementById('formatFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const searchReports = document.getElementById('searchReports');
+    const sortReports = document.getElementById('sortReports');
+    
+    // Add event listeners
+    [formatFilter, dateFilter, sortReports].forEach(filter => {
+        if (filter) {
+            filter.addEventListener('change', applyFilters);
+        }
+    });
+    
+    if (searchReports) {
+        searchReports.addEventListener('input', debounce(applyFilters, 300));
+    }
+}
+
+/**
+ * Apply filters to reports
+ */
+function applyFilters() {
+    const formatFilter = document.getElementById('formatFilter').value;
+    const dateFilter = document.getElementById('dateFilter').value;
+    const searchTerm = document.getElementById('searchReports').value.toLowerCase();
+    const sortBy = document.getElementById('sortReports').value;
+    
+    filteredReports = allReports.filter(report => {
+        // Format filter
+        if (formatFilter && report.format !== formatFilter) {
+            return false;
+        }
+        
+        // Date filter
+        if (dateFilter) {
+            const reportDate = new Date(report.generated_at);
+            const now = new Date();
+            const daysDiff = (now - reportDate) / (1000 * 60 * 60 * 24);
+            
+            switch (dateFilter) {
+                case 'today':
+                    if (daysDiff > 1) return false;
+                    break;
+                case 'week':
+                    if (daysDiff > 7) return false;
+                    break;
+                case 'month':
+                    if (daysDiff > 30) return false;
+                    break;
+                case 'year':
+                    if (daysDiff > 365) return false;
+                    break;
+            }
+        }
+        
+        // Search filter
+        if (searchTerm) {
+            const searchableText = `${report.analysis_id} ${report.format} ${report.generated_at}`.toLowerCase();
+            if (!searchableText.includes(searchTerm)) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+    
+    // Sort reports
+    filteredReports.sort((a, b) => {
+        switch (sortBy) {
+            case 'date_desc':
+                return new Date(b.generated_at) - new Date(a.generated_at);
+            case 'date_asc':
+                return new Date(a.generated_at) - new Date(b.generated_at);
+            case 'format':
+                return a.format.localeCompare(b.format);
+            case 'analysis_id':
+                return a.analysis_id.localeCompare(b.analysis_id);
+            default:
+                return 0;
+        }
+    });
+    
+    currentPage = 1;
+    displayReports();
+    updateFilteredCount();
+}
+
+/**
+ * Display reports in the current view
+ */
+function displayReports() {
+    const container = document.getElementById('reportsContainer');
+    const emptyState = document.getElementById('reportsEmpty');
+    
+    if (filteredReports.length === 0) {
+        container.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+    }
+    
+    container.style.display = 'block';
+    emptyState.style.display = 'none';
+    
+    // Calculate pagination
+    const startIndex = (currentPage - 1) * reportsPerPage;
+    const endIndex = startIndex + reportsPerPage;
+    const pageReports = filteredReports.slice(startIndex, endIndex);
+    
+    if (currentView === 'grid') {
+        container.innerHTML = generateReportsGrid(pageReports);
+    } else {
+        container.innerHTML = generateReportsList(pageReports);
+    }
+    
+    updatePagination();
+}
+
+/**
+ * Generate reports grid view
+ */
+function generateReportsGrid(reports) {
+    return `
+        <div class="row">
+            ${reports.map(report => `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 report-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title">
+                                    <i class="bi bi-file-earmark-${getFormatIcon(report.format)}"></i>
+                                    ${report.analysis_id}
+                                </h6>
+                                <span class="badge bg-${getFormatColor(report.format)}">${report.format.toUpperCase()}</span>
+                            </div>
+                            <p class="card-text text-muted small">
+                                Generated: ${formatDate(report.generated_at)}
+                            </p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewReport('${report.report_id}')">
+                                    <i class="bi bi-eye"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="downloadReport('${report.report_id}')">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteReport('${report.report_id}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+/**
+ * Generate reports list view
+ */
+function generateReportsList(reports) {
+    return `
+        <div class="list-group">
+            ${reports.map(report => `
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-file-earmark-${getFormatIcon(report.format)} me-3 text-${getFormatColor(report.format)}"></i>
+                            <div>
+                                <h6 class="mb-1">${report.analysis_id}</h6>
+                                <small class="text-muted">Generated: ${formatDate(report.generated_at)}</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-${getFormatColor(report.format)} me-2">${report.format.toUpperCase()}</span>
+                            <span class="badge bg-secondary me-2">v${report.version || 1}</span>
+                            <span class="badge bg-info me-2">${report.template || 'technical_detailed'}</span>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewReport('${report.report_id}')" title="View Report">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="downloadReport('${report.report_id}')" title="Download Report">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-info" onclick="shareReport('${report.report_id}')" title="Share Report">
+                                    <i class="bi bi-share"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" onclick="selectForBulkExport('${report.report_id}')" title="Select for Bulk Export">
+                                    <i class="bi bi-check-square"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-dark" onclick="showReportHistory('${report.analysis_id}')" title="View History">
+                                    <i class="bi bi-clock-history"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="showCollaborationModal('${report.report_id}')" title="Collaborate">
+                                    <i class="bi bi-people"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteReport('${report.report_id}')" title="Delete Report">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+/**
+ * Update pagination
+ */
+function updatePagination() {
+    const pagination = document.getElementById('reportsPagination');
+    const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let paginationHTML = '';
+    
+    // Previous button
+    paginationHTML += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+        </li>
+    `;
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            paginationHTML += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                </li>
+            `;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+    }
+    
+    // Next button
+    paginationHTML += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+        </li>
+    `;
+    
+    pagination.innerHTML = paginationHTML;
+}
+
+/**
+ * Change page
+ */
+function changePage(page) {
+    const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        displayReports();
+    }
+}
+
+/**
+ * Toggle between grid and list view
+ */
+function toggleView(view) {
+    currentView = view;
+    
+    const gridViewBtn = document.getElementById('gridViewBtn');
+    const listViewBtn = document.getElementById('listViewBtn');
+    
+    if (view === 'grid') {
+        gridViewBtn.classList.add('active');
+        listViewBtn.classList.remove('active');
+    } else {
+        listViewBtn.classList.add('active');
+        gridViewBtn.classList.remove('active');
+    }
+    
+    displayReports();
+}
+
+/**
+ * Update statistics
+ */
+function updateStatistics() {
+    document.getElementById('totalReports').textContent = allReports.length;
+    
+    // Calculate recent reports (last 7 days)
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const recentCount = allReports.filter(report => 
+        new Date(report.generated_at) > weekAgo
+    ).length;
+    document.getElementById('recentReports').textContent = recentCount;
+    
+    // Calculate unique analyses
+    const uniqueAnalyses = new Set(allReports.map(report => report.analysis_id));
+    document.getElementById('totalAnalyses').textContent = uniqueAnalyses.size;
+    
+    // Calculate average risks per report (placeholder)
+    document.getElementById('avgRisksPerReport').textContent = '12.5';
+}
+
+/**
+ * Update filtered count
+ */
+function updateFilteredCount() {
+    const count = document.getElementById('filteredCount');
+    if (count) {
+        count.textContent = `${filteredReports.length} reports`;
+    }
+}
+
+/**
+ * Show generate report modal
+ */
+async function showGenerateReportModal() {
+    // Load available analyses and templates
+    await Promise.all([
+        loadAvailableAnalyses(),
+        loadTemplates()
+    ]);
+    
+    const modal = new bootstrap.Modal(document.getElementById('generateReportModal'));
+    modal.show();
+}
+
+/**
+ * Load available analyses for report generation
+ */
+async function loadAvailableAnalyses() {
+    try {
+        const response = await fetch('/api/reports/analyses');
+        const data = await response.json();
+        
+        const select = document.getElementById('reportAnalysisId');
+        if (select && data.success) {
+            select.innerHTML = '<option value="">Select an analysis...</option>';
+            
+            data.analyses.forEach(analysis => {
+                const option = document.createElement('option');
+                option.value = analysis.analysis_id;
+                option.textContent = `${analysis.analysis_id} (${analysis.total_requirements} requirements, ${analysis.total_risks} risks)`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading analyses:', error);
+        showAlert('Failed to load available analyses', 'warning');
+    }
+}
+
+/**
+ * Load available templates
+ */
+async function loadTemplates() {
+    try {
+        const response = await fetch('/api/reports/templates');
+        const data = await response.json();
+        
+        if (data.success) {
+            window.availableTemplates = data.templates;
+            updateFormatOptions();
+        }
+    } catch (error) {
+        console.error('Error loading templates:', error);
+    }
+}
+
+/**
+ * Update format options based on selected template
+ */
+function updateFormatOptions() {
+    const templateSelect = document.getElementById('reportTemplate');
+    const formatSelect = document.getElementById('reportFormat');
+    const descriptionDiv = document.getElementById('templateDescription');
+    
+    if (!templateSelect || !formatSelect || !descriptionDiv) return;
+    
+    const selectedTemplate = templateSelect.value;
+    
+    if (window.availableTemplates && window.availableTemplates[selectedTemplate]) {
+        const template = window.availableTemplates[selectedTemplate];
+        
+        // Update description
+        descriptionDiv.textContent = template.description;
+        
+        // Update format options
+        const currentFormat = formatSelect.value;
+        formatSelect.innerHTML = '';
+        
+        template.format_options.forEach(format => {
+            const option = document.createElement('option');
+            option.value = format;
+            option.textContent = getFormatDisplayName(format);
+            if (format === currentFormat) {
+                option.selected = true;
+            }
+            formatSelect.appendChild(option);
+        });
+        
+        // If current format is not available, select the first one
+        if (!template.format_options.includes(currentFormat)) {
+            formatSelect.value = template.format_options[0];
+        }
+    }
+}
+
+/**
+ * Get display name for format
+ */
+function getFormatDisplayName(format) {
+    const names = {
+        'html': 'HTML (Web-friendly)',
+        'markdown': 'Markdown (Documentation)',
+        'csv': 'CSV (Spreadsheet)',
+        'json': 'JSON (Data)',
+        'pdf': 'PDF (Document)'
+    };
+    return names[format] || format.toUpperCase();
+}
+
+/**
+ * Generate report
+ */
+async function generateReport() {
+    const analysisId = document.getElementById('reportAnalysisId').value;
+    const format = document.getElementById('reportFormat').value;
+    const template = document.getElementById('reportTemplate').value;
+    
+    if (!analysisId || !format) {
+        showAlert('Please select an analysis and format', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/reports/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                analysis_id: analysisId,
+                format: format,
+                template: template,
+                filters: {
+                    include_summary: document.getElementById('includeSummary').checked,
+                    include_details: document.getElementById('includeDetails').checked,
+                    include_recommendations: document.getElementById('includeRecommendations').checked
+                }
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Report generated successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('generateReportModal')).hide();
+            loadReports();
+        } else {
+            showAlert('Failed to generate report: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error generating report:', error);
+        showAlert('Failed to generate report: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * View report
+ */
+function viewReport(reportId) {
+    window.open(`/api/reports/download/${reportId}`, '_blank');
+}
+
+/**
+ * Download report
+ */
+function downloadReport(reportId) {
+    const link = document.createElement('a');
+    link.href = `/api/reports/download/${reportId}`;
+    link.download = '';
+    link.click();
+}
+
+/**
+ * Delete report
+ */
+async function deleteReport(reportId) {
+    if (!confirm('Are you sure you want to delete this report?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/reports/${reportId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Report deleted successfully', 'success');
+            loadReports();
+        } else {
+            showAlert('Failed to delete report: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error deleting report:', error);
+        showAlert('Failed to delete report: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Clear filters
+ */
+function clearFilters() {
+    document.getElementById('formatFilter').value = '';
+    document.getElementById('dateFilter').value = '';
+    document.getElementById('searchReports').value = '';
+    document.getElementById('sortReports').value = 'date_desc';
+    
+    applyFilters();
+}
+
+/**
+ * Export filtered reports
+ */
+function exportFilteredReports() {
+    if (filteredReports.length === 0) {
+        showAlert('No reports to export', 'warning');
+        return;
+    }
+    
+    // Create CSV content
+    const csvContent = [
+        ['Analysis ID', 'Format', 'Generated At'],
+        ...filteredReports.map(report => [
+            report.analysis_id,
+            report.format,
+            report.generated_at
+        ])
+    ].map(row => row.join(',')).join('\n');
+    
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'stressspec_reports_export.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
+}
+
+/**
+ * Refresh reports
+ */
+function refreshReports() {
+    loadReports();
+}
+
+/**
+ * Show compare reports modal
+ */
+function showCompareReportsModal() {
+    const modal = new bootstrap.Modal(document.getElementById('compareReportsModal'));
+    modal.show();
+    
+    // Populate report options
+    populateCompareReportOptions();
+}
+
+/**
+ * Populate report options for comparison
+ */
+function populateCompareReportOptions() {
+    const select1 = document.getElementById('compareReport1');
+    const select2 = document.getElementById('compareReport2');
+    
+    if (select1 && select2) {
+        // Clear existing options
+        select1.innerHTML = '<option value="">Select first report...</option>';
+        select2.innerHTML = '<option value="">Select second report...</option>';
+        
+        // Add report options
+        allReports.forEach(report => {
+            const option1 = document.createElement('option');
+            option1.value = report.report_id;
+            option1.textContent = `${report.analysis_id} (${report.format.toUpperCase()})`;
+            select1.appendChild(option1);
+            
+            const option2 = document.createElement('option');
+            option2.value = report.report_id;
+            option2.textContent = `${report.analysis_id} (${report.format.toUpperCase()})`;
+            select2.appendChild(option2);
+        });
+    }
+}
+
+/**
+ * Perform report comparison
+ */
+async function performComparison() {
+    const report1 = document.getElementById('compareReport1').value;
+    const report2 = document.getElementById('compareReport2').value;
+    
+    if (!report1 || !report2) {
+        showAlert('Please select both reports for comparison', 'warning');
+        return;
+    }
+    
+    if (report1 === report2) {
+        showAlert('Please select different reports for comparison', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/reports/compare', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify([report1, report2])
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            displayComparisonResults(result.comparison);
+        } else {
+            showAlert('Failed to compare reports: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error comparing reports:', error);
+        showAlert('Failed to compare reports: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Display comparison results
+ */
+function displayComparisonResults(comparison) {
+    const resultsDiv = document.getElementById('comparisonResults');
+    
+    if (!resultsDiv) return;
+    
+    const { reports, comparison: comp } = comparison;
+    
+    resultsDiv.innerHTML = `
+        <div class="row">
+            <div class="col-12">
+                <h5>Comparison Results</h5>
+                
+                <!-- Summary Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">Requirements</h6>
+                                <p class="card-text">
+                                    Min: ${comp.total_requirements.min}<br>
+                                    Max: ${comp.total_requirements.max}<br>
+                                    Avg: ${comp.total_requirements.avg.toFixed(1)}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">Risks</h6>
+                                <p class="card-text">
+                                    Min: ${comp.total_risks.min}<br>
+                                    Max: ${comp.total_risks.max}<br>
+                                    Avg: ${comp.total_risks.avg.toFixed(1)}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Risk Categories -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Risk Categories Analysis</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            ${Object.entries(comp.risk_categories).map(([category, data]) => `
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-${getCategoryColor(category)}">${category}</span>
+                                        <span class="badge bg-${getTrendColor(data.trend)}">${data.trend}</span>
+                                    </div>
+                                    <small class="text-muted">
+                                        Avg: ${data.avg.toFixed(1)} | Range: ${data.min}-${data.max}
+                                    </small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Severity Distribution -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Severity Distribution</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            ${Object.entries(comp.severity_distribution).map(([severity, data]) => `
+                                <div class="col-md-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-${getSeverityColor(severity)}">${severity}</span>
+                                        <span class="badge bg-${getTrendColor(data.trend)}">${data.trend}</span>
+                                    </div>
+                                    <small class="text-muted">
+                                        Avg: ${data.avg.toFixed(1)} | Range: ${data.min}-${data.max}
+                                    </small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Insights -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Key Insights</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            ${comp.insights.map(insight => `
+                                <li class="mb-2">
+                                    <i class="bi bi-lightbulb text-warning me-2"></i>
+                                    ${insight}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Utility functions for comparison
+ */
+function getCategoryColor(category) {
+    const colors = {
+        'ambiguity': 'warning',
+        'missing_detail': 'info',
+        'performance': 'danger',
+        'availability': 'primary',
+        'security': 'dark',
+        'conflict': 'secondary'
+    };
+    return colors[category] || 'secondary';
+}
+
+function getSeverityColor(severity) {
+    const colors = {
+        'critical': 'danger',
+        'high': 'warning',
+        'medium': 'info',
+        'low': 'success'
+    };
+    return colors[severity] || 'secondary';
+}
+
+function getTrendColor(trend) {
+    const colors = {
+        'increasing': 'danger',
+        'decreasing': 'success',
+        'stable': 'info'
+    };
+    return colors[trend] || 'secondary';
+}
+
+/**
+ * Show bulk export modal
+ */
+function showBulkExportModal() {
+    const modal = new bootstrap.Modal(document.getElementById('bulkExportModal'));
+    modal.show();
+    
+    // Populate reports list
+    populateBulkExportReports();
+}
+
+/**
+ * Populate bulk export reports list
+ */
+function populateBulkExportReports() {
+    const container = document.getElementById('bulkExportReports');
+    
+    if (!container || !allReports.length) {
+        container.innerHTML = '<p class="text-muted">No reports available for export.</p>';
+        return;
+    }
+    
+    container.innerHTML = allReports.map(report => `
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" value="${report.report_id}" id="bulk_${report.report_id}" onchange="updateBulkExportCount()">
+            <label class="form-check-label" for="bulk_${report.report_id}">
+                <strong>${report.analysis_id}</strong> - ${report.format.toUpperCase()}
+                <small class="text-muted d-block">Generated: ${formatDate(report.generated_at)}</small>
+            </label>
+        </div>
+    `).join('');
+    
+    updateBulkExportCount();
+}
+
+/**
+ * Update bulk export count
+ */
+function updateBulkExportCount() {
+    const checkboxes = document.querySelectorAll('#bulkExportReports input[type="checkbox"]:checked');
+    const count = checkboxes.length;
+    document.getElementById('bulkExportCount').textContent = count;
+}
+
+/**
+ * Perform bulk export
+ */
+async function performBulkExport() {
+    const checkboxes = document.querySelectorAll('#bulkExportReports input[type="checkbox"]:checked');
+    const selectedReports = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (selectedReports.length === 0) {
+        showAlert('Please select at least one report to export', 'warning');
+        return;
+    }
+    
+    const format = document.getElementById('bulkExportFormat').value;
+    
+    try {
+        const response = await fetch('/api/reports/export/bulk', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                report_ids: selectedReports,
+                format: format
+            })
+        });
+        
+        if (response.ok) {
+            // Download the file
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `stressspec_bulk_export_${Date.now()}.${format === 'json' ? 'json' : 'zip'}`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('bulkExportModal'));
+            modal.hide();
+            
+            showAlert(`Successfully exported ${selectedReports.length} reports`, 'success');
+        } else {
+            const error = await response.json();
+            showAlert('Export failed: ' + error.detail, 'danger');
+        }
+    } catch (error) {
+        console.error('Error exporting reports:', error);
+        showAlert('Export failed: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Share a report
+ */
+async function shareReport(reportId) {
+    try {
+        const response = await fetch(`/api/reports/share/${reportId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            // Show share modal with the URL
+            document.getElementById('shareUrl').value = window.location.origin + result.share_url;
+            const modal = new bootstrap.Modal(document.getElementById('shareReportModal'));
+            modal.show();
+        } else {
+            showAlert('Failed to generate share link: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error sharing report:', error);
+        showAlert('Failed to share report: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Copy share URL to clipboard
+ */
+async function copyShareUrl() {
+    const urlInput = document.getElementById('shareUrl');
+    
+    try {
+        await navigator.clipboard.writeText(urlInput.value);
+        showAlert('Share URL copied to clipboard!', 'success');
+    } catch (error) {
+        // Fallback for older browsers
+        urlInput.select();
+        document.execCommand('copy');
+        showAlert('Share URL copied to clipboard!', 'success');
+    }
+}
+
+/**
+ * Select report for bulk export (from individual report buttons)
+ */
+function selectForBulkExport(reportId) {
+    // Open bulk export modal
+    showBulkExportModal();
+    
+    // Check the specific report
+    setTimeout(() => {
+        const checkbox = document.getElementById(`bulk_${reportId}`);
+        if (checkbox) {
+            checkbox.checked = true;
+            updateBulkExportCount();
+        }
+    }, 500); // Small delay to ensure modal is fully loaded
+}
+
+/**
+ * Show report history for an analysis
+ */
+async function showReportHistory(analysisId) {
+    try {
+        const response = await fetch(`/api/reports/history/${analysisId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayReportHistory(analysisId, data.history);
+            const modal = new bootstrap.Modal(document.getElementById('reportHistoryModal'));
+            modal.show();
+        } else {
+            showAlert('Failed to load report history', 'danger');
+        }
+    } catch (error) {
+        console.error('Error loading report history:', error);
+        showAlert('Failed to load report history: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Display report history
+ */
+function displayReportHistory(analysisId, history) {
+    const contentDiv = document.getElementById('historyContent');
+    
+    if (!contentDiv) return;
+    
+    if (history.length === 0) {
+        contentDiv.innerHTML = `
+            <div class="text-center py-4">
+                <i class="bi bi-clock-history text-muted" style="font-size: 3rem;"></i>
+                <h5 class="mt-3 text-muted">No Report History</h5>
+                <p class="text-muted">No reports have been generated for this analysis yet.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Group by template and format
+    const grouped = {};
+    history.forEach(item => {
+        const key = `${item.template}_${item.format}`;
+        if (!grouped[key]) {
+            grouped[key] = {
+                template: item.template,
+                format: item.format,
+                versions: []
+            };
+        }
+        grouped[key].versions.push(item);
+    });
+    
+    contentDiv.innerHTML = `
+        <div class="mb-3">
+            <h6>Analysis: <code>${analysisId}</code></h6>
+            <p class="text-muted">Total reports generated: ${history.length}</p>
+        </div>
+        
+        ${Object.values(grouped).map(group => `
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <span class="badge bg-info me-2">${group.template}</span>
+                        <span class="badge bg-${getFormatColor(group.format)} me-2">${group.format.toUpperCase()}</span>
+                        <span class="text-muted">(${group.versions.length} versions)</span>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        ${group.versions.map(version => `
+                            <div class="col-md-6 mb-3">
+                                <div class="card border">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title mb-0">
+                                                Version ${version.version}
+                                                ${version.version === Math.max(...group.versions.map(v => v.version)) ? 
+                                                    '<span class="badge bg-success ms-2">Latest</span>' : ''}
+                                            </h6>
+                                            <small class="text-muted">${formatDate(version.generated_at)}</small>
+                                        </div>
+                                        
+                                        <div class="mb-2">
+                                            <small class="text-muted">Report ID: <code>${version.report_id}</code></small>
+                                        </div>
+                                        
+                                        ${version.filters ? `
+                                            <div class="mb-2">
+                                                <small class="text-muted">Filters:</small>
+                                                <div class="ms-2">
+                                                    ${Object.entries(version.filters).map(([key, value]) => `
+                                                        <small class="badge bg-light text-dark me-1">${key}: ${value}</small>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-primary" onclick="viewReport('${version.report_id}')" title="View">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" onclick="downloadReport('${version.report_id}')" title="Download">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                            ${group.versions.length > 1 ? `
+                                                <button class="btn btn-outline-info" onclick="compareVersions('${analysisId}', ${version.version}, '${group.template}', '${group.format}')" title="Compare">
+                                                    <i class="bi bi-arrow-left-right"></i>
+                                                </button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `).join('')}
+    `;
+}
+
+/**
+ * Compare two versions of a report
+ */
+async function compareVersions(analysisId, version1, template, format) {
+    try {
+        // Find another version to compare with
+        const response = await fetch(`/api/reports/versions/${analysisId}?template=${template}&format=${format}`);
+        const data = await response.json();
+        
+        if (data.success && data.versions.length > 1) {
+            const otherVersion = data.versions.find(v => v.version !== version1);
+            if (otherVersion) {
+                const compareResponse = await fetch(`/api/reports/compare-versions/${analysisId}?version1=${version1}&version2=${otherVersion.version}&template=${template}&format=${format}`);
+                const compareData = await compareResponse.json();
+                
+                if (compareData.success) {
+                    displayVersionComparison(compareData.comparison);
+                } else {
+                    showAlert('Failed to compare versions', 'danger');
+                }
+            }
+        } else {
+            showAlert('No other versions available for comparison', 'warning');
+        }
+    } catch (error) {
+        console.error('Error comparing versions:', error);
+        showAlert('Failed to compare versions: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Display version comparison
+ */
+function displayVersionComparison(comparison) {
+    const modal = new bootstrap.Modal(document.getElementById('reportHistoryModal'));
+    modal.hide();
+    
+    // Create a new modal for comparison
+    const comparisonHtml = `
+        <div class="modal fade" id="versionComparisonModal" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-arrow-left-right"></i>
+                            Version Comparison
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Version ${comparison.version1.version}</h6>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p><strong>Generated:</strong> ${formatDate(comparison.version1.generated_at)}</p>
+                                        <p><strong>Template:</strong> ${comparison.version1.template}</p>
+                                        <p><strong>Format:</strong> ${comparison.version1.format}</p>
+                                        <p><strong>Content Length:</strong> ${comparison.version1.content_length} characters</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Version ${comparison.version2.version}</h6>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p><strong>Generated:</strong> ${formatDate(comparison.version2.generated_at)}</p>
+                                        <p><strong>Template:</strong> ${comparison.version2.template}</p>
+                                        <p><strong>Format:</strong> ${comparison.version2.format}</p>
+                                        <p><strong>Content Length:</strong> ${comparison.version2.content_length} characters</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6>Changes Detected</h6>
+                            <div class="row">
+                                ${Object.entries(comparison.differences).map(([key, value]) => `
+                                    <div class="col-md-6 mb-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>${key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}:</span>
+                                            <span class="badge bg-${value ? 'warning' : 'success'}">${value ? 'Changed' : 'Unchanged'}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing comparison modal if any
+    const existingModal = document.getElementById('versionComparisonModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add new modal to body
+    document.body.insertAdjacentHTML('beforeend', comparisonHtml);
+    
+    // Show the modal
+    const newModal = new bootstrap.Modal(document.getElementById('versionComparisonModal'));
+    newModal.show();
+    
+    // Clean up when modal is hidden
+    document.getElementById('versionComparisonModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
+}
+
+/**
+ * Show analytics modal
+ */
+async function showAnalyticsModal() {
+    try {
+        const response = await fetch('/api/reports/analytics');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayAnalytics(data.analytics);
+            const modal = new bootstrap.Modal(document.getElementById('analyticsModal'));
+            modal.show();
+        } else {
+            showAlert('Failed to load analytics', 'danger');
+        }
+    } catch (error) {
+        console.error('Error loading analytics:', error);
+        showAlert('Failed to load analytics: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Display analytics data
+ */
+function displayAnalytics(analytics) {
+    const contentDiv = document.getElementById('analyticsContent');
+    
+    if (!contentDiv) return;
+    
+    const { overview, template_usage, format_usage, daily_generation, most_active_analyses, version_statistics, recent_activity } = analytics;
+    
+    contentDiv.innerHTML = `
+        <div class="row">
+            <!-- Overview Cards -->
+            <div class="col-12 mb-4">
+                <h6>Overview</h6>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">${overview.total_reports}</h5>
+                                <p class="card-text">Total Reports</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-success">${overview.total_analyses}</h5>
+                                <p class="card-text">Total Analyses</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-info">${overview.unique_templates}</h5>
+                                <p class="card-text">Templates Used</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-warning">${overview.unique_formats}</h5>
+                                <p class="card-text">Formats Used</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Template Usage -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Template Usage</h6>
+                    </div>
+                    <div class="card-body">
+                        ${Object.entries(template_usage).map(([template, count]) => `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-info">${template}</span>
+                                <span class="badge bg-secondary">${count}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Format Usage -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Format Usage</h6>
+                    </div>
+                    <div class="card-body">
+                        ${Object.entries(format_usage).map(([format, count]) => `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-${getFormatColor(format)}">${format.toUpperCase()}</span>
+                                <span class="badge bg-secondary">${count}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Most Active Analyses -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Most Active Analyses</h6>
+                    </div>
+                    <div class="card-body">
+                        ${most_active_analyses.map(([analysis_id, count]) => `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <code>${analysis_id}</code>
+                                <span class="badge bg-primary">${count} reports</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Version Statistics -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Version Statistics</h6>
+                    </div>
+                    <div class="card-body">
+                        ${Object.entries(version_statistics).map(([template, stats]) => `
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-info">${template}</span>
+                                    <small class="text-muted">Max v${stats.max_version}</small>
+                                </div>
+                                <div class="progress mt-1" style="height: 6px;">
+                                    <div class="progress-bar" style="width: ${(stats.total_versions / Math.max(...Object.values(version_statistics).map(s => s.total_versions))) * 100}%"></div>
+                                </div>
+                                <small class="text-muted">${stats.total_versions} versions</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Recent Activity</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Analysis ID</th>
+                                        <th>Template</th>
+                                        <th>Format</th>
+                                        <th>Version</th>
+                                        <th>Generated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${recent_activity.map(activity => `
+                                        <tr>
+                                            <td><code>${activity.analysis_id}</code></td>
+                                            <td><span class="badge bg-info">${activity.template}</span></td>
+                                            <td><span class="badge bg-${getFormatColor(activity.format)}">${activity.format.toUpperCase()}</span></td>
+                                            <td><span class="badge bg-secondary">v${activity.version}</span></td>
+                                            <td><small>${formatDate(activity.generated_at)}</small></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Show scheduling modal
+ */
+async function showSchedulingModal() {
+    try {
+        // Load schedules and available analyses
+        await Promise.all([
+            loadSchedules(),
+            loadAvailableAnalysesForSchedule()
+        ]);
+        
+        const modal = new bootstrap.Modal(document.getElementById('schedulingModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Error loading scheduling data:', error);
+        showAlert('Failed to load scheduling data: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Load schedules
+ */
+async function loadSchedules() {
+    try {
+        const response = await fetch('/api/reports/schedule');
+        const data = await response.json();
+        
+        if (data.success) {
+            displaySchedules(data.schedules);
+        }
+    } catch (error) {
+        console.error('Error loading schedules:', error);
+    }
+}
+
+/**
+ * Display schedules
+ */
+function displaySchedules(schedules) {
+    const container = document.getElementById('schedulesList');
+    
+    if (!container) return;
+    
+    if (schedules.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-4">
+                <i class="bi bi-clock text-muted" style="font-size: 3rem;"></i>
+                <h5 class="mt-3 text-muted">No Scheduled Reports</h5>
+                <p class="text-muted">Create your first scheduled report to get started.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = schedules.map(schedule => `
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="card-title mb-1">${schedule.name}</h6>
+                        <p class="card-text mb-1">
+                            <code>${schedule.analysis_id}</code> | 
+                            <span class="badge bg-info">${schedule.template}</span> | 
+                            <span class="badge bg-${getFormatColor(schedule.format)}">${schedule.format.toUpperCase()}</span>
+                        </p>
+                        <small class="text-muted">
+                            ${schedule.schedule_type} | 
+                            Next run: ${formatDate(schedule.next_run)} | 
+                            Runs: ${schedule.run_count}
+                        </small>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="runScheduleNow('${schedule.schedule_id}')" title="Run Now">
+                                <i class="bi bi-play"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-${schedule.enabled ? 'warning' : 'success'}" onclick="toggleSchedule('${schedule.schedule_id}', ${!schedule.enabled})" title="${schedule.enabled ? 'Disable' : 'Enable'}">
+                                <i class="bi bi-${schedule.enabled ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSchedule('${schedule.schedule_id}')" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Load available analyses for schedule form
+ */
+async function loadAvailableAnalysesForSchedule() {
+    try {
+        const response = await fetch('/api/reports/analyses');
+        const data = await response.json();
+        
+        const select = document.getElementById('scheduleAnalysisId');
+        if (select && data.success) {
+            select.innerHTML = '<option value="">Select analysis...</option>';
+            
+            data.analyses.forEach(analysis => {
+                const option = document.createElement('option');
+                option.value = analysis.analysis_id;
+                option.textContent = `${analysis.analysis_id} (${analysis.total_requirements} requirements, ${analysis.total_risks} risks)`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading analyses for schedule:', error);
+    }
+}
+
+/**
+ * Update schedule configuration based on type
+ */
+function updateScheduleConfig() {
+    const scheduleType = document.getElementById('scheduleType').value;
+    const configDiv = document.getElementById('scheduleConfig');
+    
+    if (!configDiv) return;
+    
+    let configHtml = '';
+    
+    if (scheduleType === 'daily') {
+        configHtml = `
+            <label class="form-label">Time</label>
+            <div class="row">
+                <div class="col-6">
+                    <input type="number" class="form-control" id="scheduleHour" min="0" max="23" value="9" placeholder="Hour">
+                </div>
+                <div class="col-6">
+                    <input type="number" class="form-control" id="scheduleMinute" min="0" max="59" value="0" placeholder="Minute">
+                </div>
+            </div>
+        `;
+    } else if (scheduleType === 'weekly') {
+        configHtml = `
+            <label class="form-label">Day of Week</label>
+            <select class="form-select mb-2" id="scheduleWeekday">
+                <option value="0">Monday</option>
+                <option value="1">Tuesday</option>
+                <option value="2">Wednesday</option>
+                <option value="3">Thursday</option>
+                <option value="4">Friday</option>
+                <option value="5">Saturday</option>
+                <option value="6">Sunday</option>
+            </select>
+            <label class="form-label">Time</label>
+            <div class="row">
+                <div class="col-6">
+                    <input type="number" class="form-control" id="scheduleHour" min="0" max="23" value="9" placeholder="Hour">
+                </div>
+                <div class="col-6">
+                    <input type="number" class="form-control" id="scheduleMinute" min="0" max="59" value="0" placeholder="Minute">
+                </div>
+            </div>
+        `;
+    } else if (scheduleType === 'monthly') {
+        configHtml = `
+            <label class="form-label">Day of Month</label>
+            <input type="number" class="form-control mb-2" id="scheduleDay" min="1" max="31" value="1" placeholder="Day">
+            <label class="form-label">Time</label>
+            <div class="row">
+                <div class="col-6">
+                    <input type="number" class="form-control" id="scheduleHour" min="0" max="23" value="9" placeholder="Hour">
+                </div>
+                <div class="col-6">
+                    <input type="number" class="form-control" id="scheduleMinute" min="0" max="59" value="0" placeholder="Minute">
+                </div>
+            </div>
+        `;
+    } else if (scheduleType === 'custom') {
+        configHtml = `
+            <label class="form-label">Interval (hours)</label>
+            <input type="number" class="form-control" id="scheduleIntervalHours" min="1" value="24" placeholder="Hours">
+        `;
+    }
+    
+    configDiv.innerHTML = configHtml;
+}
+
+/**
+ * Create new schedule
+ */
+async function createSchedule(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('scheduleName').value;
+    const analysisId = document.getElementById('scheduleAnalysisId').value;
+    const template = document.getElementById('scheduleTemplate').value;
+    const format = document.getElementById('scheduleFormat').value;
+    const scheduleType = document.getElementById('scheduleType').value;
+    const enabled = document.getElementById('scheduleEnabled').checked;
+    
+    if (!name || !analysisId) {
+        showAlert('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    // Build schedule configuration
+    let scheduleConfig = {};
+    
+    if (scheduleType === 'daily') {
+        scheduleConfig = {
+            hour: parseInt(document.getElementById('scheduleHour').value) || 9,
+            minute: parseInt(document.getElementById('scheduleMinute').value) || 0
+        };
+    } else if (scheduleType === 'weekly') {
+        scheduleConfig = {
+            weekday: parseInt(document.getElementById('scheduleWeekday').value) || 0,
+            hour: parseInt(document.getElementById('scheduleHour').value) || 9,
+            minute: parseInt(document.getElementById('scheduleMinute').value) || 0
+        };
+    } else if (scheduleType === 'monthly') {
+        scheduleConfig = {
+            day: parseInt(document.getElementById('scheduleDay').value) || 1,
+            hour: parseInt(document.getElementById('scheduleHour').value) || 9,
+            minute: parseInt(document.getElementById('scheduleMinute').value) || 0
+        };
+    } else if (scheduleType === 'custom') {
+        scheduleConfig = {
+            interval_hours: parseInt(document.getElementById('scheduleIntervalHours').value) || 24
+        };
+    }
+    
+    try {
+        const response = await fetch('/api/reports/schedule', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                analysis_id: analysisId,
+                template: template,
+                format: format,
+                schedule_type: scheduleType,
+                schedule_config: scheduleConfig,
+                enabled: enabled
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Schedule created successfully', 'success');
+            document.getElementById('scheduleForm').reset();
+            await loadSchedules();
+        } else {
+            showAlert('Failed to create schedule: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error creating schedule:', error);
+        showAlert('Failed to create schedule: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Run schedule now
+ */
+async function runScheduleNow(scheduleId) {
+    try {
+        const response = await fetch(`/api/reports/schedule/${scheduleId}/run`, {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Schedule executed successfully', 'success');
+            await loadSchedules();
+        } else {
+            showAlert('Failed to run schedule: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error running schedule:', error);
+        showAlert('Failed to run schedule: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Toggle schedule enabled/disabled
+ */
+async function toggleSchedule(scheduleId, enabled) {
+    try {
+        // Get current schedule details
+        const getResponse = await fetch(`/api/reports/schedule/${scheduleId}`);
+        const getData = await getResponse.json();
+        
+        if (!getData.success) {
+            showAlert('Failed to get schedule details', 'danger');
+            return;
+        }
+        
+        const schedule = getData.schedule;
+        
+        // Update schedule
+        const response = await fetch(`/api/reports/schedule/${scheduleId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: schedule.name,
+                analysis_id: schedule.analysis_id,
+                template: schedule.template,
+                format: schedule.format,
+                schedule_type: schedule.schedule_type,
+                schedule_config: schedule.schedule_config,
+                enabled: enabled
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert(`Schedule ${enabled ? 'enabled' : 'disabled'} successfully`, 'success');
+            await loadSchedules();
+        } else {
+            showAlert('Failed to update schedule: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error toggling schedule:', error);
+        showAlert('Failed to update schedule: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Delete schedule
+ */
+async function deleteSchedule(scheduleId) {
+    if (!confirm('Are you sure you want to delete this schedule?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/reports/schedule/${scheduleId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Schedule deleted successfully', 'success');
+            await loadSchedules();
+        } else {
+            showAlert('Failed to delete schedule: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error deleting schedule:', error);
+        showAlert('Failed to delete schedule: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Show collaboration modal
+ */
+async function showCollaborationModal(reportId) {
+    try {
+        // Load comments and permissions
+        await Promise.all([
+            loadComments(reportId),
+            loadPermissions(reportId)
+        ]);
+        
+        // Store current report ID for collaboration
+        window.currentCollaborationReportId = reportId;
+        
+        const modal = new bootstrap.Modal(document.getElementById('collaborationModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Error loading collaboration data:', error);
+        showAlert('Failed to load collaboration data: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Load comments for a report
+ */
+async function loadComments(reportId) {
+    try {
+        const response = await fetch(`/api/reports/${reportId}/comments`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayComments(data.comments);
+        }
+    } catch (error) {
+        console.error('Error loading comments:', error);
+    }
+}
+
+/**
+ * Display comments
+ */
+function displayComments(comments) {
+    const container = document.getElementById('commentsSection');
+    
+    if (!container) return;
+    
+    if (comments.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-4">
+                <i class="bi bi-chat text-muted" style="font-size: 3rem;"></i>
+                <h5 class="mt-3 text-muted">No Comments Yet</h5>
+                <p class="text-muted">Be the first to share your thoughts about this report.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = comments.map(comment => `
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6 class="card-title mb-1">${comment.author}</h6>
+                        <small class="text-muted">${formatDate(comment.created_at)}</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteComment('${comment.comment_id}')" title="Delete Comment">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <p class="card-text">${comment.content}</p>
+                
+                ${comment.replies && comment.replies.length > 0 ? `
+                    <div class="ms-4 mt-3">
+                        <h6 class="text-muted">Replies:</h6>
+                        ${comment.replies.map(reply => `
+                            <div class="card mb-2">
+                                <div class="card-body py-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <small class="fw-bold">${reply.author}</small>
+                                            <small class="text-muted ms-2">${formatDate(reply.created_at)}</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteComment('${reply.comment_id}')" title="Delete Reply">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    <p class="mb-0 mt-1">${reply.content}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Load permissions for a report
+ */
+async function loadPermissions(reportId) {
+    try {
+        const response = await fetch(`/api/reports/${reportId}/permissions`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const permissions = data.permissions;
+            document.getElementById('publicRead').checked = permissions.public_read;
+            document.getElementById('allowComments').checked = permissions.allow_comments;
+            document.getElementById('allowDownload').checked = permissions.allow_download;
+            document.getElementById('allowedUsers').value = permissions.allowed_users ? permissions.allowed_users.join(', ') : '';
+        }
+    } catch (error) {
+        console.error('Error loading permissions:', error);
+    }
+}
+
+/**
+ * Add comment
+ */
+async function addComment(event) {
+    event.preventDefault();
+    
+    const reportId = window.currentCollaborationReportId;
+    const author = document.getElementById('commentAuthor').value;
+    const content = document.getElementById('commentContent').value;
+    
+    if (!reportId || !author || !content) {
+        showAlert('Please fill in all fields', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/reports/${reportId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content: content,
+                author: author
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Comment added successfully', 'success');
+            document.getElementById('commentContent').value = '';
+            await loadComments(reportId);
+        } else {
+            showAlert('Failed to add comment: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        showAlert('Failed to add comment: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Delete comment
+ */
+async function deleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment?')) {
+        return;
+    }
+    
+    const reportId = window.currentCollaborationReportId;
+    
+    try {
+        const response = await fetch(`/api/reports/${reportId}/comments/${commentId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Comment deleted successfully', 'success');
+            await loadComments(reportId);
+        } else {
+            showAlert('Failed to delete comment: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        showAlert('Failed to delete comment: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Update permissions
+ */
+async function updatePermissions(event) {
+    event.preventDefault();
+    
+    const reportId = window.currentCollaborationReportId;
+    const publicRead = document.getElementById('publicRead').checked;
+    const allowComments = document.getElementById('allowComments').checked;
+    const allowDownload = document.getElementById('allowDownload').checked;
+    const allowedUsers = document.getElementById('allowedUsers').value
+        .split(',')
+        .map(user => user.trim())
+        .filter(user => user.length > 0);
+    
+    try {
+        const response = await fetch(`/api/reports/${reportId}/permissions`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                public_read: publicRead,
+                allow_comments: allowComments,
+                allow_download: allowDownload,
+                allowed_users: allowedUsers
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Permissions updated successfully', 'success');
+        } else {
+            showAlert('Failed to update permissions: ' + result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error updating permissions:', error);
+        showAlert('Failed to update permissions: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Show loading state
+ */
+function showLoading(show) {
+    const loading = document.getElementById('reportsLoading');
+    const container = document.getElementById('reportsContainer');
+    
+    if (show) {
+        loading.style.display = 'block';
+        container.style.display = 'none';
+    } else {
+        loading.style.display = 'none';
+    }
+}
+
+/**
+ * Show error message
+ */
+function showError(message) {
+    showAlert(message, 'danger');
+}
+
+/**
+ * Utility functions
+ */
+function getFormatIcon(format) {
+    const icons = {
+        'html': 'text',
+        'markdown': 'markdown',
+        'csv': 'spreadsheet',
+        'json': 'code'
+    };
+    return icons[format] || 'text';
+}
+
+function getFormatColor(format) {
+    const colors = {
+        'html': 'primary',
+        'markdown': 'secondary',
+        'csv': 'success',
+        'json': 'info'
+    };
+    return colors[format] || 'secondary';
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const main = document.querySelector('main');
+    if (main) {
+        main.insertBefore(alertDiv, main.firstChild);
+        
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+}
+</script>
+{% endblock %}

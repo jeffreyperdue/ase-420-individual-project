@@ -24,23 +24,43 @@
             </div>
             <div class="card-body">
                 <form id="uploadForm" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="fileInput" class="form-label">Choose a requirements file</label>
+                    <!-- Drag and Drop Zone -->
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-content">
+                            <i class="bi bi-cloud-upload upload-icon"></i>
+                            <h6 class="upload-title">Drag & Drop your file here</h6>
+                            <p class="upload-subtitle">or click to browse</p>
+                            <div class="upload-formats">
+                                <span class="badge bg-primary me-1">.txt</span>
+                                <span class="badge bg-primary">.md</span>
+                            </div>
+                        </div>
                         <input 
                             type="file" 
-                            class="form-control" 
+                            class="form-control d-none" 
                             id="fileInput" 
                             name="file"
                             accept=".txt,.md"
                             required
                         >
-                        <div class="form-text">
-                            Supported formats: .txt, .md (one requirement per line)
+                    </div>
+                    
+                    <!-- File Info Display -->
+                    <div id="fileInfo" class="mt-3" style="display: none;">
+                        <div class="alert alert-info d-flex align-items-center">
+                            <i class="bi bi-file-text me-2"></i>
+                            <div class="flex-grow-1">
+                                <strong id="fileName"></strong><br>
+                                <small id="fileDetails"></small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" id="removeFile">
+                                <i class="bi bi-x"></i>
+                            </button>
                         </div>
                     </div>
                     
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg" id="uploadBtn" disabled>
                             <i class="bi bi-upload"></i>
                             Upload & Analyze
                         </button>
@@ -49,34 +69,90 @@
                 
                 <!-- Upload Progress -->
                 <div id="uploadProgress" class="mt-3" style="display: none;">
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    <div class="progress mb-2">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
                     </div>
-                    <small class="text-muted">Uploading file...</small>
+                    <small class="text-muted" id="uploadStatus">Uploading file...</small>
                 </div>
             </div>
         </div>
         
         <!-- Analysis Section -->
         <div id="analysisSection" class="card shadow-sm mt-4" style="display: none;">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <i class="bi bi-search"></i>
                     Analysis Progress
                 </h5>
+                <button type="button" class="btn btn-sm btn-outline-danger" id="cancelAnalysis" style="display: none;">
+                    <i class="bi bi-x-circle"></i>
+                    Cancel
+                </button>
             </div>
             <div class="card-body">
-                <div id="analysisProgress">
-                    <div class="progress mb-3">
-                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                <!-- Analysis Steps -->
+                <div class="analysis-steps mb-4">
+                    <div class="step active" id="step1">
+                        <div class="step-icon">
+                            <i class="bi bi-file-text"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6>File Processing</h6>
+                            <small>Reading and parsing requirements</small>
+                        </div>
                     </div>
-                    <div id="progressText" class="text-muted">Preparing analysis...</div>
+                    <div class="step" id="step2">
+                        <div class="step-icon">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6>Risk Detection</h6>
+                            <small>Analyzing for potential issues</small>
+                        </div>
+                    </div>
+                    <div class="step" id="step3">
+                        <div class="step-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6>Results Generation</h6>
+                            <small>Compiling analysis results</small>
+                        </div>
+                    </div>
                 </div>
                 
+                <!-- Progress Bar -->
+                <div id="analysisProgress">
+                    <div class="progress mb-3" style="height: 12px;">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div id="progressText" class="text-muted">Preparing analysis...</div>
+                        <div id="progressPercent" class="text-muted">0%</div>
+                    </div>
+                </div>
+                
+                <!-- Analysis Results -->
                 <div id="analysisResults" style="display: none;">
-                    <h6>Analysis Complete!</h6>
-                    <div id="resultsSummary" class="row">
-                        <!-- Results will be populated here -->
+                    <div class="alert alert-success d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <div>
+                            <strong>Analysis Complete!</strong>
+                            <div id="resultsSummary" class="row mt-3">
+                                <!-- Results will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error Display -->
+                <div id="analysisError" style="display: none;">
+                    <div class="alert alert-danger d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>
+                            <strong>Analysis Failed</strong>
+                            <div id="errorMessage" class="mt-1"></div>
+                        </div>
                     </div>
                 </div>
             </div>

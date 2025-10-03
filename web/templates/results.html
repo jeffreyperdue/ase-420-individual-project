@@ -81,54 +81,136 @@
         </div>
         {% endif %}
         
+        <!-- Filter Controls -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel"></i>
+                    Filter Results
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="severityFilter" class="form-label">Severity</label>
+                        <select class="form-select" id="severityFilter">
+                            <option value="">All Severities</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="categoryFilter" class="form-label">Category</label>
+                        <select class="form-select" id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="ambiguity">Ambiguity</option>
+                            <option value="missing_detail">Missing Detail</option>
+                            <option value="performance">Performance</option>
+                            <option value="availability">Availability</option>
+                            <option value="security">Security</option>
+                            <option value="conflict">Conflict</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="riskStatusFilter" class="form-label">Risk Status</label>
+                        <select class="form-select" id="riskStatusFilter">
+                            <option value="">All Requirements</option>
+                            <option value="with_risks">With Risks</option>
+                            <option value="no_risks">No Risks</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="sortBy" class="form-label">Sort By</label>
+                        <select class="form-select" id="sortBy">
+                            <option value="line_number">Line Number</option>
+                            <option value="severity">Severity</option>
+                            <option value="category">Category</option>
+                            <option value="risk_count">Risk Count</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-outline-secondary btn-sm" id="clearFilters">
+                            <i class="bi bi-x-circle"></i> Clear Filters
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" id="expandAll">
+                            <i class="bi bi-arrows-expand"></i> Expand All
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="collapseAll">
+                            <i class="bi bi-arrows-collapse"></i> Collapse All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Requirements and Risks -->
         <div class="card shadow-sm">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <i class="bi bi-list-check"></i>
                     Detailed Analysis
                 </h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-secondary me-2" id="filteredCount">{{ requirements|length }} requirements</span>
+                    <button class="btn btn-sm btn-outline-primary" id="toggleView">
+                        <i class="bi bi-grid-3x3-gap"></i> Grid View
+                    </button>
+                </div>
             </div>
             <div class="card-body">
-                {% for requirement in requirements %}
-                <div class="requirement-item mb-4">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="mb-0">
-                            <span class="badge bg-primary me-2">{{ requirement.id }}</span>
-                            {{ requirement.text }}
-                        </h6>
-                        <small class="text-muted">Line {{ requirement.line_number }}</small>
-                    </div>
-                    
-                    {% set req_risks = risks_by_requirement.get(requirement.id, []) %}
-                    {% if req_risks %}
-                        <div class="risks-container">
-                            {% for risk in req_risks %}
-                            <div class="risk risk-{{ risk.severity }}">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <span class="badge bg-{{ 'danger' if risk.severity == 'critical' else 'warning' if risk.severity == 'high' else 'info' if risk.severity == 'medium' else 'success' }}">
-                                            {{ risk.severity|title }}
-                                        </span>
-                                        <strong>{{ risk.category|title }}</strong>
-                                    </div>
-                                </div>
-                                <p class="mb-1 mt-2">{{ risk.description }}</p>
-                                {% if risk.evidence %}
-                                <small class="text-muted">
-                                    <i class="bi bi-quote"></i> {{ risk.evidence }}
-                                </small>
-                                {% endif %}
+                <div id="requirementsList">
+                    {% for requirement in requirements %}
+                    <div class="requirement-item mb-4" data-requirement-id="{{ requirement.id }}" data-line-number="{{ requirement.line_number }}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">
+                                <span class="badge bg-primary me-2">{{ requirement.id }}</span>
+                                {{ requirement.text }}
+                            </h6>
+                            <div class="d-flex align-items-center">
+                                <small class="text-muted me-2">Line {{ requirement.line_number }}</small>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="toggleRequirement('{{ requirement.id }}')">
+                                    <i class="bi bi-chevron-down" id="chevron-{{ requirement.id }}"></i>
+                                </button>
                             </div>
-                            {% endfor %}
                         </div>
-                    {% else %}
-                        <div class="alert alert-success alert-sm">
-                            <i class="bi bi-check-circle"></i> No risks detected
+                        
+                        {% set req_risks = risks_by_requirement.get(requirement.id, []) %}
+                        <div class="risks-container" id="risks-{{ requirement.id }}" style="display: none;">
+                            {% if req_risks %}
+                                {% for risk in req_risks %}
+                                <div class="risk risk-{{ risk.severity }}" data-severity="{{ risk.severity }}" data-category="{{ risk.category }}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-{{ 'danger' if risk.severity == 'critical' else 'warning' if risk.severity == 'high' else 'info' if risk.severity == 'medium' else 'success' }}">
+                                                {{ risk.severity|title }}
+                                            </span>
+                                            <strong>{{ risk.category|title }}</strong>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="showRiskDetails('{{ requirement.id }}-{{ loop.index }}')">
+                                            <i class="bi bi-info-circle"></i>
+                                        </button>
+                                    </div>
+                                    <p class="mb-1 mt-2">{{ risk.description }}</p>
+                                    {% if risk.evidence %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-quote"></i> {{ risk.evidence }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-success alert-sm">
+                                    <i class="bi bi-check-circle"></i> No risks detected
+                                </div>
+                            {% endif %}
                         </div>
-                    {% endif %}
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
         
@@ -171,11 +253,261 @@
 
 {% block extra_scripts %}
 <script>
-// Initialize tooltips
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl)
+// Global variables
+let currentView = 'list';
+let allRequirements = [];
+
+// Initialize the results page
+document.addEventListener('DOMContentLoaded', function() {
+    initializeResultsPage();
+    initializeFilters();
+    initializeTooltips();
 });
+
+/**
+ * Initialize the results page
+ */
+function initializeResultsPage() {
+    // Store all requirements for filtering
+    allRequirements = Array.from(document.querySelectorAll('.requirement-item'));
+    
+    // Initialize view toggle
+    const toggleViewBtn = document.getElementById('toggleView');
+    if (toggleViewBtn) {
+        toggleViewBtn.addEventListener('click', toggleView);
+    }
+    
+    // Initialize expand/collapse buttons
+    const expandAllBtn = document.getElementById('expandAll');
+    const collapseAllBtn = document.getElementById('collapseAll');
+    
+    if (expandAllBtn) {
+        expandAllBtn.addEventListener('click', expandAllRequirements);
+    }
+    
+    if (collapseAllBtn) {
+        collapseAllBtn.addEventListener('click', collapseAllRequirements);
+    }
+}
+
+/**
+ * Initialize filter functionality
+ */
+function initializeFilters() {
+    const severityFilter = document.getElementById('severityFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const riskStatusFilter = document.getElementById('riskStatusFilter');
+    const sortBy = document.getElementById('sortBy');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    
+    // Add event listeners
+    [severityFilter, categoryFilter, riskStatusFilter, sortBy].forEach(filter => {
+        if (filter) {
+            filter.addEventListener('change', applyFilters);
+        }
+    });
+    
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', clearFilters);
+    }
+}
+
+/**
+ * Apply filters to requirements
+ */
+function applyFilters() {
+    const severityFilter = document.getElementById('severityFilter').value;
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const riskStatusFilter = document.getElementById('riskStatusFilter').value;
+    const sortBy = document.getElementById('sortBy').value;
+    
+    let filteredRequirements = allRequirements.filter(req => {
+        const risks = req.querySelectorAll('.risk');
+        const hasRisks = risks.length > 0;
+        
+        // Filter by risk status
+        if (riskStatusFilter === 'with_risks' && !hasRisks) return false;
+        if (riskStatusFilter === 'no_risks' && hasRisks) return false;
+        
+        // Filter by severity and category
+        if (severityFilter || categoryFilter) {
+            const matchingRisks = Array.from(risks).filter(risk => {
+                const riskSeverity = risk.dataset.severity;
+                const riskCategory = risk.dataset.category;
+                
+                if (severityFilter && riskSeverity !== severityFilter) return false;
+                if (categoryFilter && riskCategory !== categoryFilter) return false;
+                
+                return true;
+            });
+            
+            if (matchingRisks.length === 0) return false;
+        }
+        
+        return true;
+    });
+    
+    // Sort requirements
+    filteredRequirements.sort((a, b) => {
+        switch (sortBy) {
+            case 'line_number':
+                return parseInt(a.dataset.lineNumber) - parseInt(b.dataset.lineNumber);
+            case 'severity':
+                return getHighestSeverity(b) - getHighestSeverity(a);
+            case 'category':
+                return a.querySelector('.risk')?.dataset.category?.localeCompare(b.querySelector('.risk')?.dataset.category || '') || 0;
+            case 'risk_count':
+                return b.querySelectorAll('.risk').length - a.querySelectorAll('.risk').length;
+            default:
+                return 0;
+        }
+    });
+    
+    // Update display
+    updateRequirementsDisplay(filteredRequirements);
+    updateFilteredCount(filteredRequirements.length);
+}
+
+/**
+ * Get highest severity level for a requirement
+ */
+function getHighestSeverity(requirement) {
+    const severities = ['low', 'medium', 'high', 'critical'];
+    const risks = requirement.querySelectorAll('.risk');
+    let highestLevel = 0;
+    
+    risks.forEach(risk => {
+        const severity = risk.dataset.severity;
+        const level = severities.indexOf(severity);
+        if (level > highestLevel) {
+            highestLevel = level;
+        }
+    });
+    
+    return highestLevel;
+}
+
+/**
+ * Update requirements display
+ */
+function updateRequirementsDisplay(requirements) {
+    const requirementsList = document.getElementById('requirementsList');
+    if (!requirementsList) return;
+    
+    // Hide all requirements
+    allRequirements.forEach(req => {
+        req.style.display = 'none';
+    });
+    
+    // Show filtered requirements
+    requirements.forEach(req => {
+        req.style.display = 'block';
+    });
+}
+
+/**
+ * Update filtered count
+ */
+function updateFilteredCount(count) {
+    const filteredCount = document.getElementById('filteredCount');
+    if (filteredCount) {
+        filteredCount.textContent = `${count} requirements`;
+    }
+}
+
+/**
+ * Clear all filters
+ */
+function clearFilters() {
+    document.getElementById('severityFilter').value = '';
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('riskStatusFilter').value = '';
+    document.getElementById('sortBy').value = 'line_number';
+    
+    applyFilters();
+}
+
+/**
+ * Toggle requirement details
+ */
+function toggleRequirement(requirementId) {
+    const risksContainer = document.getElementById(`risks-${requirementId}`);
+    const chevron = document.getElementById(`chevron-${requirementId}`);
+    
+    if (risksContainer && chevron) {
+        const isVisible = risksContainer.style.display !== 'none';
+        risksContainer.style.display = isVisible ? 'none' : 'block';
+        chevron.className = isVisible ? 'bi bi-chevron-right' : 'bi bi-chevron-down';
+    }
+}
+
+/**
+ * Expand all requirements
+ */
+function expandAllRequirements() {
+    allRequirements.forEach(req => {
+        const requirementId = req.dataset.requirementId;
+        const risksContainer = document.getElementById(`risks-${requirementId}`);
+        const chevron = document.getElementById(`chevron-${requirementId}`);
+        
+        if (risksContainer && chevron) {
+            risksContainer.style.display = 'block';
+            chevron.className = 'bi bi-chevron-down';
+        }
+    });
+}
+
+/**
+ * Collapse all requirements
+ */
+function collapseAllRequirements() {
+    allRequirements.forEach(req => {
+        const requirementId = req.dataset.requirementId;
+        const risksContainer = document.getElementById(`risks-${requirementId}`);
+        const chevron = document.getElementById(`chevron-${requirementId}`);
+        
+        if (risksContainer && chevron) {
+            risksContainer.style.display = 'none';
+            chevron.className = 'bi bi-chevron-right';
+        }
+    });
+}
+
+/**
+ * Toggle between list and grid view
+ */
+function toggleView() {
+    const toggleBtn = document.getElementById('toggleView');
+    const requirementsList = document.getElementById('requirementsList');
+    
+    if (currentView === 'list') {
+        currentView = 'grid';
+        requirementsList.classList.add('grid-view');
+        toggleBtn.innerHTML = '<i class="bi bi-list"></i> List View';
+    } else {
+        currentView = 'list';
+        requirementsList.classList.remove('grid-view');
+        toggleBtn.innerHTML = '<i class="bi bi-grid-3x3-gap"></i> Grid View';
+    }
+}
+
+/**
+ * Show risk details modal
+ */
+function showRiskDetails(riskId) {
+    // This would open a modal with detailed risk information
+    console.log('Show risk details for:', riskId);
+}
+
+/**
+ * Initialize tooltips
+ */
+function initializeTooltips() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+}
 
 // Print styles
 window.addEventListener('beforeprint', function() {

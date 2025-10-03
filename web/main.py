@@ -61,12 +61,13 @@ templates_path = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(templates_path))
 
 # Import API routes (we'll create these next)
-from web.api import upload, analysis, reports
+from web.api import upload, analysis, reports, config
 
 # Include API routers
 app.include_router(upload.router, prefix="/api/upload", tags=["upload"])
 app.include_router(analysis.router, prefix="/api/analysis", tags=["analysis"])
 app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
+app.include_router(config.router, prefix="/api/config", tags=["configuration"])
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -141,6 +142,36 @@ async def results_page(request: Request, analysis_id: str):
         "risks_by_requirement": results.risks_by_requirement,
         "summary": results.summary,
         "completed_at": results.completed_at
+    })
+
+@app.get("/reports", response_class=HTMLResponse)
+async def reports_page(request: Request):
+    """
+    Reports dashboard page for managing and viewing analysis reports.
+    
+    BEGINNER NOTES:
+    - This provides a comprehensive dashboard for report management
+    - Shows statistics, filtering, and report generation options
+    - Allows users to view, download, and compare reports
+    """
+    return templates.TemplateResponse("reports.html", {
+        "request": request,
+        "title": "Reports Dashboard"
+    })
+
+@app.get("/config", response_class=HTMLResponse)
+async def config_page(request: Request):
+    """
+    Configuration page for managing rules.json and detector settings.
+    
+    BEGINNER NOTES:
+    - This provides a comprehensive interface for configuration management
+    - Allows users to enable/disable detectors, adjust severity levels
+    - Provides rule editing, import/export, and backup functionality
+    """
+    return templates.TemplateResponse("config.html", {
+        "request": request,
+        "title": "Configuration Management"
     })
 
 # Error handlers

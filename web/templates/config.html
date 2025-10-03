@@ -1,0 +1,976 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration Management - StressSpec{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="bi bi-gear text-primary"></i>
+                        Configuration Management
+                    </h1>
+                    <p class="text-muted mb-0">Manage detection rules, severity levels, and global settings</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary me-2" onclick="showImportModal()">
+                        <i class="bi bi-upload"></i> Import
+                    </button>
+                    <button class="btn btn-outline-success me-2" onclick="exportConfiguration()">
+                        <i class="bi bi-download"></i> Export
+                    </button>
+                    <button class="btn btn-primary" onclick="showBackupModal()">
+                        <i class="bi bi-clock-history"></i> Backups
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Tabs -->
+    <div class="row">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="configTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="detectors-tab" data-bs-toggle="tab" data-bs-target="#detectors" type="button" role="tab">
+                        <i class="bi bi-shield-check"></i> Detectors
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="global-settings-tab" data-bs-toggle="tab" data-bs-target="#global-settings" type="button" role="tab">
+                        <i class="bi bi-sliders"></i> Global Settings
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="severity-tab" data-bs-toggle="tab" data-bs-target="#severity" type="button" role="tab">
+                        <i class="bi bi-exclamation-triangle"></i> Severity Levels
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="configTabContent">
+                <!-- Detectors Tab -->
+                <div class="tab-pane fade show active" id="detectors" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-shield-check"></i> Risk Detection Rules
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="detectorsLoading" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Loading detector configurations...</p>
+                            </div>
+                            
+                            <div id="detectorsContainer" style="display: none;">
+                                <div class="row" id="detectorsList">
+                                    <!-- Detectors will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Global Settings Tab -->
+                <div class="tab-pane fade" id="global-settings" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-sliders"></i> Global Configuration Settings
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="globalSettingsForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="caseSensitive" class="form-label">Case Sensitive</label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="caseSensitive">
+                                                <label class="form-check-label" for="caseSensitive">
+                                                    Enable case-sensitive matching
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="ignoreComments" class="form-label">Ignore Comments</label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="ignoreComments">
+                                                <label class="form-check-label" for="ignoreComments">
+                                                    Skip comment lines during analysis
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="minRequirementLength" class="form-label">Minimum Requirement Length</label>
+                                            <input type="number" class="form-control" id="minRequirementLength" min="1" max="1000">
+                                            <div class="form-text">Minimum number of characters for a valid requirement</div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="maxSimilarityCheck" class="form-label">Max Similarity Check</label>
+                                            <input type="number" class="form-control" id="maxSimilarityCheck" min="1" max="1000">
+                                            <div class="form-text">Maximum number of requirements to check for similarity</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-lg"></i> Save Global Settings
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Severity Levels Tab -->
+                <div class="tab-pane fade" id="severity" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-exclamation-triangle"></i> Severity Level Mapping
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="severityMappingForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="severityLow" class="form-label">Low Severity</label>
+                                            <input type="number" class="form-control" id="severityLow" min="1" max="10" value="1">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="severityMedium" class="form-label">Medium Severity</label>
+                                            <input type="number" class="form-control" id="severityMedium" min="1" max="10" value="2">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="severityHigh" class="form-label">High Severity</label>
+                                            <input type="number" class="form-control" id="severityHigh" min="1" max="10" value="3">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="severityCritical" class="form-label">Critical Severity</label>
+                                            <input type="number" class="form-control" id="severityCritical" min="1" max="10" value="4">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="severityBlocker" class="form-label">Blocker Severity</label>
+                                            <input type="number" class="form-control" id="severityBlocker" min="1" max="10" value="5">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-lg"></i> Save Severity Mapping
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import Configuration Modal -->
+<div class="modal fade" id="importModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-upload"></i> Import Configuration
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="importForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="configFile" class="form-label">Configuration File</label>
+                        <input type="file" class="form-control" id="configFile" accept=".json" required>
+                        <div class="form-text">Select a JSON configuration file to import</div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Warning:</strong> Importing a configuration will replace your current settings. A backup will be created automatically.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="importConfiguration()">
+                    <i class="bi bi-upload"></i> Import Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backup Management Modal -->
+<div class="modal fade" id="backupModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-clock-history"></i> Configuration Backups
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="backupsLoading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading backups...</p>
+                </div>
+                
+                <div id="backupsContainer" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Size</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="backupsList">
+                                <!-- Backups will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rule Editor Modal -->
+<div class="modal fade" id="ruleEditorModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square"></i> Edit Rule
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ruleEditorForm">
+                    <input type="hidden" id="ruleDetectorName">
+                    <input type="hidden" id="ruleName">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="ruleDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="ruleDescription" rows="3" required></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="ruleKeywords" class="form-label">Keywords</label>
+                                <textarea class="form-control" id="ruleKeywords" rows="4" placeholder="Enter keywords, one per line"></textarea>
+                                <div class="form-text">Keywords to detect (one per line)</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="rulePatterns" class="form-label">Patterns</label>
+                                <textarea class="form-control" id="rulePatterns" rows="4" placeholder="Enter patterns, one per line"></textarea>
+                                <div class="form-text">Text patterns to match (one per line)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="ruleTriggers" class="form-label">Triggers</label>
+                                <textarea class="form-control" id="ruleTriggers" rows="4" placeholder="Enter triggers, one per line"></textarea>
+                                <div class="form-text">Trigger words that activate this rule</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="ruleRequiredWith" class="form-label">Required With</label>
+                                <textarea class="form-control" id="ruleRequiredWith" rows="4" placeholder="Enter required terms, one per line"></textarea>
+                                <div class="form-text">Terms that must be present with triggers</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="ruleSimilarityThreshold" class="form-label">Similarity Threshold</label>
+                                <input type="number" class="form-control" id="ruleSimilarityThreshold" min="0" max="1" step="0.1" placeholder="0.8">
+                                <div class="form-text">Threshold for similarity detection (0.0 - 1.0)</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="ruleContextRequired">
+                                    <label class="form-check-label" for="ruleContextRequired">
+                                        Context Required
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveRule()">
+                    <i class="bi bi-check-lg"></i> Save Rule
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Configuration management JavaScript
+let currentConfig = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeConfigPage();
+    loadConfiguration();
+    
+    // Add form event listeners
+    document.getElementById('globalSettingsForm').addEventListener('submit', updateGlobalSettings);
+    document.getElementById('severityMappingForm').addEventListener('submit', updateSeverityMapping);
+    document.getElementById('importForm').addEventListener('submit', importConfiguration);
+});
+
+/**
+ * Initialize configuration page
+ */
+function initializeConfigPage() {
+    // Initialize tabs
+    const tabTriggerList = [].slice.call(document.querySelectorAll('#configTabs button[data-bs-toggle="tab"]'));
+    tabTriggerList.forEach(function (tabTriggerEl) {
+        new bootstrap.Tab(tabTriggerEl);
+    });
+}
+
+/**
+ * Load configuration data
+ */
+async function loadConfiguration() {
+    try {
+        showLoading(true);
+        
+        const response = await fetch('/api/config/');
+        const data = await response.json();
+        
+        if (data.success) {
+            currentConfig = data.data;
+            await loadDetectors();
+            loadGlobalSettings();
+            loadSeverityMapping();
+        } else {
+            showAlert('Failed to load configuration: ' + data.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error loading configuration:', error);
+        showAlert('Failed to load configuration: ' + error.message, 'danger');
+    } finally {
+        showLoading(false);
+    }
+}
+
+/**
+ * Load detectors configuration
+ */
+async function loadDetectors() {
+    try {
+        const response = await fetch('/api/config/detectors');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayDetectors(data.data.detectors);
+        }
+    } catch (error) {
+        console.error('Error loading detectors:', error);
+    }
+}
+
+/**
+ * Display detectors
+ */
+function displayDetectors(detectors) {
+    const container = document.getElementById('detectorsList');
+    
+    if (!detectors || Object.keys(detectors).length === 0) {
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="text-center py-4">
+                    <i class="bi bi-shield-x text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3 text-muted">No Detectors Found</h5>
+                    <p class="text-muted">No detector configurations are available.</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = Object.entries(detectors).map(([name, detector]) => `
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-shield-check text-${getSeverityColor(detector.severity)}"></i>
+                        ${name.charAt(0).toUpperCase() + name.slice(1)}
+                    </h6>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" 
+                               id="detector-${name}" 
+                               ${detector.enabled ? 'checked' : ''}
+                               onchange="toggleDetector('${name}', this.checked)">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted small">${detector.description}</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small">Severity Level</label>
+                        <select class="form-select form-select-sm" onchange="updateDetectorSeverity('${name}', this.value)">
+                            <option value="low" ${detector.severity === 'low' ? 'selected' : ''}>Low</option>
+                            <option value="medium" ${detector.severity === 'medium' ? 'selected' : ''}>Medium</option>
+                            <option value="high" ${detector.severity === 'high' ? 'selected' : ''}>High</option>
+                            <option value="critical" ${detector.severity === 'critical' ? 'selected' : ''}>Critical</option>
+                            <option value="blocker" ${detector.severity === 'blocker' ? 'selected' : ''}>Blocker</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small">Rules (${Object.keys(detector.rules || {}).length})</label>
+                        <div class="list-group list-group-flush">
+                            ${Object.entries(detector.rules || {}).map(([ruleName, rule]) => `
+                                <div class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div>
+                                        <small class="fw-bold">${ruleName}</small>
+                                        <br>
+                                        <small class="text-muted">${rule.description}</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editRule('${name}', '${ruleName}')">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    document.getElementById('detectorsContainer').style.display = 'block';
+}
+
+/**
+ * Load global settings
+ */
+function loadGlobalSettings() {
+    if (!currentConfig || !currentConfig.global_settings) return;
+    
+    const settings = currentConfig.global_settings;
+    document.getElementById('caseSensitive').checked = settings.case_sensitive || false;
+    document.getElementById('ignoreComments').checked = settings.ignore_comments !== false;
+    document.getElementById('minRequirementLength').value = settings.min_requirement_length || 10;
+    document.getElementById('maxSimilarityCheck').value = settings.max_similarity_check || 100;
+}
+
+/**
+ * Load severity mapping
+ */
+function loadSeverityMapping() {
+    if (!currentConfig || !currentConfig.severity_mapping) return;
+    
+    const mapping = currentConfig.severity_mapping;
+    document.getElementById('severityLow').value = mapping.low || 1;
+    document.getElementById('severityMedium').value = mapping.medium || 2;
+    document.getElementById('severityHigh').value = mapping.high || 3;
+    document.getElementById('severityCritical').value = mapping.critical || 4;
+    document.getElementById('severityBlocker').value = mapping.blocker || 5;
+}
+
+/**
+ * Toggle detector enabled state
+ */
+async function toggleDetector(detectorName, enabled) {
+    try {
+        const response = await fetch(`/api/config/detectors/${detectorName}/toggle`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ enabled: enabled })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert(`Detector '${detectorName}' ${enabled ? 'enabled' : 'disabled'} successfully`, 'success');
+        } else {
+            showAlert('Failed to toggle detector: ' + data.message, 'danger');
+            // Revert checkbox state
+            document.getElementById(`detector-${detectorName}`).checked = !enabled;
+        }
+    } catch (error) {
+        console.error('Error toggling detector:', error);
+        showAlert('Failed to toggle detector: ' + error.message, 'danger');
+        // Revert checkbox state
+        document.getElementById(`detector-${detectorName}`).checked = !enabled;
+    }
+}
+
+/**
+ * Update detector severity
+ */
+async function updateDetectorSeverity(detectorName, severity) {
+    try {
+        const response = await fetch(`/api/config/detectors/${detectorName}/severity`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ severity: severity })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert(`Detector '${detectorName}' severity updated to '${severity}'`, 'success');
+        } else {
+            showAlert('Failed to update severity: ' + data.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error updating severity:', error);
+        showAlert('Failed to update severity: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Edit rule
+ */
+function editRule(detectorName, ruleName) {
+    if (!currentConfig || !currentConfig.detectors || !currentConfig.detectors[detectorName]) {
+        showAlert('Detector not found', 'danger');
+        return;
+    }
+    
+    const detector = currentConfig.detectors[detectorName];
+    const rule = detector.rules[ruleName];
+    
+    if (!rule) {
+        showAlert('Rule not found', 'danger');
+        return;
+    }
+    
+    // Populate form
+    document.getElementById('ruleDetectorName').value = detectorName;
+    document.getElementById('ruleName').value = ruleName;
+    document.getElementById('ruleDescription').value = rule.description || '';
+    document.getElementById('ruleKeywords').value = (rule.keywords || []).join('\n');
+    document.getElementById('rulePatterns').value = (rule.patterns || []).join('\n');
+    document.getElementById('ruleTriggers').value = (rule.triggers || []).join('\n');
+    document.getElementById('ruleRequiredWith').value = (rule.required_with || []).join('\n');
+    document.getElementById('ruleSimilarityThreshold').value = rule.similarity_threshold || '';
+    document.getElementById('ruleContextRequired').checked = rule.context_required || false;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('ruleEditorModal'));
+    modal.show();
+}
+
+/**
+ * Save rule
+ */
+async function saveRule() {
+    const detectorName = document.getElementById('ruleDetectorName').value;
+    const ruleName = document.getElementById('ruleName').value;
+    
+    const ruleData = {
+        description: document.getElementById('ruleDescription').value,
+        keywords: document.getElementById('ruleKeywords').value.split('\n').filter(k => k.trim()),
+        patterns: document.getElementById('rulePatterns').value.split('\n').filter(p => p.trim()),
+        triggers: document.getElementById('ruleTriggers').value.split('\n').filter(t => t.trim()),
+        required_with: document.getElementById('ruleRequiredWith').value.split('\n').filter(r => r.trim()),
+        context_required: document.getElementById('ruleContextRequired').checked
+    };
+    
+    const similarityThreshold = document.getElementById('ruleSimilarityThreshold').value;
+    if (similarityThreshold) {
+        ruleData.similarity_threshold = parseFloat(similarityThreshold);
+    }
+    
+    try {
+        const response = await fetch(`/api/config/detectors/${detectorName}/rules/${ruleName}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ rule_data: ruleData })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert('Rule updated successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('ruleEditorModal')).hide();
+            await loadDetectors(); // Refresh detectors display
+        } else {
+            showAlert('Failed to update rule: ' + data.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error updating rule:', error);
+        showAlert('Failed to update rule: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Update global settings
+ */
+async function updateGlobalSettings(event) {
+    event.preventDefault();
+    
+    const settings = {
+        case_sensitive: document.getElementById('caseSensitive').checked,
+        ignore_comments: document.getElementById('ignoreComments').checked,
+        min_requirement_length: parseInt(document.getElementById('minRequirementLength').value),
+        max_similarity_check: parseInt(document.getElementById('maxSimilarityCheck').value)
+    };
+    
+    try {
+        const response = await fetch('/api/config/global-settings', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(settings)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert('Global settings updated successfully', 'success');
+        } else {
+            showAlert('Failed to update global settings: ' + data.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error updating global settings:', error);
+        showAlert('Failed to update global settings: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Update severity mapping
+ */
+async function updateSeverityMapping(event) {
+    event.preventDefault();
+    
+    const mapping = {
+        low: parseInt(document.getElementById('severityLow').value),
+        medium: parseInt(document.getElementById('severityMedium').value),
+        high: parseInt(document.getElementById('severityHigh').value),
+        critical: parseInt(document.getElementById('severityCritical').value),
+        blocker: parseInt(document.getElementById('severityBlocker').value)
+    };
+    
+    try {
+        const response = await fetch('/api/config/severity-mapping', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(mapping)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert('Severity mapping updated successfully', 'success');
+        } else {
+            showAlert('Failed to update severity mapping: ' + data.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error updating severity mapping:', error);
+        showAlert('Failed to update severity mapping: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Show import modal
+ */
+function showImportModal() {
+    const modal = new bootstrap.Modal(document.getElementById('importModal'));
+    modal.show();
+}
+
+/**
+ * Import configuration
+ */
+async function importConfiguration(event) {
+    if (event) event.preventDefault();
+    
+    const fileInput = document.getElementById('configFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showAlert('Please select a file to import', 'warning');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch('/api/config/import', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert('Configuration imported successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('importModal')).hide();
+            await loadConfiguration(); // Reload configuration
+        } else {
+            showAlert('Failed to import configuration: ' + data.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error importing configuration:', error);
+        showAlert('Failed to import configuration: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Export configuration
+ */
+async function exportConfiguration() {
+    try {
+        const response = await fetch('/api/config/export');
+        const data = await response.json();
+        
+        if (data.success) {
+            // Create download link
+            const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `stressspec_config_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showAlert('Configuration exported successfully', 'success');
+        } else {
+            showAlert('Failed to export configuration: ' + data.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error exporting configuration:', error);
+        showAlert('Failed to export configuration: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Show backup modal
+ */
+async function showBackupModal() {
+    const modal = new bootstrap.Modal(document.getElementById('backupModal'));
+    modal.show();
+    
+    await loadBackups();
+}
+
+/**
+ * Load backups
+ */
+async function loadBackups() {
+    try {
+        document.getElementById('backupsLoading').style.display = 'block';
+        document.getElementById('backupsContainer').style.display = 'none';
+        
+        const response = await fetch('/api/config/backups');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayBackups(data.data.backups);
+        } else {
+            showAlert('Failed to load backups: ' + data.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error loading backups:', error);
+        showAlert('Failed to load backups: ' + error.message, 'danger');
+    } finally {
+        document.getElementById('backupsLoading').style.display = 'none';
+        document.getElementById('backupsContainer').style.display = 'block';
+    }
+}
+
+/**
+ * Display backups
+ */
+function displayBackups(backups) {
+    const container = document.getElementById('backupsList');
+    
+    if (!backups || backups.length === 0) {
+        container.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-muted py-4">
+                    <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                    <br>No backups found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    container.innerHTML = backups.map(backup => `
+        <tr>
+            <td>
+                <i class="bi bi-file-earmark-text"></i>
+                ${backup.filename}
+            </td>
+            <td>${formatFileSize(backup.size)}</td>
+            <td>${formatDate(backup.created)}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="restoreBackup('${backup.filename}')">
+                    <i class="bi bi-arrow-clockwise"></i> Restore
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+/**
+ * Restore backup
+ */
+async function restoreBackup(filename) {
+    if (!confirm(`Are you sure you want to restore configuration from '${filename}'? This will replace your current settings.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/config/restore/${filename}`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert(`Configuration restored from '${filename}'`, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('backupModal')).hide();
+            await loadConfiguration(); // Reload configuration
+        } else {
+            showAlert('Failed to restore backup: ' + data.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error restoring backup:', error);
+        showAlert('Failed to restore backup: ' + error.message, 'danger');
+    }
+}
+
+/**
+ * Get severity color
+ */
+function getSeverityColor(severity) {
+    const colors = {
+        'low': 'success',
+        'medium': 'warning',
+        'high': 'danger',
+        'critical': 'danger',
+        'blocker': 'dark'
+    };
+    return colors[severity] || 'secondary';
+}
+
+/**
+ * Show loading state
+ */
+function showLoading(show) {
+    const loading = document.getElementById('detectorsLoading');
+    const container = document.getElementById('detectorsContainer');
+    
+    if (show) {
+        loading.style.display = 'block';
+        container.style.display = 'none';
+    } else {
+        loading.style.display = 'none';
+    }
+}
+
+/**
+ * Show alert
+ */
+function showAlert(message, type) {
+    const alertContainer = document.getElementById('alertContainer') || createAlertContainer();
+    
+    const alertId = 'alert-' + Date.now();
+    const alertHtml = `
+        <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    alertContainer.insertAdjacentHTML('beforeend', alertHtml);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        const alert = document.getElementById(alertId);
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+/**
+ * Create alert container
+ */
+function createAlertContainer() {
+    const container = document.createElement('div');
+    container.id = 'alertContainer';
+    container.className = 'position-fixed top-0 end-0 p-3';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
+}
+
+/**
+ * Format file size
+ */
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+/**
+ * Format date
+ */
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleString();
+}
+</script>
+{% endblock %}

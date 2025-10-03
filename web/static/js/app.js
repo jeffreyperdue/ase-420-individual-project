@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize tooltips and other Bootstrap components
     initializeBootstrap();
+    
+    // Initialize cancel analysis button
+    initializeCancelButton();
+    
+    // Initialize keyboard shortcuts
+    initializeKeyboardShortcuts();
 });
 
 /**
@@ -35,19 +41,99 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeFileUpload() {
     const fileInput = document.getElementById('fileInput');
     const uploadForm = document.getElementById('uploadForm');
+    const uploadZone = document.getElementById('uploadZone');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const removeFileBtn = document.getElementById('removeFile');
     
-    if (fileInput && uploadForm) {
+    if (fileInput && uploadForm && uploadZone) {
         // Handle file selection
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 console.log('File selected:', file.name);
-                updateFileInfo(file);
+                handleFileSelection(file);
             }
         });
         
+        // Handle drag and drop
+        uploadZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (validateFile(file)) {
+                    fileInput.files = files;
+                    handleFileSelection(file);
+                }
+            }
+        });
+        
+        // Handle file removal
+        if (removeFileBtn) {
+            removeFileBtn.addEventListener('click', function() {
+                clearFileSelection();
+            });
+        }
+        
         // Handle form submission
         uploadForm.addEventListener('submit', handleFileUpload);
+    }
+}
+
+/**
+ * Handle file selection
+ */
+function handleFileSelection(file) {
+    if (validateFile(file)) {
+        updateFileInfo(file);
+        enableUploadButton();
+    }
+}
+
+/**
+ * Clear file selection
+ */
+function clearFileSelection() {
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const uploadBtn = document.getElementById('uploadBtn');
+    
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    
+    if (fileInfo) {
+        fileInfo.style.display = 'none';
+    }
+    
+    if (uploadBtn) {
+        uploadBtn.disabled = true;
+    }
+}
+
+/**
+ * Enable upload button
+ */
+function enableUploadButton() {
+    const uploadBtn = document.getElementById('uploadBtn');
+    if (uploadBtn) {
+        uploadBtn.disabled = false;
     }
 }
 
@@ -56,14 +142,13 @@ function initializeFileUpload() {
  */
 function updateFileInfo(file) {
     const fileInfo = document.getElementById('fileInfo');
-    if (fileInfo) {
-        fileInfo.innerHTML = `
-            <div class="alert alert-info">
-                <strong>Selected file:</strong> ${file.name}<br>
-                <strong>Size:</strong> ${formatFileSize(file.size)}<br>
-                <strong>Type:</strong> ${file.type || 'Unknown'}
-            </div>
-        `;
+    const fileName = document.getElementById('fileName');
+    const fileDetails = document.getElementById('fileDetails');
+    
+    if (fileInfo && fileName && fileDetails) {
+        fileName.textContent = file.name;
+        fileDetails.textContent = `${formatFileSize(file.size)} • ${file.type || 'Unknown type'}`;
+        fileInfo.style.display = 'block';
     }
 }
 
@@ -205,7 +290,7 @@ function startAnalysisPolling() {
                 showAnalysisResults(status.results);
             } else if (status.status === 'error') {
                 clearInterval(analysisInterval);
-                showAlert('Analysis failed: ' + status.message, 'danger');
+                showAnalysisError(status.message);
             }
         } catch (error) {
             console.error('Status polling error:', error);
@@ -221,6 +306,8 @@ function startAnalysisPolling() {
 function updateAnalysisProgress(status) {
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
+    const progressPercent = document.getElementById('progressPercent');
+    const cancelBtn = document.getElementById('cancelAnalysis');
     
     if (progressBar) {
         progressBar.style.width = status.progress + '%';
@@ -230,6 +317,50 @@ function updateAnalysisProgress(status) {
     if (progressText) {
         progressText.textContent = status.message;
     }
+    
+    if (progressPercent) {
+        progressPercent.textContent = Math.round(status.progress) + '%';
+    }
+    
+    // Update analysis steps based on progress
+    updateAnalysisSteps(status.progress);
+    
+    // Show cancel button during analysis
+    if (cancelBtn && status.status === 'processing') {
+        cancelBtn.style.display = 'block';
+    }
+}
+
+/**
+ * Update analysis steps based on progress
+ */
+function updateAnalysisSteps(progress) {
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    
+    // Reset all steps
+    [step1, step2, step3].forEach(step => {
+        if (step) {
+            step.classList.remove('active', 'completed');
+        }
+    });
+    
+    // Update steps based on progress
+    if (progress < 33) {
+        if (step1) step1.classList.add('active');
+    } else if (progress < 66) {
+        if (step1) step1.classList.add('completed');
+        if (step2) step2.classList.add('active');
+    } else if (progress < 100) {
+        if (step1) step1.classList.add('completed');
+        if (step2) step2.classList.add('completed');
+        if (step3) step3.classList.add('active');
+    } else {
+        [step1, step2, step3].forEach(step => {
+            if (step) step.classList.add('completed');
+        });
+    }
 }
 
 /**
@@ -238,9 +369,14 @@ function updateAnalysisProgress(status) {
 function showAnalysisResults(results) {
     const resultsDiv = document.getElementById('analysisResults');
     const summaryDiv = document.getElementById('resultsSummary');
+    const cancelBtn = document.getElementById('cancelAnalysis');
     
     if (resultsDiv) {
         resultsDiv.style.display = 'block';
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.style.display = 'none';
     }
     
     if (summaryDiv && results && results.summary) {
@@ -282,6 +418,83 @@ function showAnalysisResults(results) {
                 </div>
             </div>
         `;
+    }
+}
+
+/**
+ * Show analysis error
+ */
+function showAnalysisError(message) {
+    const errorDiv = document.getElementById('analysisError');
+    const errorMessage = document.getElementById('errorMessage');
+    const cancelBtn = document.getElementById('cancelAnalysis');
+    
+    if (errorDiv) {
+        errorDiv.style.display = 'block';
+    }
+    
+    if (errorMessage) {
+        errorMessage.textContent = message;
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.style.display = 'none';
+    }
+}
+
+/**
+ * Cancel analysis
+ */
+async function cancelAnalysis() {
+    if (!currentAnalysisId) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/analysis/cancel/${currentAnalysisId}`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            clearInterval(analysisInterval);
+            showAlert('Analysis cancelled', 'info');
+            resetAnalysisUI();
+        } else {
+            showAlert('Failed to cancel analysis', 'warning');
+        }
+    } catch (error) {
+        console.error('Cancel analysis error:', error);
+        showAlert('Failed to cancel analysis', 'danger');
+    }
+}
+
+/**
+ * Reset analysis UI
+ */
+function resetAnalysisUI() {
+    const analysisSection = document.getElementById('analysisSection');
+    const cancelBtn = document.getElementById('cancelAnalysis');
+    const errorDiv = document.getElementById('analysisError');
+    
+    if (analysisSection) {
+        analysisSection.style.display = 'none';
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.style.display = 'none';
+    }
+    
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+    }
+    
+    // Reset progress
+    updateAnalysisSteps(0);
+    
+    currentAnalysisId = null;
+    if (analysisInterval) {
+        clearInterval(analysisInterval);
+        analysisInterval = null;
     }
 }
 
@@ -363,6 +576,128 @@ function initializeBootstrap() {
     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     popoverTriggerList.map(function (popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl);
+    });
+}
+
+/**
+ * Initialize cancel analysis button
+ */
+function initializeCancelButton() {
+    const cancelBtn = document.getElementById('cancelAnalysis');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', cancelAnalysis);
+    }
+}
+
+/**
+ * Initialize keyboard shortcuts
+ */
+function initializeKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Only trigger shortcuts if not typing in input fields
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+            return;
+        }
+        
+        // Ctrl/Cmd + U: Focus file upload
+        if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                fileInput.click();
+            }
+        }
+        
+        // Ctrl/Cmd + Enter: Submit form if file is selected
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            const uploadBtn = document.getElementById('uploadBtn');
+            if (uploadBtn && !uploadBtn.disabled) {
+                uploadBtn.click();
+            }
+        }
+        
+        // Escape: Cancel analysis or clear file selection
+        if (e.key === 'Escape') {
+            if (currentAnalysisId) {
+                cancelAnalysis();
+            } else {
+                clearFileSelection();
+            }
+        }
+        
+        // Ctrl/Cmd + R: Refresh page (standard browser behavior)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+            // Allow default behavior
+            return;
+        }
+        
+        // F1: Show help
+        if (e.key === 'F1') {
+            e.preventDefault();
+            showKeyboardShortcutsHelp();
+        }
+    });
+}
+
+/**
+ * Show keyboard shortcuts help
+ */
+function showKeyboardShortcutsHelp() {
+    const helpModal = `
+        <div class="modal fade" id="shortcutsModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-keyboard"></i>
+                            Keyboard Shortcuts
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>File Operations</h6>
+                                <ul class="list-unstyled">
+                                    <li><kbd>Ctrl</kbd> + <kbd>U</kbd> - Upload file</li>
+                                    <li><kbd>Ctrl</kbd> + <kbd>Enter</kbd> - Start analysis</li>
+                                    <li><kbd>Esc</kbd> - Cancel/clear</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Navigation</h6>
+                                <ul class="list-unstyled">
+                                    <li><kbd>F1</kbd> - Show this help</li>
+                                    <li><kbd>Ctrl</kbd> + <kbd>R</kbd> - Refresh page</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if present
+    const existingModal = document.getElementById('shortcutsModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', helpModal);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('shortcutsModal'));
+    modal.show();
+    
+    // Remove modal from DOM when hidden
+    document.getElementById('shortcutsModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
     });
 }
 
