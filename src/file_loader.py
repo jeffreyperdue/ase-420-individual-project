@@ -13,7 +13,8 @@ BEGINNER NOTES:
 
 import os          # For operating system operations
 from pathlib import Path  # For handling file paths (works on Windows, Mac, Linux)
-from typing import List   # For type hints (makes code more readable)
+from typing import List, Dict   # For type hints (makes code more readable)
+from .requirement_structure_detector import RequirementStructureDetector
 
 
 class FileLoader:
@@ -46,6 +47,72 @@ class FileLoader:
         """
         pass  # No setup needed for this simple class
     
+    def load_file_structured(self, file_path: str) -> List[Dict]:
+        """
+        Load and parse a file with structured requirement detection.
+        
+        BEGINNER NOTES:
+        - This method uses the structure detector to understand requirement formats
+        - It combines related lines into complete requirements
+        - It filters out separators, headers, and other non-requirement content
+        - It returns structured requirement data instead of just raw lines
+        
+        Args:
+            file_path: Path to the requirement file
+            
+        Returns:
+            List of structured requirement dictionaries
+        """
+        # Load raw lines first
+        raw_lines = self._load_raw_lines(file_path)
+        
+        # Use structure detector to parse requirements
+        detector = RequirementStructureDetector()
+        structured_requirements = detector.parse_structured_requirements(raw_lines)
+        
+        # Filter out invalid requirements
+        valid_requirements = detector.filter_valid_requirements(structured_requirements)
+        
+        # Make sure we got something useful
+        if not valid_requirements:
+            raise ValueError(f"File contains no valid requirements: {file_path}")
+        
+        return valid_requirements
+
+    def _load_raw_lines(self, file_path: str) -> List[str]:
+        """
+        Load raw lines from a file without processing.
+        
+        BEGINNER NOTES:
+        - This is a helper method that just reads the file
+        - It doesn't do any cleaning or filtering
+        - It's used by both load_file and load_file_structured
+        
+        Args:
+            file_path: Path to the requirements file to load
+            
+        Returns:
+            List of raw lines from the file
+            
+        Raises:
+            FileNotFoundError: If the file doesn't exist
+        """
+        # Convert string path to Path object
+        path = Path(file_path)
+        
+        # Check if the file exists
+        if not path.exists():
+            raise FileNotFoundError(f"Requirements file not found: {file_path}")
+        
+        # Read all lines from the file
+        try:
+            with open(path, 'r', encoding='utf-8') as file:
+                return file.readlines()
+        except UnicodeDecodeError:
+            # If UTF-8 fails, try with latin-1
+            with open(path, 'r', encoding='latin-1') as file:
+                return file.readlines()
+
     def load_file(self, file_path: str) -> List[str]:
         """
         Load a requirements file and return processed lines.

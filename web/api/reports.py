@@ -385,6 +385,107 @@ def generate_report_json(analysis_data: Dict, filters: Optional[Dict] = None, te
     
     return json.dumps(report_data, indent=2, default=str)
 
+@router.get("/generate")
+async def generate_report_get(
+    format: str = Query(..., description="Report format (html, markdown, csv, json)"),
+    analysis_id: str = Query(None, description="Analysis ID (optional, uses latest if not provided)"),
+    template: str = Query("technical_detailed", description="Report template"),
+    severity: Optional[str] = Query(None, description="Filter by severity"),
+    category: Optional[str] = Query(None, description="Filter by category")
+):
+    """
+    Generate a report via GET request for quick exports.
+    
+    BEGINNER NOTES:
+    - This endpoint provides a simple way to export reports via URL
+    - It's designed for the export buttons in the results page
+    - It uses query parameters instead of a request body
+    - It returns the report directly for download
+    """
+    try:
+        # Get analysis data from the analysis module
+        from web.api.analysis import analysis_results
+        
+        # If no analysis_id provided, use the most recent one
+        if not analysis_id:
+            if not analysis_results:
+                raise HTTPException(status_code=404, detail="No analysis results available")
+            analysis_id = max(analysis_results.keys(), key=lambda k: analysis_results[k].completed_at)
+        
+        if analysis_id not in analysis_results:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        
+        analysis_data = analysis_results[analysis_id]
+        
+        # Convert analysis data to dictionary format
+        analysis_dict = {
+            "analysis_id": analysis_id,
+            "requirements": [req.__dict__ if hasattr(req, '__dict__') else req for req in analysis_data.requirements],
+            "risks_by_requirement": {
+                req_id: [risk.__dict__ if hasattr(risk, '__dict__') else risk for risk in risks] 
+                for req_id, risks in analysis_data.risks_by_requirement.items()
+            },
+            "summary": analysis_data.summary.__dict__ if hasattr(analysis_data.summary, '__dict__') else analysis_data.summary,
+            "completed_at": analysis_data.completed_at
+        }
+        
+        # Build filters from query parameters
+        filters = {}
+        if severity:
+            filters['severity'] = [severity]
+        if category:
+            filters['category'] = [category]
+        
+        # Apply filters if provided
+        if filters:
+            analysis_dict = apply_report_filters(analysis_dict, filters)
+        
+        # Get template configuration
+        if template not in REPORT_TEMPLATES:
+            raise HTTPException(status_code=400, detail="Invalid template")
+        
+        template_config = REPORT_TEMPLATES[template]
+        
+        # Validate format against template
+        if format not in template_config["format_options"]:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Format '{format}' not supported by template '{template}'"
+            )
+        
+        # Generate report based on format and template
+        if format == "html":
+            report_content = generate_report_html(analysis_dict, filters, template_config, None)
+            return HTMLResponse(content=report_content)
+        elif format == "markdown":
+            report_content = generate_report_markdown(analysis_dict, filters, template_config, None)
+            return Response(
+                content=report_content,
+                media_type="text/markdown",
+                headers={"Content-Disposition": f"attachment; filename=stressspec_report_{analysis_id}.md"}
+            )
+        elif format == "csv":
+            report_content = generate_report_csv(analysis_dict, filters, template_config, None)
+            return Response(
+                content=report_content,
+                media_type="text/csv",
+                headers={"Content-Disposition": f"attachment; filename=stressspec_report_{analysis_id}.csv"}
+            )
+        elif format == "json":
+            report_content = generate_report_json(analysis_dict, filters, template_config, None)
+            return Response(
+                content=report_content,
+                media_type="application/json",
+                headers={"Content-Disposition": f"attachment; filename=stressspec_report_{analysis_id}.json"}
+            )
+        else:
+            raise HTTPException(status_code=400, detail="Invalid report format")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate report: {str(e)}")
+
 @router.post("/generate", response_model=ReportResponse)
 async def generate_report(request: ReportRequest):
     """

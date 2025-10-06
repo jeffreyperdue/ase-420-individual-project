@@ -84,17 +84,17 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
             message="Loading file..."
         )
         
-        # Load the file
+        # Load the file with structured parsing
         file_loader = FileLoader()
-        raw_lines = file_loader.load_file(file_path)
+        structured_requirements = file_loader.load_file_structured(file_path)
         
         # Update progress
         analysis_status[analysis_id].progress = 30
         analysis_status[analysis_id].message = "Parsing requirements..."
         
-        # Parse requirements
+        # Parse structured requirements
         parser = RequirementParser()
-        requirements = parser.parse_requirements(raw_lines)
+        requirements = parser.parse_structured_requirements(structured_requirements)
         
         # Update progress
         analysis_status[analysis_id].progress = 50
@@ -142,8 +142,8 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
         risks_dict = {
             req_id: [
                 {
-                    "category": risk.category,
-                    "severity": risk.severity,
+                    "category": risk.category.value if hasattr(risk.category, 'value') else str(risk.category),
+                    "severity": risk.severity.name.lower() if hasattr(risk.severity, 'name') else str(risk.severity).lower(),
                     "description": risk.description,
                     "evidence": risk.evidence
                 }

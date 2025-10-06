@@ -11,7 +11,7 @@ BEGINNER NOTES:
 - It only cares about parsing - it doesn't read files or display results
 """
 
-from typing import List  # For type hints (makes code more readable)
+from typing import List, Dict  # For type hints (makes code more readable)
 from src.models.requirement import Requirement  # The data structure we're creating
 
 
@@ -75,6 +75,46 @@ class RequirementParser:
             requirements.append(requirement)
         
         return requirements  # Return the list of finished Requirement objects
+    
+    def parse_structured_requirements(self, structured_requirements: List[Dict]) -> List[Requirement]:
+        """
+        Parse structured requirements into Requirement objects.
+        
+        BEGINNER NOTES:
+        - This method works with pre-structured requirement data
+        - It converts structured requirements (like user stories) into Requirement objects
+        - It preserves the structure information in the requirement text
+        - It assigns line numbers based on the first line of each requirement
+        
+        Args:
+            structured_requirements: List of structured requirement dictionaries
+            
+        Returns:
+            List of Requirement objects with proper IDs and line numbers
+        """
+        requirements = []
+        
+        for structured_req in structured_requirements:
+            # Generate a unique ID for this requirement
+            requirement_id = self._generate_id()
+            
+            # Use the first line number as the primary line number
+            line_number = structured_req['line_numbers'][0]
+            
+            # Clean up the text (remove extra spaces)
+            text = structured_req['text'].strip()
+            
+            # Create a Requirement object
+            requirement = Requirement(
+                id=requirement_id,
+                line_number=line_number,
+                text=text
+            )
+            
+            # Add the new Requirement to our list
+            requirements.append(requirement)
+        
+        return requirements
     
     def _generate_id(self) -> str:
         """
