@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-router = APIRouter(prefix="/api/config", tags=["configuration"])
+router = APIRouter(tags=["configuration"])
 
 # Configuration file path
 CONFIG_FILE = "data/rules.json"

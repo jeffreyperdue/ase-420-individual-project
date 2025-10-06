@@ -776,6 +776,42 @@ async def export_multiple_reports(report_ids: List[str], format: str = "json"):
         }
     )
 
+@router.get("/analyses")
+async def list_analyses():
+    """
+    List all available analyses for report generation.
+    
+    BEGINNER NOTES:
+    - This endpoint provides a list of completed analyses
+    - It's used by the Generate Report modal to populate the analysis dropdown
+    - It returns analysis IDs and metadata for selection
+    """
+    try:
+        # Get analysis data from the analysis module
+        from web.api.analysis import analysis_results
+        
+        analyses = []
+        for analysis_id, analysis_data in analysis_results.items():
+            analyses.append({
+                "analysis_id": analysis_id,
+                "file_id": analysis_data.file_id,
+                "completed_at": analysis_data.completed_at,
+                "requirements_count": len(analysis_data.requirements),
+                "risks_count": sum(len(risks) for risks in analysis_data.risks_by_requirement.values())
+            })
+        
+        # Sort by completion date (most recent first)
+        analyses.sort(key=lambda x: x["completed_at"], reverse=True)
+        
+        return {
+            "success": True,
+            "analyses": analyses,
+            "total": len(analyses)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list analyses: {str(e)}")
+
 @router.get("/templates")
 async def list_templates():
     """
