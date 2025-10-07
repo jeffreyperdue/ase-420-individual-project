@@ -280,3 +280,4 @@ class RequirementStructureDetector:
             valid_requirements.append(req)
         
         return valid_requirements
+
