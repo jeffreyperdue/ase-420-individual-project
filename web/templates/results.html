@@ -179,32 +179,43 @@
                         </div>
                         
                         {% set req_risks = risks_by_requirement.get(requirement.id, []) %}
-                        <div class="risks-container" id="risks-{{ requirement.id }}" style="display: none;">
+                        <div class="risks-container" id="risks-{{ requirement.id }}">
                             {% if req_risks %}
+                                <div class="risks-header mt-3 mb-2">
+                                    <h6 class="text-muted mb-0">
+                                        <i class="bi bi-exclamation-triangle"></i> 
+                                        {{ req_risks|length }} Risk{{ 's' if req_risks|length != 1 else '' }} Found
+                                    </h6>
+                                </div>
                                 {% for risk in req_risks %}
-                                <div class="risk risk-{{ risk.severity }}" data-severity="{{ risk.severity }}" data-category="{{ risk.category }}">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
+                                <div class="risk risk-{{ risk.severity }}" data-severity="{{ risk.severity }}" data-category="{{ risk.category }}" data-risk-id="{{ requirement.id }}-{{ loop.index }}">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div class="d-flex align-items-center gap-2">
                                             <span class="badge bg-{{ 'danger' if risk.severity == 'critical' else 'warning' if risk.severity == 'high' else 'info' if risk.severity == 'medium' else 'success' }}">
                                                 {{ risk.severity|title }}
                                             </span>
-                                            <strong>{{ risk.category|title }}</strong>
+                                            <span class="badge bg-secondary">{{ risk.category|title }}</span>
                                         </div>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="showRiskDetails('{{ requirement.id }}-{{ loop.index }}')">
+                                        <button class="btn btn-sm btn-outline-primary risk-details-btn" onclick="showRiskDetails('{{ requirement.id }}-{{ loop.index }}')" title="View Details">
                                             <i class="bi bi-info-circle"></i>
                                         </button>
                                     </div>
-                                    <p class="mb-1 mt-2">{{ risk.description }}</p>
-                                    {% if risk.evidence %}
-                                    <small class="text-muted">
-                                        <i class="bi bi-quote"></i> {{ risk.evidence }}
-                                    </small>
-                                    {% endif %}
+                                    <div class="risk-content">
+                                        <p class="mb-2 fw-medium">{{ risk.description }}</p>
+                                        {% if risk.evidence %}
+                                        <div class="risk-evidence">
+                                            <small class="text-muted d-flex align-items-start">
+                                                <i class="bi bi-quote me-2 mt-1"></i> 
+                                                <span class="fst-italic">{{ risk.evidence }}</span>
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 {% endfor %}
                             {% else %}
-                                <div class="alert alert-success alert-sm">
-                                    <i class="bi bi-check-circle"></i> No risks detected
+                                <div class="alert alert-success alert-sm mt-3">
+                                    <i class="bi bi-check-circle"></i> No risks detected for this requirement
                                 </div>
                             {% endif %}
                         </div>
@@ -225,22 +236,22 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3">
-                        <a href="/api/reports/generate?format=html" class="btn btn-outline-primary w-100">
+                        <a href="/api/reports/generate?format=html&analysis_id={{ analysis_id }}" class="btn btn-outline-primary w-100">
                             <i class="bi bi-file-earmark-text"></i> HTML Report
                         </a>
                     </div>
                     <div class="col-md-3">
-                        <a href="/api/reports/generate?format=markdown" class="btn btn-outline-secondary w-100">
+                        <a href="/api/reports/generate?format=markdown&analysis_id={{ analysis_id }}" class="btn btn-outline-secondary w-100">
                             <i class="bi bi-markdown"></i> Markdown
                         </a>
                     </div>
                     <div class="col-md-3">
-                        <a href="/api/reports/generate?format=csv" class="btn btn-outline-success w-100">
+                        <a href="/api/reports/generate?format=csv&analysis_id={{ analysis_id }}" class="btn btn-outline-success w-100">
                             <i class="bi bi-file-earmark-spreadsheet"></i> CSV
                         </a>
                     </div>
                     <div class="col-md-3">
-                        <a href="/api/reports/generate?format=json" class="btn btn-outline-info w-100">
+                        <a href="/api/reports/generate?format=json&analysis_id={{ analysis_id }}" class="btn btn-outline-info w-100">
                             <i class="bi bi-file-earmark-code"></i> JSON
                         </a>
                     </div>
@@ -435,9 +446,17 @@ function toggleRequirement(requirementId) {
     const chevron = document.getElementById(`chevron-${requirementId}`);
     
     if (risksContainer && chevron) {
-        const isVisible = risksContainer.style.display !== 'none';
-        risksContainer.style.display = isVisible ? 'none' : 'block';
-        chevron.className = isVisible ? 'bi bi-chevron-right' : 'bi bi-chevron-down';
+        const isExpanded = risksContainer.classList.contains('expanded');
+        
+        if (isExpanded) {
+            // Collapse
+            risksContainer.classList.remove('expanded');
+            chevron.className = 'bi bi-chevron-right';
+        } else {
+            // Expand
+            risksContainer.classList.add('expanded');
+            chevron.className = 'bi bi-chevron-down';
+        }
     }
 }
 
@@ -451,7 +470,7 @@ function expandAllRequirements() {
         const chevron = document.getElementById(`chevron-${requirementId}`);
         
         if (risksContainer && chevron) {
-            risksContainer.style.display = 'block';
+            risksContainer.classList.add('expanded');
             chevron.className = 'bi bi-chevron-down';
         }
     });
@@ -467,7 +486,7 @@ function collapseAllRequirements() {
         const chevron = document.getElementById(`chevron-${requirementId}`);
         
         if (risksContainer && chevron) {
-            risksContainer.style.display = 'none';
+            risksContainer.classList.remove('expanded');
             chevron.className = 'bi bi-chevron-right';
         }
     });
@@ -495,8 +514,81 @@ function toggleView() {
  * Show risk details modal
  */
 function showRiskDetails(riskId) {
-    // This would open a modal with detailed risk information
-    console.log('Show risk details for:', riskId);
+    // Find the risk element
+    const riskElement = document.querySelector(`[data-risk-id="${riskId}"]`);
+    if (!riskElement) {
+        console.log('Risk element not found for:', riskId);
+        return;
+    }
+    
+    // Extract risk information
+    const severity = riskElement.dataset.severity;
+    const category = riskElement.dataset.category;
+    const description = riskElement.querySelector('.risk-content p').textContent;
+    const evidence = riskElement.querySelector('.risk-evidence span')?.textContent || 'No evidence provided';
+    
+    // Create modal HTML
+    const modalHtml = `
+        <div class="modal fade" id="riskDetailsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Risk Details
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Severity</h6>
+                                <span class="badge bg-${severity === 'critical' ? 'danger' : severity === 'high' ? 'warning' : severity === 'medium' ? 'info' : 'success'} fs-6">
+                                    ${severity.charAt(0).toUpperCase() + severity.slice(1)}
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Category</h6>
+                                <span class="badge bg-secondary fs-6">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h6>Description</h6>
+                            <p class="text-muted">${description}</p>
+                        </div>
+                        <div class="mt-3">
+                            <h6>Evidence</h6>
+                            <div class="alert alert-light">
+                                <i class="bi bi-quote"></i>
+                                <em>${evidence}</em>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if present
+    const existingModal = document.getElementById('riskDetailsModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('riskDetailsModal'));
+    modal.show();
+    
+    // Remove modal from DOM when hidden
+    document.getElementById('riskDetailsModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
 }
 
 /**

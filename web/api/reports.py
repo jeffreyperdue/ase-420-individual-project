@@ -34,7 +34,7 @@ REPORT_TEMPLATES = {
         "name": "Technical Detailed Report",
         "description": "Comprehensive technical analysis with all details",
         "sections": ["summary", "requirements", "risks", "evidence", "recommendations"],
-        "format_options": ["html", "markdown", "json"],
+        "format_options": ["html", "markdown", "csv", "json"],
         "customizable": True
     },
     "compliance_audit": {
@@ -417,15 +417,12 @@ async def generate_report_get(
         
         analysis_data = analysis_results[analysis_id]
         
-        # Convert analysis data to dictionary format
+        # Use already converted data from analysis results
         analysis_dict = {
             "analysis_id": analysis_id,
-            "requirements": [req.__dict__ if hasattr(req, '__dict__') else req for req in analysis_data.requirements],
-            "risks_by_requirement": {
-                req_id: [risk.__dict__ if hasattr(risk, '__dict__') else risk for risk in risks] 
-                for req_id, risks in analysis_data.risks_by_requirement.items()
-            },
-            "summary": analysis_data.summary.__dict__ if hasattr(analysis_data.summary, '__dict__') else analysis_data.summary,
+            "requirements": analysis_data.requirements,
+            "risks_by_requirement": analysis_data.risks_by_requirement,
+            "summary": analysis_data.summary,
             "completed_at": analysis_data.completed_at
         }
         
@@ -509,15 +506,12 @@ async def generate_report(request: ReportRequest):
         
         analysis_data = analysis_results[request.analysis_id]
         
-        # Convert analysis data to dictionary format
+        # Use already converted data from analysis results
         analysis_dict = {
             "analysis_id": request.analysis_id,
-            "requirements": [req.__dict__ for req in analysis_data.requirements],
-            "risks_by_requirement": {
-                req_id: [risk.__dict__ for risk in risks] 
-                for req_id, risks in analysis_data.risks_by_requirement.items()
-            },
-            "summary": analysis_data.summary.__dict__ if hasattr(analysis_data.summary, '__dict__') else analysis_data.summary,
+            "requirements": analysis_data.requirements,
+            "risks_by_requirement": analysis_data.risks_by_requirement,
+            "summary": analysis_data.summary,
             "completed_at": analysis_data.completed_at
         }
         

@@ -619,11 +619,112 @@ body {
 .risks-container {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
+    transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 0;
+    margin-top: 0;
 }
 
 .risks-container.expanded {
-    max-height: 1000px;
+    max-height: 2000px;
+    opacity: 1;
+    margin-top: 15px;
+}
+
+/* Risk Header */
+.risks-header {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 8px;
+}
+
+.risks-header h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+/* Enhanced Risk Styling */
+.risk {
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+    border-left: 4px solid;
+    transition: all 0.2s ease-in-out;
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    position: relative;
+}
+
+.risk:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.risk.critical {
+    background-color: #fef2f2;
+    border-left-color: #dc2626;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.risk.high {
+    background-color: #fffbeb;
+    border-left-color: #f59e0b;
+    color: #92400e;
+    border-color: #fed7aa;
+}
+
+.risk.medium {
+    background-color: #eff6ff;
+    border-left-color: #3b82f6;
+    color: #1e40af;
+    border-color: #bfdbfe;
+}
+
+.risk.low {
+    background-color: #f0fdf4;
+    border-left-color: #10b981;
+    color: #065f46;
+    border-color: #bbf7d0;
+}
+
+/* Risk Content */
+.risk-content {
+    margin-top: 8px;
+}
+
+.risk-content p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.risk-evidence {
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 8px;
+}
+
+.risk-evidence small {
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Risk Details Button */
+.risk-details-btn {
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+.risk-details-btn:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.risk:hover .risk-details-btn {
+    opacity: 1;
 }
 
 /* Filter Badges */

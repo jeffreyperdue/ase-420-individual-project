@@ -117,7 +117,7 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
         
         for req_id, risks in risks_by_requirement.items():
             for risk in risks:
-                category = risk.category
+                category = risk.category.value if hasattr(risk.category, 'value') else str(risk.category)
                 if category not in risk_categories:
                     risk_categories[category] = 0
                 risk_categories[category] += 1
