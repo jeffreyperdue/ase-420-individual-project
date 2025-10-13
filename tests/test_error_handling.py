@@ -20,6 +20,7 @@ import pytest
 import asyncio
 import json
 import tempfile
+import os
 from unittest.mock import Mock, patch, AsyncMock
 from fastapi.testclient import TestClient
 from fastapi import FastAPI, HTTPException, Request
@@ -124,6 +125,10 @@ class TestErrorHandlers:
         request.method = "GET"
         request.url.path = "/test"
         request.client.host = "127.0.0.1"
+        request.query_params = {}  # Fix Mock issue
+        request.headers = {}  # Add headers to avoid Mock serialization issues
+        request.url = Mock()  # Create proper Mock URL object
+        request.url.path = "/test"  # Set path on the Mock URL
         
         response = create_error_response(exc, request)
         
@@ -146,7 +151,7 @@ class TestErrorHandlers:
             {"loc": ("field1",), "msg": "Invalid value", "type": "value_error"},
             {"loc": ("field2",), "msg": "Missing field", "type": "missing"}
         ]
-        exc = PydanticValidationError(errors, Mock())
+        exc = PydanticValidationError(errors, [])  # Fix Mock issue with empty list
         
         response = handle_validation_error(exc)
         
@@ -567,8 +572,12 @@ class TestLogging:
             
             # Clean up
             import shutil
-            if os.path.exists("test_logs"):
-                shutil.rmtree("test_logs")
+            try:
+                if os.path.exists("test_logs"):
+                    shutil.rmtree("test_logs")
+            except PermissionError:
+                # Ignore permission errors on Windows
+                pass
                 
         except Exception as e:
             pytest.fail(f"Logging setup failed: {e}")
