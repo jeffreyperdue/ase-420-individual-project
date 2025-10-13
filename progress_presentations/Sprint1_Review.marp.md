@@ -11,7 +11,7 @@ theme: default
 
 **Individual Project – Jeffrey Perdue**  
 **Sprint 1: MVP Implementation Complete**  
-**September 2024**
+**October 15 2025**
 
 ---
 
@@ -34,8 +34,18 @@ theme: default
 ## 🌐 Web Application Demo
 
 ### **Modern Web Interface**
+---
 
+This is the landing page
 ![homepage.png](homepage.png)
+
+---
+We add a file
+![homepage_post_upload.png](homepage_post_upload.png)
+
+---
+After selecting "Upload & Analyze" user is taken to Analysis Results page
+![analysis_results.png](analysis_results.png)
 
 ---
 **Key Features:**
@@ -44,6 +54,38 @@ theme: default
 - **Interactive Results** - Filtering, sorting, and detailed risk breakdown
 - **Reports Dashboard** - Comprehensive reports management
 - **Configuration Management** - Complete rules.json editing interface
+
+---
+
+## 📖 How to Use StressSpec
+
+### **Getting Started**
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/jeffreyperdue/ase-420-individual-project
+   cd StressSpec
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+---
+
+### **Web Interface (Recommended)**
+
+1. **Start the Web Server**
+   ```bash
+   python web/main.py
+   ```
+
+2. **Access the Application**
+   - Open browser to `http://localhost:8000`
+   - Upload a requirements file (.txt or .md)
+   - Click "Upload & Analyze"
+   - View results and download reports
+
 
 ---
 
