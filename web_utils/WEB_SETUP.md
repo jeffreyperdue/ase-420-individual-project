@@ -24,7 +24,7 @@ This script will:
 ### 3. Start Development Server
 ```bash
 # Start the development server
-python run_web.py
+python web_utils/run_web.py
 ```
 
 The web interface will be available at: http://127.0.0.1:8000
@@ -73,7 +73,7 @@ python run_web.py
 
 ### File Structure
 ```
-ase-420-individual-project/
+StressSpec/
 ├── web/                    # Web application
 │   ├── main.py            # FastAPI app entry point
 │   ├── static/            # Static files (CSS, JS, images)
@@ -159,4 +159,4 @@ For production deployment, you'll need to:
 4. Configure SSL certificates
 5. Set up monitoring and logging
 
-See the web_ui_plan.md for detailed implementation steps.
+See the Sprint2_Features_and_Plan.md for detailed implementation steps.

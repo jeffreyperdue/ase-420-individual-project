@@ -16,7 +16,7 @@ StressSpec acts as a "wind tunnel" for requirements, helping project managers, b
 4. **Configurable Rules** - JSON-driven rules in `data/rules.json` with severities and enable switches
 5. **Reporting** - Multi-format outputs: Markdown, CSV, JSON
 6. **CLI Interface** - Report format selection and output path
-7. **Testing** - Comprehensive unit and integration tests (31 passing)
+7. **Testing** - Comprehensive unit and integration tests (59 passing, 4 failing - working toward 100%)
 
 ### Project Structure
 
@@ -153,7 +153,8 @@ R003: Line 3
 
 ## Documentation
 
-- See `docs/HOWTO.md` for a step-by-step guide and examples.
+- See `web_utils/WEB_SETUP.md` for detailed web setup instructions.
+- See `web_utils/QUICK_START.md` for quick start guide.
 
 ## Requirements
 

@@ -10,7 +10,7 @@
 
 ```bash
 # Navigate to the project directory
-cd ase-420-individual-project
+cd StressSpec
 
 # Start the development server
 python run_web.py
@@ -20,7 +20,7 @@ python run_web.py
 
 ```bash
 # Navigate to the project directory
-cd ase-420-individual-project
+cd StressSpec
 
 # Run FastAPI directly
 python -m uvicorn web.main:app --host 127.0.0.1 --port 8000 --reload
@@ -30,7 +30,7 @@ python -m uvicorn web.main:app --host 127.0.0.1 --port 8000 --reload
 
 ```bash
 # Navigate to the project directory
-cd ase-420-individual-project
+cd StressSpec
 
 # Run the main FastAPI app
 python web/main.py
@@ -156,7 +156,7 @@ Once the server is running, you can access:
 ## 📚 **Additional Resources**
 
 - **Setup Guide**: See `WEB_SETUP.md` for detailed setup instructions
-- **Implementation Plan**: See `docs/web_ui_plan.md` for development roadmap
+- **Implementation Plan**: See `Sprint2_Features_and_Plan.md` for development roadmap
 - **API Documentation**: Available at `/api/docs` when server is running
 - **Sample Files**: Download from the main page to test the application
 
