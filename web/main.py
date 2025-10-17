@@ -61,13 +61,14 @@ templates_path = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(templates_path))
 
 # Import API routes (we'll create these next)
-from web.api import upload, analysis, reports, config
+from web.api import upload, analysis, reports, config, debug
 
 # Include API routers
 app.include_router(upload.router, prefix="/api/upload", tags=["upload"])
 app.include_router(analysis.router, prefix="/api/analysis", tags=["analysis"])
 app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 app.include_router(config.router, prefix="/api/config", tags=["configuration"])
+app.include_router(debug.router, prefix="/api", tags=["debug"])
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -95,10 +96,12 @@ async def health_check():
     - Useful for load balancers and monitoring systems
     - Returns basic status information
     """
+    from datetime import datetime
     return {
         "status": "healthy",
         "service": "StressSpec Web UI",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "timestamp": datetime.utcnow().isoformat() + "Z"
     }
 
 @app.get("/about", response_class=HTMLResponse)

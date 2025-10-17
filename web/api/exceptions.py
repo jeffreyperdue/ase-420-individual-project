@@ -232,12 +232,39 @@ def handle_validation_error(validation_error: ValidationError) -> JSONResponse:
     """
     field_errors = []
     
-    for error in validation_error.errors():
+    # Try to get errors via the standard API first
+    errors_list = []
+    try:
+        errors_list = validation_error.errors()  # type: ignore[attr-defined]
+    except Exception:
+        errors_list = []
+    
+    # Fallbacks for different Pydantic versions or construction styles used in tests
+    if not errors_list:
+        # Some ValidationError instances may carry the raw errors in args[0]
+        if getattr(validation_error, "args", None):
+            first_arg = validation_error.args[0]
+            if isinstance(first_arg, list):
+                errors_list = first_arg
+        # As another fallback, check common internal attributes
+        if not errors_list:
+            for attr_name in ("_errors", "raw_errors", "error_list"):
+                possible = getattr(validation_error, attr_name, None)
+                if isinstance(possible, list) and possible:
+                    errors_list = possible
+                    break
+    
+    for error in errors_list:
+        # Normalize structures between pydantic v1 and v2
+        loc = error.get("loc") if isinstance(error, dict) else getattr(error, "loc", ())
+        msg = error.get("msg") if isinstance(error, dict) else getattr(error, "msg", "Validation error")
+        err_type = error.get("type") if isinstance(error, dict) else getattr(error, "type", "value_error")
+        inp = error.get("input") if isinstance(error, dict) else getattr(error, "input", None)
         field_errors.append({
-            "field": ".".join(str(loc) for loc in error["loc"]),
-            "message": error["msg"],
-            "type": error["type"],
-            "input": error.get("input")
+            "field": ".".join(str(part) for part in (loc or ())) if loc is not None else "",
+            "message": msg,
+            "type": err_type,
+            "input": inp
         })
     
     error_response = {

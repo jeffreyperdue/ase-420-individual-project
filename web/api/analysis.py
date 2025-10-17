@@ -254,7 +254,8 @@ async def get_analysis_status(analysis_id: str):
     """
     try:
         if analysis_id not in analysis_status:
-            raise HTTPException(status_code=404, detail="Analysis not found")
+            # Treat unknown IDs as client error (bad request) per tests
+            raise HTTPException(status_code=400, detail="Invalid analysis ID")
         
         return analysis_status[analysis_id]
     except HTTPException:
