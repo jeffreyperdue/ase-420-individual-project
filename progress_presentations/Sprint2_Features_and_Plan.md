@@ -190,3 +190,18 @@
 - **Provides Prioritization** - Top 5 riskiest requirements for team focus
 - **Maintains Quality** - 100% test coverage ensures reliability
 - **Sets Foundation** - Solid base for future enhancements in Sprint 3+
+
+
+Sprint 2 (5 Weeks) → Complete 8-Category System & Enhanced Reporting
+Feature #1: Complete Test Coverage
+Requirement #1: The system shall achieve 100% test pass rate by resolving remaining integration test failures.
+Plan: Implement in Week 6 — fix 4 remaining integration test failures + ensure all 63+ tests pass consistently.
+Feature #2: Risk Detection Modules (Complete 8-Category System)
+Requirement #2: The system shall add Privacy, Traceability, and Scope detection modules to complete the original 8-category plan.
+Plan: Implement in Week 6-7 — Privacy detector (Week 6) + Traceability & Scope detectors (Week 7) + updated rules.json with new detection patterns.
+Feature #3: Advanced Severity Scoring
+Requirement #3: The system shall calculate combined risk scores and highlight the "Top 5 riskiest requirements."
+Plan: Implement in Week 8 — scoring aggregation engine + top 5 riskiest requirements analysis + integration with existing report formats.
+Feature #4: Enhanced HTML Reporting
+Requirement #4: The system shall generate standalone HTML reports with professional styling suitable for stakeholder presentations.
+Plan: Implement in Week 9 — Jinja2 HTML templates + Bootstrap styling + executive summary format + self-contained report generation.
