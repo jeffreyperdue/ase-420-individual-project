@@ -1,0 +1,17 @@
+The system should possibly be fast and user-friendly.
+The system shall
+The system shall handle errors
+Users can login and access the dashboard.
+Admins can delete user accounts.
+The application will store personal information in the database.
+The API will send data to external services.
+The feature must render the report and must not leak secrets.
+Display the user profile page.
+Display user profile page.
+The system shall support 10,000 concurrent users.
+The service shall be reliable under heavy load.
+Support any API on all platforms.
+Integrate with external system for data sync.
+Integrate with payment gateway.
+Acceptance Criteria: When user logs in, Then dashboard loads.
+

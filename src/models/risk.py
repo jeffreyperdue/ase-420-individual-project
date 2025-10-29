@@ -33,6 +33,8 @@ class RiskCategory(Enum):
     CONFLICT = "conflict"
     PERFORMANCE = "performance"
     AVAILABILITY = "availability"
+    TRACEABILITY = "traceability"
+    SCOPE = "scope"
 
 
 @dataclass

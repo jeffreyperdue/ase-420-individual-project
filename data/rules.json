@@ -118,6 +118,45 @@
           "description": "System services without availability specifications"
         }
       }
+    },
+    "traceability": {
+      "enabled": true,
+      "severity": "high",
+      "description": "Detects missing traceability signals (IDs, acceptance criteria, test references)",
+      "rules": {
+        "missing_requirement_id": {
+          "patterns": ["R", "REQ-", "US-", "FR-", "-"],
+          "description": "Common requirement ID patterns (permissive substring matching)"
+        },
+        "missing_acceptance_criteria": {
+          "keywords": ["given", "when", "then", "acceptance criteria", "ac:"],
+          "description": "Acceptance criteria markers (BDD or labeled section)"
+        },
+        "missing_test_reference": {
+          "keywords": ["tc-", "test case", "unit test", "integration test", "verification", "validated by", "qa"],
+          "description": "References to test artifacts or verification language"
+        }
+      }
+    },
+    "scope": {
+      "enabled": true,
+      "severity": "medium",
+      "description": "Detects scope creep and undefined boundaries",
+      "rules": {
+        "out_of_scope_terms": {
+          "keywords": ["any api", "all platforms", "every browser", "all providers", "support everything"],
+          "description": "Overly broad scope language"
+        },
+        "undefined_system_boundary": {
+          "keywords": ["external system", "third-party service", "partner api", "legacy system"],
+          "description": "References to external dependencies without defined boundaries"
+        },
+        "third_party_dependency_without_spec": {
+          "triggers": ["integrate", "connect", "sync"],
+          "required_with": ["provider", "version", "protocol", "contract", "sla"],
+          "description": "Integrations lacking provider/version/protocol constraints"
+        }
+      }
     }
   },
   "severity_mapping": {

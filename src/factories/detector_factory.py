@@ -20,6 +20,8 @@ from src.detectors.security_detector import SecurityDetector
 from src.detectors.conflict_detector import ConflictDetector
 from src.detectors.performance_detector import PerformanceDetector
 from src.detectors.availability_detector import AvailabilityDetector
+from src.detectors.traceability_detector import TraceabilityDetector
+from src.detectors.scope_detector import ScopeDetector
 
 
 class RiskDetectorFactory:
@@ -47,6 +49,8 @@ class RiskDetectorFactory:
         'conflict': ConflictDetector,
         'performance': PerformanceDetector,
         'availability': AvailabilityDetector,
+        'traceability': TraceabilityDetector,
+        'scope': ScopeDetector,
     }
     
     def __init__(self, rules_file: str = "data/rules.json"):
