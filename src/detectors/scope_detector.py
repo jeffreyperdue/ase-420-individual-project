@@ -30,11 +30,15 @@ class ScopeDetector(BaseRiskDetector):
         keywords = rule.get("keywords", [])
 
         for term in self.contains_keywords(requirement.text, keywords):
+            # Escalate explicit boundary violations to high
+            escalate_terms = ["any api", "all platforms", "every browser", "all providers", "support everything"]
+            severity = "high" if term.lower() in escalate_terms else None
             risks.append(
                 self.create_risk(
                     requirement,
                     description=f"Potential scope creep term '{term}' detected",
                     evidence=term,
+                    severity=severity,
                     suggestion=(
                         "Constrain scope with explicit platforms, versions, providers, or acceptance criteria"
                     ),
@@ -80,6 +84,7 @@ class ScopeDetector(BaseRiskDetector):
                         "Third-party integration mentioned without specifying provider, version, or protocol"
                     ),
                     evidence=requirement.text,
+                    severity="high",
                     suggestion=(
                         "Add constraints (specific provider, supported versions, protocol/contract, SLA)"
                     ),
