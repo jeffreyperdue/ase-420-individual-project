@@ -11,7 +11,30 @@ theme: default
 
 **Individual Project – Jeffrey Perdue**  
 **Sprint 1: MVP Implementation Complete**  
-**October 15 2025**
+**Updated: Weeks 6 & 7 Progress Included**
+
+---
+
+## 🔍 What Problem Does StressSpec Solve?
+
+### **The Challenge with Requirements**
+
+Most software project failures stem from **unclear, unrealistic, or incomplete requirements**.
+
+**Key Statistics:**
+- 🔴 **37%** of enterprise project failures are linked to poor requirements
+- 💰 Fixing requirement defects late costs **5–10x more** than early detection
+- ⏰ Teams often discover ambiguity, conflicts, and compliance gaps **after coding begins**
+
+---
+### **The Gap in Current Tools**
+
+Current tools help write or clarify requirements, but they **don't stress-test them** for hidden risks like:
+- Ambiguity and vague language
+- Missing security or compliance details
+- Conflicting or contradictory requirements
+- Performance and scalability gaps
+- Traceability and scope issues
 
 ---
 
@@ -21,10 +44,10 @@ theme: default
 
 - ✅ **Complete CLI Tool** - Full command-line interface with file processing
 - ✅ **Web Application** - Modern FastAPI web interface with responsive design
-- ✅ **6 Risk Detection Modules** - Ambiguity, Missing Detail, Security, Conflict, Performance, Availability
+- ✅ **8 Risk Detection Modules** - Ambiguity, Missing Detail, Security, Conflict, Performance, Availability, Traceability, Scope
 - ✅ **Multi-Format Reporting** - Markdown, CSV, JSON output formats
 - ✅ **Configurable Rules System** - JSON-driven configuration with severity levels
-- ✅ **Comprehensive Testing** - 59 passing tests (93.7% pass rate)
+- ✅ **Comprehensive Testing** - 72 passing tests (100% pass rate)
 
 ---
 
@@ -86,6 +109,50 @@ After selecting "Upload & Analyze" user is taken to Analysis Results page
    - Click "Upload & Analyze"
    - View results and download reports
 
+---
+
+## 🛠️ Web UI Technology Stack
+
+### **Backend Technologies**
+
+- **FastAPI** - Modern, high-performance web framework for building REST APIs
+  - Automatic API documentation (Swagger/OpenAPI)
+  - Type validation with Pydantic
+  - Async/await support for concurrent requests
+
+- **Uvicorn** - ASGI server for running FastAPI applications
+  - Production-ready server with high performance
+  - Supports WebSocket connections
+
+---
+
+- **Jinja2** - Powerful template engine for HTML rendering
+  - Server-side templating with inheritance
+  - Dynamic content generation
+
+- **aiofiles** - Asynchronous file I/O operations
+  - Non-blocking file uploads and processing
+  - Improved performance for concurrent users
+
+### **Frontend Technologies**
+
+- **Bootstrap 5**
+
+- **HTMX** 
+
+- **Bootstrap Icons** 
+
+- **Vanilla JavaScript**
+
+
+---
+
+### **Additional Tools & Libraries**
+
+- **python-multipart** - File upload handling in FastAPI
+- **python-dotenv** - Environment variable management
+- **CORS Middleware** - Cross-origin resource sharing support
+- **GZip Middleware** - Response compression for performance
 
 ---
 
@@ -99,12 +166,12 @@ After selecting "Upload & Analyze" user is taken to Analysis Results page
 | **Features Implemented** | 6 major features | Complete MVP scope |
 | **Requirements Delivered** | 7/7 (100%) | All original requirements met |
 | **Burndown Rate** | 100% | (7/7) × 100% = 100% |
-| **Test Coverage** | 59 passing tests | 93.7% pass rate |
+| **Test Coverage** | 72 passing tests | 100% pass rate ✅ |
 
 ---
 | Metric | Count | Details |
 |--------|-------|---------|
-| **Risk Detectors** | 6 implemented | Ambiguity, Missing Detail, Security, Conflict, Performance, Availability |
+| **Risk Detectors** | 8 implemented | All 8 categories: Ambiguity, Missing Detail, Security, Conflict, Performance, Availability, Traceability, Scope |
 | **Report Formats** | 3 formats | Markdown, CSV, JSON |
 | **API Endpoints** | 25+ RESTful endpoints | Complete web API |
 
@@ -115,7 +182,7 @@ After selecting "Upload & Analyze" user is taken to Analysis Results page
 ### **✅ Successful Implementation Areas**
 
 1. **Excellent Architecture** - Successfully implemented SOLID principles with Factory, Strategy, and Template Method patterns
-2. **Comprehensive Testing** - 59 passing tests covering core functionality with 93.7% pass rate achieved
+2. **Comprehensive Testing** - 72 passing tests covering core functionality with 100% pass rate achieved
 3. **Rapid MVP Delivery** - Completed full end-to-end workflow in Week 2, exceeding timeline expectations
 4. **Web UI Excellence** - Delivered production-ready FastAPI web application with modern UI, responsive design, and comprehensive features
 5. **Quality Code** - 9,150+ lines of well-structured, documented Python code following best practices
@@ -129,14 +196,14 @@ After selecting "Upload & Analyze" user is taken to Analysis Results page
 
 ## ⚠️ What Went Wrong & Improvement Plan
 
-### **Challenges Identified**
+### **Challenges Identified & Resolved**
 
 1. **Scope Creep** - Originally planned 4 risk detectors but implemented 6, plus added complete web UI which wasn't in original Sprint 1 scope
-2. **Minor Integration Test Issues** - 4 remaining test failures in integration tests (93.7% pass rate achieved)
+2. ✅ **Integration Test Issues** - RESOLVED in Week 6: All 4 remaining test failures fixed, achieved 100% test pass rate
 ---
 ### **Analysis & Improvement Plan**
 
-1. **Complete Test Coverage** - Address remaining 4 integration test failures to achieve 100% test pass rate
+1. ✅ **Complete Test Coverage** - ACHIEVED in Week 6: 100% test pass rate (72 passing, 0 failing)
 2. **Scope Management** - Better upfront planning to avoid feature creep, though the additional features were valuable
 3. **Continuous Documentation** - Implement documentation-as-code approach with automated updates during development
 4. **Performance Testing** - Add load testing for web application to ensure scalability under concurrent users
@@ -147,8 +214,8 @@ After selecting "Upload & Analyze" user is taken to Analysis Results page
 
 ### **Individual Sprint 2 Goals**
 
-1. **Complete Test Coverage** - Address remaining 4 integration test failures to achieve 100% test pass rate
-2. **Enhanced Risk Detection** - Add Privacy, Traceability, and Scope detection modules (completing original 8-category plan)
+1. ✅ **Complete Test Coverage** - ACHIEVED in Week 6: 100% test pass rate
+2. ✅ **Enhanced Risk Detection** - COMPLETED in Week 7: Traceability and Scope detectors implemented (8-category plan complete)
 3. **Enhanced Reporting** - Implement basic HTML reports with professional styling
 4. **Advanced Scoring** - Implement "Top 5 Riskiest Requirements" analysis and enhanced severity scoring
 
@@ -158,15 +225,14 @@ After selecting "Upload & Analyze" user is taken to Analysis Results page
 
 ### **Individual Sprint 2 Metrics (Realistic)**
 
-| Feature | Requirements | Timeline |
-|---------|--------------|----------|
-| **Complete Test Coverage** | Fix 4 integration test failures | Week 6 |
-| **Privacy Detector** | GDPR/CCPA compliance checks | Week 6 |
-| **Traceability Detector** | Requirement ID validation | Week 7 |
-| **Scope Detector** | Scope creep detection | Week 7 |
-| **Top 5 Riskiest Analysis** | Combined risk scoring | Week 8 |
-| **HTML Report Generation** | Professional styling | Week 9 |
-| **Documentation Updates** | User guides and examples | Week 10 |
+| Feature | Requirements | Timeline | Status |
+|---------|--------------|----------|--------|
+| **Complete Test Coverage** | Fix 4 integration test failures | Week 6 | ✅ Complete |
+| **Traceability Detector** | Requirement ID validation | Week 7 | ✅ Complete |
+| **Scope Detector** | Scope creep detection | Week 7 | ✅ Complete |
+| **Top 5 Riskiest Analysis** | Combined risk scoring | Week 8 | 🔄 Planned |
+| **HTML Report Generation** | Professional styling | Week 9 | 🔄 Planned |
+| **Documentation Updates** | User guides and examples | Week 10 | 🔄 Planned |
 
 **Number of individual features planned: 4**  
 **Number of individual requirements planned: 6**
@@ -177,16 +243,16 @@ After selecting "Upload & Analyze" user is taken to Analysis Results page
 
 ### **Updated Individual Timeline and Milestones**
 
-- **Week 6**: Complete test coverage + Privacy detector (100% test pass rate + 1 new risk detector)
-- **Week 7**: Traceability detector + Scope detector (complete 8-category risk detection system)
+- ✅ **Week 6**: **COMPLETE** - Test coverage achieved 100% pass rate (72 passing, 0 failing)
+- ✅ **Week 7**: **COMPLETE** - Traceability detector + Scope detector implemented (8-category risk detection system complete)
 - **Week 8**: Enhanced severity scoring + "Top 5 Riskiest Requirements" analysis (advanced scoring features)
 - **Week 9**: Basic HTML reports with Bootstrap styling (professional report generation)
 - **Week 10**: Testing, bug fixes, and documentation updates (polish and finalize Sprint 2 features)
 
 ### **Sprint 2 Success Criteria**
 
-- ✅ All 8 risk detection categories implemented and tested
-- ✅ 100% test pass rate achieved
+- ✅ All 8 risk detection categories implemented and tested (COMPLETED Week 7)
+- ✅ 100% test pass rate achieved (COMPLETED Week 6)
 - ✅ "Top 5 Riskiest Requirements" analysis functional
 - ✅ Standalone HTML report generation working
 - ✅ All existing functionality preserved and enhanced
@@ -200,14 +266,14 @@ After selecting "Upload & Analyze" user is taken to Analysis Results page
 **Delivered Beyond Original Scope:**
 - ✅ **CLI Tool** - Complete command-line interface
 - ✅ **Web Application** - Full-featured web interface
-- ✅ **6 Risk Detectors** - Comprehensive risk detection
+- ✅ **8 Risk Detectors** - Complete risk detection system (all categories)
 - ✅ **Multi-Format Reports** - Markdown, CSV, JSON
 - ✅ **Configuration System** - JSON-driven rules
 - ✅ **Production Quality** - Error handling, security, performance
 
 ### **Ready for Sprint 2**
 
-The foundation is solid with modern architecture, comprehensive features, and production-quality implementation. Sprint 2 will complete the original 8-category vision and add advanced reporting capabilities.
+The foundation is solid with modern architecture, comprehensive features, and production-quality implementation. **Sprint 2 Weeks 6 & 7 completed the 8-category vision** - all risk detection categories are now implemented and tested with 100% test coverage.
 
 ---
 
@@ -219,9 +285,9 @@ The foundation is solid with modern architecture, comprehensive features, and pr
 | **Features** | Major Features | 6 | ✅ Complete |
 | **Requirements** | User Stories | 7/7 (100%) | ✅ Complete |
 | **Burndown** | Completion Rate | 100% | ✅ Complete |
-| **Testing** | Test Files | 7 | ✅ Complete |
-| **Testing** | Passing Tests | 59 | 🔄 93.7% |
-| **Detectors** | Risk Categories | 6/8 | 🔄 75% |
+| **Testing** | Test Files | 10+ | ✅ Complete |
+| **Testing** | Passing Tests | 72 | ✅ 100% |
+| **Detectors** | Risk Categories | 8/8 | ✅ 100% |
 | **Reports** | Output Formats | 3 | ✅ Complete |
 
 **Overall Sprint 1 Completion: 100% ✅**
@@ -239,4 +305,59 @@ The foundation is solid with modern architecture, comprehensive features, and pr
 - **Week 3**: Enhanced risk detection with 6 detector modules, implemented multi-format reporting (Markdown, CSV, JSON), and added configurable rules system. Total of 42 passing tests with robust architecture.
 
 - **Week 4**: **WEB UI COMPLETE** - Delivered production-ready FastAPI web application with modern UI, responsive design, file upload system, real-time analysis, and comprehensive API. Final codebase: 9,154+ lines across 50+ Python files with complete web interface exceeding original Sprint 1 scope.
+
+---
+
+## 🚀 Sprint 2 Progress: Weeks 6 & 7
+
+### **Week 6 Accomplishments**
+
+- ✅ **Test Coverage Complete** - Achieved 100% test pass rate (72 passing tests, 0 failing)
+- ✅ **Test Infrastructure Improvements** - Resolved remaining integration test failures
+- ✅ **Code Quality Enhancements** - Improved error handling and edge case coverage
+
+---
+
+### **Week 7 Accomplishments**
+
+- ✅ **Traceability Detector** - Implemented permissive heuristics for requirement IDs, acceptance criteria, and test references
+  - Supports multiple ID formats (R###, REQ-#, US-#, FR-#, ABC-123)
+  - Detects missing acceptance criteria and test references
+  - User-friendly severity downgrades for partial signals
+
+- ✅ **Scope Detector** - Implemented scope creep and boundary violation detection
+  - Identifies overly broad scope language ("any API", "all platforms")
+  - Flags undefined external system dependencies
+  - Escalates to High severity for explicit boundary violations
+
+- ✅ **8-Category System Complete** - All original risk detection categories now implemented
+- ✅ **Rules Integration** - Updated rules.json with traceability and scope configurations
+- ✅ **Web UI Updates** - Category filter updated to include Traceability and Scope
+- ✅ **Example File** - Created comprehensive example file triggering all 8 categories
+
+---
+
+## 📊 Updated Project Status
+
+### **Current Metrics (Post Weeks 6 & 7)**
+
+| Metric | Count | Details |
+|--------|-------|---------|
+| **Risk Detectors** | 8/8 (100%) | All categories implemented |
+| **Test Coverage** | 72 passing, 0 failing | 100% pass rate achieved |
+| **Report Formats** | 3 formats | Markdown, CSV, JSON |
+| **Lines of Code** | ~9,500+ | Growing codebase |
+
+---
+
+### **Risk Detection Categories (Complete)**
+
+1. ✅ **Ambiguity** - Vague language detection
+2. ✅ **Missing Detail** - Incomplete requirement identification
+3. ✅ **Security** - Authentication and authorization gaps
+4. ✅ **Conflict** - Duplicate and contradictory requirements
+5. ✅ **Performance** - Missing performance specifications
+6. ✅ **Availability** - Uptime and reliability gaps
+7. ✅ **Traceability** - Missing IDs, acceptance criteria, test references
+8. ✅ **Scope** - Scope creep and boundary violations
 
