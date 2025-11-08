@@ -25,10 +25,12 @@ class ReportData:
     - `requirements`: the list of parsed requirements (with id, line, text)
     - `risks_by_requirement`: a dictionary mapping requirement id → list of risks
     - `source_file`: the original input file path for traceability
+    - `top_5_riskiest`: optional list of top 5 riskiest requirements with scores (for Week 8 feature)
     """
     requirements: List[Requirement]
     risks_by_requirement: Dict[str, List[Risk]]
     source_file: str
+    top_5_riskiest: Optional[List[Dict]] = None
 
 
 class Reporter:

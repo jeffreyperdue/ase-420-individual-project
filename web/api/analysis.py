@@ -23,6 +23,7 @@ from src.file_loader import FileLoader
 from src.requirement_parser import RequirementParser
 from src.factories.detector_factory import RiskDetectorFactory
 from src.analyzer import analyze_requirements
+from src.scoring import calculate_risk_scores, get_top_riskiest
 
 # Create router for analysis endpoints
 router = APIRouter()
@@ -59,6 +60,7 @@ class AnalysisResults(BaseModel):
     requirements: List[Dict]
     risks_by_requirement: Dict[str, List[Dict]]
     summary: Dict
+    top_5_riskiest: Optional[List[Dict]] = None
     completed_at: str
 
 # In-memory storage for analysis status (in production, use Redis or database)
@@ -108,6 +110,14 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
         risks_by_requirement = analyze_requirements(requirements, detectors)
         
         # Update progress
+        analysis_status[analysis_id].progress = 70
+        analysis_status[analysis_id].message = "Calculating risk scores..."
+        
+        # Calculate risk scores and identify top 5 riskiest (Week 8 feature)
+        risk_scores = calculate_risk_scores(requirements, risks_by_requirement)
+        top_5_riskiest = get_top_riskiest(requirements, risk_scores, top_n=5)
+        
+        # Update progress
         analysis_status[analysis_id].progress = 80
         analysis_status[analysis_id].message = "Generating results..."
         
@@ -152,6 +162,30 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
             for req_id, risks in risks_by_requirement.items()
         }
         
+        # Convert top 5 riskiest to dictionary format for JSON serialization (Week 8 feature)
+        top_5_dict = None
+        if top_5_riskiest:
+            top_5_dict = []
+            for item in top_5_riskiest:
+                req = item['requirement']
+                top_5_dict.append({
+                    "requirement_id": req.id,
+                    "line_number": req.line_number,
+                    "text": req.text,
+                    "total_score": item['total_score'],
+                    "avg_severity": item['avg_severity'],
+                    "risk_count": item['risk_count'],
+                    "risks": [
+                        {
+                            "category": risk.category.value if hasattr(risk.category, 'value') else str(risk.category),
+                            "severity": risk.severity.name.lower() if hasattr(risk.severity, 'name') else str(risk.severity).lower(),
+                            "description": risk.description,
+                            "evidence": risk.evidence
+                        }
+                        for risk in item['risks']
+                    ]
+                })
+        
         # Store results
         analysis_results[analysis_id] = AnalysisResults(
             analysis_id=analysis_id,
@@ -159,6 +193,7 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
             requirements=requirements_dict,
             risks_by_requirement=risks_dict,
             summary=summary,
+            top_5_riskiest=top_5_dict,
             completed_at=str(Path(file_path).stat().st_mtime)
         )
         

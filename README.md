@@ -12,11 +12,12 @@ StressSpec acts as a "wind tunnel" for requirements, helping project managers, b
 
 1. **Input Ingestion** - Accepts .txt and .md files with one requirement per line
 2. **Requirement Parsing & Labeling** - Assigns unique IDs (R001, R002, etc.) and line numbers
-3. **Risk Detection** - Ambiguity, Missing Detail, Security, Conflict, Performance, Availability
+3. **Risk Detection** - 8 categories: Ambiguity, Missing Detail, Security, Conflict, Performance, Availability, Traceability, Scope
 4. **Configurable Rules** - JSON-driven rules in `data/rules.json` with severities and enable switches
-5. **Reporting** - Multi-format outputs: Markdown, CSV, JSON
-6. **CLI Interface** - Report format selection and output path
-7. **Testing** - Comprehensive unit and integration tests (59 passing, 4 failing - working toward 100%)
+5. **Risk Scoring & Analytics** - Combined risk scores per requirement with "Top 5 Riskiest Requirements" analysis
+6. **Reporting** - Multi-format outputs: Markdown, CSV, JSON (all include top 5 riskiest)
+7. **CLI Interface** - Report format selection and output path
+8. **Testing** - Comprehensive unit and integration tests
 
 ### Project Structure
 
@@ -37,6 +38,7 @@ StressSpec/
 │   ├── file_loader.py             # File loading and processing
 │   ├── requirement_parser.py      # Requirement parsing logic
 │   ├── analyzer.py                # Runs detectors and aggregates risks
+│   ├── scoring.py                 # Risk scoring and top 5 analysis (Week 8)
 │   ├── models/
 │   │   ├── requirement.py         # Requirement data model
 │   │   └── risk.py                # Risk data model + severity
@@ -47,7 +49,9 @@ StressSpec/
 │   │   ├── security_detector.py
 │   │   ├── conflict_detector.py
 │   │   ├── performance_detector.py
-│   │   └── availability_detector.py
+│   │   ├── availability_detector.py
+│   │   ├── traceability_detector.py
+│   │   └── scope_detector.py
 │   ├── factories/
 │   │   └── detector_factory.py    # Factory Method for detectors
 │   └── reporting/
@@ -58,13 +62,14 @@ StressSpec/
 ├── data/
 │   ├── rules.json                 # Configurable rules & severities
 │   └── sample_requirements.txt    # Sample data
-└── tests/                         # Unit & integration tests (31)
+└── tests/                         # Unit & integration tests
     ├── test_requirement.py
     ├── test_file_loader.py
     ├── test_requirement_parser.py
     ├── test_integration.py
     ├── test_performance_detector.py
-    └── test_availability_detector.py
+    ├── test_availability_detector.py
+    └── test_scoring.py            # Risk scoring tests (Week 8)
 ```
 
 ## Usage
@@ -100,11 +105,77 @@ For detailed web setup instructions, see `web_utils/WEB_SETUP.md` and `web_utils
 
 - **Automatic ID Assignment**: Each requirement gets a unique ID (R001, R002, etc.)
 - **Line Number Tracking**: Maintains traceability to original file location
-- **Configurable Risk Detection**: 6 detector categories enabled via JSON rules
-- **Multi-format Reporting**: Markdown, CSV, JSON outputs
+- **Configurable Risk Detection**: 8 detector categories enabled via JSON rules
+- **Risk Scoring**: Combined risk scores per requirement (sum of severity values)
+- **Top 5 Riskiest Requirements**: Automatically identifies and highlights the most critical requirements
+- **Multi-format Reporting**: Markdown, CSV, JSON outputs (all include top 5 riskiest)
 - **Comment Filtering**: Automatically ignores lines starting with `#` or `//`
 - **Whitespace Handling**: Strips leading/trailing whitespace and filters empty lines
 - **Error Handling**: Comprehensive error messages for common issues
+
+## Risk Scoring & Top 5 Analysis
+
+StressSpec includes an advanced risk scoring system that calculates combined risk scores for each requirement and identifies the top 5 riskiest requirements for prioritization.
+
+### Scoring Algorithm
+
+**Total Risk Score**: The sum of all risk severity values for a requirement.
+- Low = 1 point
+- Medium = 2 points
+- High = 3 points
+- Critical = 4 points
+- Blocker = 5 points
+
+**Ranking Logic**: Requirements are ranked by:
+1. Total score (descending - higher is riskier)
+2. Risk count (descending - more risks is riskier)
+3. Requirement ID (ascending - for consistent ordering in ties)
+
+**Example**:
+- Requirement R001 has 2 risks: HIGH (3) + MEDIUM (2) = Total Score: 5
+- Requirement R002 has 1 risk: CRITICAL (4) = Total Score: 4
+- R001 would be ranked higher than R002 due to higher total score
+
+### Top 5 Riskiest Requirements
+
+The "Top 5 Riskiest Requirements" feature automatically identifies the requirements with the highest combined risk scores. This helps teams:
+
+- **Prioritize Review**: Focus on the most critical requirements first
+- **Risk Management**: Identify which requirements need immediate attention
+- **Resource Allocation**: Allocate more time and resources to high-risk items
+
+### Report Formats
+
+**Markdown Reports**: Include a dedicated "Top 5 Riskiest Requirements" section with:
+- Requirement ID and score
+- Risk count and average severity
+- Detailed breakdown of all risks
+
+**JSON Reports**: Include a `top_5_riskiest` array with complete requirement and risk details
+
+**CSV Reports**: Include score columns (`total_score`, `avg_severity`, `risk_count`) in the main CSV and generate a separate `*_top5.csv` file with the top 5 summary
+
+### Example Output
+
+```markdown
+## Top 5 Riskiest Requirements
+
+These requirements have the highest combined risk scores and should be prioritized for review.
+
+### 1. R001 - Score: 7 (Risk Count: 2)
+**Line 1:** The system shall allow users to login with password
+
+**Risk Details:**
+- Total Score: 7
+- Average Severity: 3.5
+- Risk Count: 2
+
+**Detected Risks:**
+- **HIGH** (security): Missing authentication requirement
+  - Evidence: `password`
+- **CRITICAL** (security): Missing encryption specification
+  - Evidence: `login`
+```
 
 ## Design Principles Applied
 
@@ -129,11 +200,13 @@ Run the project tests:
 python -m pytest -q tests
 ```
 
-All 31 tests pass, covering:
+Tests cover:
 - Requirement and risk models
 - File loading and parsing
-- Detectors (ambiguity, missing detail, security, conflict, performance, availability)
+- All 8 risk detectors (ambiguity, missing detail, security, conflict, performance, availability, traceability, scope)
+- Risk scoring and top 5 analysis (Week 8)
 - Reporting integration and end-to-end pipeline
+- Multi-format report generation (Markdown, CSV, JSON)
 
 ## Sample Output
 

@@ -144,6 +144,7 @@ async def results_page(request: Request, analysis_id: str):
         "requirements": results.requirements,
         "risks_by_requirement": results.risks_by_requirement,
         "summary": results.summary,
+        "top_5_riskiest": results.top_5_riskiest,  # Week 8 feature
         "completed_at": results.completed_at
     })
 

@@ -25,6 +25,7 @@ from src.requirement_parser import RequirementParser  # Converts raw text into s
 from src.models.requirement import Requirement  # The data structure that represents a single requirement
 from src.factories.detector_factory import RiskDetectorFactory
 from src.analyzer import analyze_requirements
+from src.scoring import calculate_risk_scores, get_top_riskiest
 from src.reporting import ReportFormat, ReportData, MarkdownReporter, CsvReporter, JsonReporter
 
 
@@ -123,14 +124,24 @@ def main() -> None:
         detectors = factory.create_enabled_detectors() or factory.create_all_detectors()
         risks_by_requirement = analyze_requirements(requirements, detectors)
 
-        # Step 7: Generate report
+        # Step 7: Calculate risk scores and identify top 5 riskiest requirements
+        # BEGINNER NOTES:
+        # - Calculate risk scores for each requirement (total, average, count)
+        # - Identify the top 5 riskiest requirements for prioritization
+        # - This helps users focus on the most critical issues first
+        risk_scores = calculate_risk_scores(requirements, risks_by_requirement)
+        top_5_riskiest = get_top_riskiest(requirements, risk_scores, top_n=5)
+
+        # Step 8: Generate report
         # BEGINNER NOTES:
         # - We pack the data in ReportData and hand it to the chosen reporter
         # - The reporter writes to disk and returns the output file path
+        # - Top 5 riskiest requirements are included for enhanced reporting
         data = ReportData(
             requirements=requirements,
             risks_by_requirement=risks_by_requirement,
             source_file=args.file,
+            top_5_riskiest=top_5_riskiest,
         )
 
         fmt = ReportFormat(args.report_format)

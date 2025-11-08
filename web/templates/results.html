@@ -57,6 +57,51 @@
             </div>
         </div>
         
+        <!-- Top 5 Riskiest Requirements (Week 8 feature) -->
+        {% if top_5_riskiest %}
+        <div class="card shadow-sm mb-4 border-warning">
+            <div class="card-header bg-warning bg-opacity-10">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    Top 5 Riskiest Requirements
+                </h5>
+                <small class="text-muted">These requirements have the highest combined risk scores and should be prioritized for review.</small>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for item in top_5_riskiest %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between align-items-start mb-2">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">
+                                    <span class="badge bg-danger me-2">#{{ loop.index }}</span>
+                                    <span class="badge bg-primary">{{ item.requirement_id }}</span>
+                                    <span class="badge bg-warning text-dark">Score: {{ item.total_score }}</span>
+                                    <span class="badge bg-secondary">{{ item.risk_count }} risk{{ 's' if item.risk_count != 1 else '' }}</span>
+                                </h6>
+                                <p class="mb-1 fw-medium">{{ item.text }}</p>
+                                <small class="text-muted">Line {{ item.line_number }} • Avg Severity: {{ item.avg_severity }}</small>
+                            </div>
+                        </div>
+                        {% if item.risks %}
+                        <div class="mt-2">
+                            <small class="text-muted d-block mb-1">Detected Risks:</small>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for risk in item.risks %}
+                                <span class="badge bg-{{ 'danger' if risk.severity == 'critical' else 'warning' if risk.severity == 'high' else 'info' if risk.severity == 'medium' else 'success' }}">
+                                    {{ risk.severity|title }}: {{ risk.category|title }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
         <!-- Risk Categories -->
         {% if summary.risk_categories %}
         <div class="card shadow-sm mb-4">
