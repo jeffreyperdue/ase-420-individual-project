@@ -7,6 +7,7 @@ BEGINNER NOTES:
   - Markdown printer (pretty for humans)
   - CSV printer (good for spreadsheets)
   - JSON printer (good for other programs)
+  - HTML printer (web-friendly with styling)
 - The `base.py` file defines a simple interface (contract) that all printers follow.
 """
 
@@ -14,6 +15,7 @@ from .base import ReportFormat, ReportData, Reporter
 from .markdown_reporter import MarkdownReporter
 from .csv_reporter import CsvReporter
 from .json_reporter import JsonReporter
+from .html_reporter import HtmlReporter
 
 __all__ = [
     "ReportFormat",
@@ -22,6 +24,7 @@ __all__ = [
     "MarkdownReporter",
     "CsvReporter",
     "JsonReporter",
+    "HtmlReporter",
 ]
 
 

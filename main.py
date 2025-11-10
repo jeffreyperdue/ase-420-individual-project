@@ -26,7 +26,7 @@ from src.models.requirement import Requirement  # The data structure that repres
 from src.factories.detector_factory import RiskDetectorFactory
 from src.analyzer import analyze_requirements
 from src.scoring import calculate_risk_scores, get_top_riskiest
-from src.reporting import ReportFormat, ReportData, MarkdownReporter, CsvReporter, JsonReporter
+from src.reporting import ReportFormat, ReportData, MarkdownReporter, CsvReporter, JsonReporter, HtmlReporter
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -149,8 +149,10 @@ def main() -> None:
             reporter = MarkdownReporter()
         elif fmt is ReportFormat.CSV:
             reporter = CsvReporter()
-        else:
+        elif fmt is ReportFormat.JSON:
             reporter = JsonReporter()
+        else:  # HTML
+            reporter = HtmlReporter()
 
         output_path = reporter.write(data, args.output)
         if args.verbose:

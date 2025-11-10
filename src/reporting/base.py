@@ -14,6 +14,7 @@ class ReportFormat(str, Enum):
     MD = "md"
     CSV = "csv"
     JSON = "json"
+    HTML = "html"
 
 
 @dataclass

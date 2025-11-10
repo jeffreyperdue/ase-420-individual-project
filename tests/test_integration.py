@@ -15,7 +15,7 @@ from src.requirement_parser import RequirementParser
 from src.factories.detector_factory import RiskDetectorFactory
 from src.analyzer import analyze_requirements
 from src.scoring import calculate_risk_scores, get_top_riskiest
-from src.reporting import ReportData, MarkdownReporter, CsvReporter, JsonReporter
+from src.reporting import ReportData, MarkdownReporter, CsvReporter, JsonReporter, HtmlReporter
 
 
 class TestIntegration:
@@ -301,6 +301,67 @@ class TestIntegration:
                     # Clean up summary file
                     if summary_path.exists():
                         os.unlink(summary_path)
+                
+            finally:
+                if Path(out_path).exists():
+                    os.unlink(out_path)
+        
+        finally:
+            os.unlink(temp_path)
+    
+    def test_top_5_integration_html(self):
+        """Test that top 5 riskiest appears in HTML reports."""
+        # Create temporary file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            f.write("The system shall allow users to login with password\n")
+            f.write("The system should be fast\n")
+            temp_path = f.name
+        
+        try:
+            # Complete workflow
+            lines = self.loader.load_file(temp_path)
+            requirements = self.parser.parse_requirements(lines)
+            factory = RiskDetectorFactory()
+            detectors = factory.create_enabled_detectors() or factory.create_all_detectors()
+            risks_by_req = analyze_requirements(requirements, detectors)
+            
+            # Calculate scores and top 5
+            risk_scores = calculate_risk_scores(requirements, risks_by_req)
+            top_5 = get_top_riskiest(requirements, risk_scores, top_n=5)
+            
+            # Create report data
+            report_data = ReportData(
+                requirements=requirements,
+                risks_by_requirement=risks_by_req,
+                source_file=temp_path,
+                top_5_riskiest=top_5
+            )
+            
+            # Generate HTML report
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as out_file:
+                out_path = out_file.name
+            
+            try:
+                reporter = HtmlReporter()
+                output_path = reporter.write(report_data, out_path)
+                
+                # Verify report was created
+                assert output_path.exists()
+                content = output_path.read_text(encoding="utf-8")
+                
+                # Verify HTML structure and top 5 section appears
+                assert "<!DOCTYPE html>" in content
+                assert "StressSpec Report" in content
+                assert "Top 5 Riskiest Requirements" in content
+                assert "These requirements have the highest combined risk scores" in content
+                
+                # Verify summary statistics are present
+                assert "Summary" in content
+                assert "Total Requirements" in content
+                assert "Total Risks" in content
+                
+                # Verify detailed requirements section
+                assert "Detailed Requirements" in content
                 
             finally:
                 if Path(out_path).exists():

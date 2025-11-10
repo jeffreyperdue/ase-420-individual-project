@@ -58,7 +58,10 @@ StressSpec/
 │       ├── base.py                # Reporter interface + types
 │       ├── markdown_reporter.py   # MD writer
 │       ├── csv_reporter.py        # CSV writer
-│       └── json_reporter.py       # JSON writer
+│       ├── json_reporter.py       # JSON writer
+│       ├── html_reporter.py      # HTML writer (Week 9)
+│       └── templates/
+│           └── report_template.html  # HTML report template
 ├── data/
 │   ├── rules.json                 # Configurable rules & severities
 │   └── sample_requirements.txt    # Sample data
@@ -80,9 +83,10 @@ StressSpec/
 # Parse a requirements file and generate Markdown report
 python main.py --file data/sample_requirements.txt --report-format md --verbose
 
-# Generate CSV or JSON reports
+# Generate CSV, JSON, or HTML reports
 python main.py --file data/sample_requirements.txt --report-format csv --output report.csv
 python main.py --file data/sample_requirements.txt --report-format json --output report.json
+python main.py --file data/sample_requirements.txt --report-format html --output report.html
 ```
 
 ### Web Interface Usage
@@ -108,7 +112,7 @@ For detailed web setup instructions, see `web_utils/WEB_SETUP.md` and `web_utils
 - **Configurable Risk Detection**: 8 detector categories enabled via JSON rules
 - **Risk Scoring**: Combined risk scores per requirement (sum of severity values)
 - **Top 5 Riskiest Requirements**: Automatically identifies and highlights the most critical requirements
-- **Multi-format Reporting**: Markdown, CSV, JSON outputs (all include top 5 riskiest)
+- **Multi-format Reporting**: Markdown, CSV, JSON, HTML outputs (all include top 5 riskiest)
 - **Comment Filtering**: Automatically ignores lines starting with `#` or `//`
 - **Whitespace Handling**: Strips leading/trailing whitespace and filters empty lines
 - **Error Handling**: Comprehensive error messages for common issues
@@ -154,6 +158,12 @@ The "Top 5 Riskiest Requirements" feature automatically identifies the requireme
 **JSON Reports**: Include a `top_5_riskiest` array with complete requirement and risk details
 
 **CSV Reports**: Include score columns (`total_score`, `avg_severity`, `risk_count`) in the main CSV and generate a separate `*_top5.csv` file with the top 5 summary
+
+**HTML Reports**: Standalone, self-contained HTML reports with embedded CSS styling. Include:
+- Visual executive summary with statistics
+- Highlighted "Top 5 Riskiest Requirements" section with color-coded severity badges
+- Detailed requirements list with risk indicators
+- Print-friendly design for documentation
 
 ### Example Output
 

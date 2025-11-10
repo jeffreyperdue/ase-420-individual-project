@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .metadata {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        .metadata p {
+            margin: 5px 0;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+        
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .risk-categories {
+            margin-top: 20px;
+        }
+        
+        .risk-category {
+            display: inline-block;
+            background-color: #ecf0f1;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .top-5-section {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .top-5-section h2 {
+            color: #856404;
+            border-bottom: 2px solid #ffc107;
+        }
+        
+        .top-5-item {
+            background-color: white;
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .top-5-item h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        
+        .score-badge {
+            display: inline-block;
+            background-color: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        
+        .risk-details {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .risk-list {
+            margin-top: 10px;
+        }
+        
+        .risk-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid #6c757d;
+        }
+        
+        .severity-low {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .severity-medium {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        
+        .severity-high {
+            background-color: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        
+        .severity-critical {
+            background-color: #f5c6cb;
+            border-left-color: #c82333;
+        }
+        
+        .severity-blocker {
+            background-color: #721c24;
+            color: white;
+            border-left-color: #000;
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-right: 8px;
+        }
+        
+        .severity-badge.low {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .severity-badge.medium {
+            background-color: #ffc107;
+            color: #000;
+        }
+        
+        .severity-badge.high {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .severity-badge.critical {
+            background-color: #c82333;
+            color: white;
+        }
+        
+        .severity-badge.blocker {
+            background-color: #000;
+            color: white;
+        }
+        
+        .requirement-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .requirement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .requirement-id {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .requirement-text {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+        }
+        
+        .no-risks {
+            color: #28a745;
+            font-style: italic;
+            padding: 10px;
+            background-color: #d4edda;
+            border-radius: 4px;
+        }
+        
+        .evidence {
+            font-family: 'Courier New', monospace;
+            background-color: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .suggestion {
+            margin-top: 5px;
+            padding: 8px;
+            background-color: #e7f3ff;
+            border-left: 3px solid #0066cc;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ title }}</h1>
+        
+        <div class="metadata">
+            <p><strong>Generated:</strong> {{ generated_at }}</p>
+            <p><strong>Source file:</strong> <code>{{ source_file }}</code></p>
+        </div>
+        
+        <h2>Summary</h2>
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Total Requirements</h3>
+                <div class="value">{{ total_requirements }}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Risks</h3>
+                <div class="value">{{ total_risks }}</div>
+            </div>
+            {% if risk_categories %}
+            <div class="summary-card">
+                <h3>Risk Categories</h3>
+                <div class="risk-categories">
+                    {% for category, count in risk_categories.items() %}
+                    <span class="risk-category">{{ category }}: {{ count }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if top_5_riskiest %}
+        <div class="top-5-section">
+            <h2>Top 5 Riskiest Requirements</h2>
+            <p>These requirements have the highest combined risk scores and should be prioritized for review.</p>
+            
+            {% for item in top_5_riskiest %}
+            <div class="top-5-item">
+                <h3>
+                    {{ loop.index }}. {{ item['requirement'].id }}
+                    <span class="score-badge">Score: {{ item['total_score'] }}</span>
+                </h3>
+                <p><strong>Line {{ item['requirement'].line_number }}:</strong> {{ item['requirement'].text }}</p>
+                
+                <div class="risk-details">
+                    <p><strong>Total Score:</strong> {{ item['total_score'] }} | 
+                       <strong>Average Severity:</strong> {{ item['avg_severity'] }} | 
+                       <strong>Risk Count:</strong> {{ item['risk_count'] }}</p>
+                </div>
+                
+                {% if item['risks'] %}
+                <div class="risk-list">
+                    <strong>Detected Risks:</strong>
+                    {% for risk in item['risks'] %}
+                    <div class="risk-item severity-{{ risk.severity.name.lower() }}">
+                        <span class="severity-badge {{ risk.severity.name.lower() }}">{{ risk.severity.name }}</span>
+                        <strong>{{ risk.category.value }}</strong>: {{ risk.description }}
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">{{ risk.evidence }}</span></span>
+                        {% if risk.suggestion %}
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> {{ risk.suggestion }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <h2>Detailed Requirements</h2>
+        
+        {% for req in requirements %}
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">{{ req.id }}</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line {{ req.line_number }}</span>
+            </div>
+            
+            <div class="requirement-text">
+                {{ req.text }}
+            </div>
+            
+            {% set req_risks = risks_by_requirement.get(req.id, []) %}
+            {% if req_risks %}
+            <div class="risk-list">
+                {% for risk in req_risks %}
+                <div class="risk-item severity-{{ risk.severity.name.lower() }}">
+                    <span class="severity-badge {{ risk.severity.name.lower() }}">{{ risk.severity.name }}</span>
+                    {{ risk.description }} — evidence: <span class="evidence">{{ risk.evidence }}</span>
+                    {% if risk.suggestion %}
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> {{ risk.suggestion }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-risks">✓ No risks detected</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
+
