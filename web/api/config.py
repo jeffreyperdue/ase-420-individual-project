@@ -127,11 +127,11 @@ async def update_configuration(update: ConfigurationUpdate):
         
         # Update detectors if provided
         if update.detectors:
-            config["detectors"] = {name: detector.dict() for name, detector in update.detectors.items()}
+            config["detectors"] = {name: detector.model_dump() for name, detector in update.detectors.items()}
         
         # Update global settings if provided
         if update.global_settings:
-            config["global_settings"] = update.global_settings.dict()
+            config["global_settings"] = update.global_settings.model_dump()
         
         # Update severity mapping if provided
         if update.severity_mapping:
@@ -273,7 +273,7 @@ async def update_global_settings(settings: GlobalSettings):
     """Update global configuration settings."""
     try:
         config = load_configuration()
-        config["global_settings"] = settings.dict()
+        config["global_settings"] = settings.model_dump()
         
         validate_configuration(config)
         save_configuration(config)

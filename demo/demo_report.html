@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StressSpec Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .metadata {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        .metadata p {
+            margin: 5px 0;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+        
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .risk-categories {
+            margin-top: 20px;
+        }
+        
+        .risk-category {
+            display: inline-block;
+            background-color: #ecf0f1;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .top-5-section {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .top-5-section h2 {
+            color: #856404;
+            border-bottom: 2px solid #ffc107;
+        }
+        
+        .top-5-item {
+            background-color: white;
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .top-5-item h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        
+        .score-badge {
+            display: inline-block;
+            background-color: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        
+        .risk-details {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .risk-list {
+            margin-top: 10px;
+        }
+        
+        .risk-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid #6c757d;
+        }
+        
+        .severity-low {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .severity-medium {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        
+        .severity-high {
+            background-color: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        
+        .severity-critical {
+            background-color: #f5c6cb;
+            border-left-color: #c82333;
+        }
+        
+        .severity-blocker {
+            background-color: #721c24;
+            color: white;
+            border-left-color: #000;
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-right: 8px;
+        }
+        
+        .severity-badge.low {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .severity-badge.medium {
+            background-color: #ffc107;
+            color: #000;
+        }
+        
+        .severity-badge.high {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .severity-badge.critical {
+            background-color: #c82333;
+            color: white;
+        }
+        
+        .severity-badge.blocker {
+            background-color: #000;
+            color: white;
+        }
+        
+        .requirement-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .requirement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .requirement-id {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .requirement-text {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+        }
+        
+        .no-risks {
+            color: #28a745;
+            font-style: italic;
+            padding: 10px;
+            background-color: #d4edda;
+            border-radius: 4px;
+        }
+        
+        .evidence {
+            font-family: 'Courier New', monospace;
+            background-color: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .suggestion {
+            margin-top: 5px;
+            padding: 8px;
+            background-color: #e7f3ff;
+            border-left: 3px solid #0066cc;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>StressSpec Report</h1>
+        
+        <div class="metadata">
+            <p><strong>Generated:</strong> 2025-11-17T20:03:37.991976+00:00</p>
+            <p><strong>Source file:</strong> <code>data/sample_requirements.txt</code></p>
+        </div>
+        
+        <h2>Summary</h2>
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Total Requirements</h3>
+                <div class="value">10</div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Risks</h3>
+                <div class="value">57</div>
+            </div>
+            
+            <div class="summary-card">
+                <h3>Risk Categories</h3>
+                <div class="risk-categories">
+                    
+                    <span class="risk-category">ambiguity: 10</span>
+                    
+                    <span class="risk-category">missing_detail: 21</span>
+                    
+                    <span class="risk-category">availability: 10</span>
+                    
+                    <span class="risk-category">traceability: 12</span>
+                    
+                    <span class="risk-category">performance: 3</span>
+                    
+                    <span class="risk-category">security: 1</span>
+                    
+                </div>
+            </div>
+            
+        </div>
+        
+        
+        <div class="top-5-section">
+            <h2>Top 5 Riskiest Requirements</h2>
+            <p>These requirements have the highest combined risk scores and should be prioritized for review.</p>
+            
+            
+            <div class="top-5-item">
+                <h3>
+                    1. R008
+                    <span class="score-badge">Score: 19</span>
+                </h3>
+                <p><strong>Line 8:</strong> The system shall handle concurrent user sessions</p>
+                
+                <div class="risk-details">
+                    <p><strong>Total Score:</strong> 19 | 
+                       <strong>Average Severity:</strong> 2.71 | 
+                       <strong>Risk Count:</strong> 7</p>
+                </div>
+                
+                
+                <div class="risk-list">
+                    <strong>Detected Risks:</strong>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>ambiguity</strong>: Imprecise quantifier &#39;all&#39; found - specify exact values or criteria
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">all</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Action &#39;handle&#39; lacks sufficient detail about how it should be performed
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">handle</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify how &#39;handle&#39; should be performed (e.g., when, where, under what conditions)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Actor &#39;user&#39; is unspecified or ambiguous
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">user</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify which &#39;user&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Actor &#39;system&#39; is unspecified or ambiguous
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">system</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>performance</strong>: Performance-related feature without measurable performance specification
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall handle concurrent user sessions</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify response time, throughput, or latency targets
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>availability</strong>: Service mention without availability/uptime specification
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall handle concurrent user sessions</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>traceability</strong>: No traceability signals found (ID, acceptance criteria, or test reference)
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall handle concurrent user sessions</span></span>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+            
+            <div class="top-5-item">
+                <h3>
+                    2. R006
+                    <span class="score-badge">Score: 17</span>
+                </h3>
+                <p><strong>Line 6:</strong> The system shall support multi-factor authentication</p>
+                
+                <div class="risk-details">
+                    <p><strong>Total Score:</strong> 17 | 
+                       <strong>Average Severity:</strong> 2.43 | 
+                       <strong>Risk Count:</strong> 7</p>
+                </div>
+                
+                
+                <div class="risk-list">
+                    <strong>Detected Risks:</strong>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>ambiguity</strong>: Imprecise quantifier &#39;all&#39; found - specify exact values or criteria
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">all</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Action &#39;support&#39; lacks sufficient detail about how it should be performed
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">support</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify how &#39;support&#39; should be performed (e.g., when, where, under what conditions)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Actor &#39;system&#39; is unspecified or ambiguous
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">system</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>performance</strong>: Performance-related feature without measurable performance specification
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall support multi-factor authentication</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify response time, throughput, or latency targets
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>availability</strong>: Service mention without availability/uptime specification
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall support multi-factor authentication</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>traceability</strong>: Missing requirement ID (e.g., R001, REQ-123, ABC-123)
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall support multi-factor authentication</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Add a stable identifier (R###, REQ-#, US-#, FR-#, or ABC-123)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>traceability</strong>: Missing test reference (e.g., TC-123, &#39;Test Case&#39;, &#39;validated by QA&#39;)
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall support multi-factor authentication</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Reference a test artifact (TC-###) or note how it will be verified
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+            
+            <div class="top-5-item">
+                <h3>
+                    3. R009
+                    <span class="score-badge">Score: 17</span>
+                </h3>
+                <p><strong>Line 9:</strong> The system shall provide role-based access control</p>
+                
+                <div class="risk-details">
+                    <p><strong>Total Score:</strong> 17 | 
+                       <strong>Average Severity:</strong> 2.83 | 
+                       <strong>Risk Count:</strong> 6</p>
+                </div>
+                
+                
+                <div class="risk-list">
+                    <strong>Detected Risks:</strong>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>ambiguity</strong>: Imprecise quantifier &#39;all&#39; found - specify exact values or criteria
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">all</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Action &#39;provide&#39; lacks sufficient detail about how it should be performed
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">provide</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify how &#39;provide&#39; should be performed (e.g., when, where, under what conditions)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Actor &#39;system&#39; is unspecified or ambiguous
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">system</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-critical">
+                        <span class="severity-badge critical">CRITICAL</span>
+                        <strong>security</strong>: User access feature &#39;access&#39; mentioned without authentication requirements
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">access</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Add authentication requirements (e.g., &#39;users must authenticate before accessing&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>availability</strong>: Service mention without availability/uptime specification
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall provide role-based access control</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>traceability</strong>: No traceability signals found (ID, acceptance criteria, or test reference)
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall provide role-based access control</span></span>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+            
+            <div class="top-5-item">
+                <h3>
+                    4. R001
+                    <span class="score-badge">Score: 16</span>
+                </h3>
+                <p><strong>Line 1:</strong> The system shall allow users to login with email and password</p>
+                
+                <div class="risk-details">
+                    <p><strong>Total Score:</strong> 16 | 
+                       <strong>Average Severity:</strong> 2.67 | 
+                       <strong>Risk Count:</strong> 6</p>
+                </div>
+                
+                
+                <div class="risk-list">
+                    <strong>Detected Risks:</strong>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>ambiguity</strong>: Imprecise quantifier &#39;all&#39; found - specify exact values or criteria
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">all</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Action &#39;allow&#39; lacks sufficient detail about how it should be performed
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">allow</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify how &#39;allow&#39; should be performed (e.g., when, where, under what conditions)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Actor &#39;user&#39; is unspecified or ambiguous
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">user</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify which &#39;user&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Actor &#39;system&#39; is unspecified or ambiguous
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">system</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>availability</strong>: Service mention without availability/uptime specification
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall allow users to login with email and password</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>traceability</strong>: No traceability signals found (ID, acceptance criteria, or test reference)
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall allow users to login with email and password</span></span>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+            
+            <div class="top-5-item">
+                <h3>
+                    5. R003
+                    <span class="score-badge">Score: 16</span>
+                </h3>
+                <p><strong>Line 3:</strong> The system shall support password reset functionality</p>
+                
+                <div class="risk-details">
+                    <p><strong>Total Score:</strong> 16 | 
+                       <strong>Average Severity:</strong> 2.67 | 
+                       <strong>Risk Count:</strong> 6</p>
+                </div>
+                
+                
+                <div class="risk-list">
+                    <strong>Detected Risks:</strong>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>ambiguity</strong>: Imprecise quantifier &#39;all&#39; found - specify exact values or criteria
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">all</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Action &#39;support&#39; lacks sufficient detail about how it should be performed
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">support</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify how &#39;support&#39; should be performed (e.g., when, where, under what conditions)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>missing_detail</strong>: Actor &#39;system&#39; is unspecified or ambiguous
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">system</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>performance</strong>: Performance-related feature without measurable performance specification
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall support password reset functionality</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify response time, throughput, or latency targets
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-medium">
+                        <span class="severity-badge medium">MEDIUM</span>
+                        <strong>availability</strong>: Service mention without availability/uptime specification
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall support password reset functionality</span></span>
+                        
+                        <br>
+                        <div class="suggestion">
+                            <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="risk-item severity-high">
+                        <span class="severity-badge high">HIGH</span>
+                        <strong>traceability</strong>: No traceability signals found (ID, acceptance criteria, or test reference)
+                        <br>
+                        <span style="margin-left: 30px;">Evidence: <span class="evidence">The system shall support password reset functionality</span></span>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        
+        <h2>Detailed Requirements</h2>
+        
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R001</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 1</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall allow users to login with email and password
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Action &#39;allow&#39; lacks sufficient detail about how it should be performed — evidence: <span class="evidence">allow</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify how &#39;allow&#39; should be performed (e.g., when, where, under what conditions)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;user&#39; is unspecified or ambiguous — evidence: <span class="evidence">user</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;user&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall allow users to login with email and password</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    No traceability signals found (ID, acceptance criteria, or test reference) — evidence: <span class="evidence">The system shall allow users to login with email and password</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R002</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 2</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall display user dashboard after successful login
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;user&#39; is unspecified or ambiguous — evidence: <span class="evidence">user</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;user&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall display user dashboard after successful login</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    No traceability signals found (ID, acceptance criteria, or test reference) — evidence: <span class="evidence">The system shall display user dashboard after successful login</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R003</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 3</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall support password reset functionality
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Action &#39;support&#39; lacks sufficient detail about how it should be performed — evidence: <span class="evidence">support</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify how &#39;support&#39; should be performed (e.g., when, where, under what conditions)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Performance-related feature without measurable performance specification — evidence: <span class="evidence">The system shall support password reset functionality</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify response time, throughput, or latency targets
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall support password reset functionality</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    No traceability signals found (ID, acceptance criteria, or test reference) — evidence: <span class="evidence">The system shall support password reset functionality</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R004</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 4</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall validate email format during registration
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall validate email format during registration</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    No traceability signals found (ID, acceptance criteria, or test reference) — evidence: <span class="evidence">The system shall validate email format during registration</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R005</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 5</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall store user data securely in encrypted format
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;user&#39; is unspecified or ambiguous — evidence: <span class="evidence">user</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;user&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall store user data securely in encrypted format</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    No traceability signals found (ID, acceptance criteria, or test reference) — evidence: <span class="evidence">The system shall store user data securely in encrypted format</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R006</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 6</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall support multi-factor authentication
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Action &#39;support&#39; lacks sufficient detail about how it should be performed — evidence: <span class="evidence">support</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify how &#39;support&#39; should be performed (e.g., when, where, under what conditions)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Performance-related feature without measurable performance specification — evidence: <span class="evidence">The system shall support multi-factor authentication</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify response time, throughput, or latency targets
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall support multi-factor authentication</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Missing requirement ID (e.g., R001, REQ-123, ABC-123) — evidence: <span class="evidence">The system shall support multi-factor authentication</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Add a stable identifier (R###, REQ-#, US-#, FR-#, or ABC-123)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Missing test reference (e.g., TC-123, &#39;Test Case&#39;, &#39;validated by QA&#39;) — evidence: <span class="evidence">The system shall support multi-factor authentication</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Reference a test artifact (TC-###) or note how it will be verified
+                    </div>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R007</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 7</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall log all user activities for audit purposes
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;user&#39; is unspecified or ambiguous — evidence: <span class="evidence">user</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;user&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall log all user activities for audit purposes</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    No traceability signals found (ID, acceptance criteria, or test reference) — evidence: <span class="evidence">The system shall log all user activities for audit purposes</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R008</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 8</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall handle concurrent user sessions
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Action &#39;handle&#39; lacks sufficient detail about how it should be performed — evidence: <span class="evidence">handle</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify how &#39;handle&#39; should be performed (e.g., when, where, under what conditions)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;user&#39; is unspecified or ambiguous — evidence: <span class="evidence">user</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;user&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Performance-related feature without measurable performance specification — evidence: <span class="evidence">The system shall handle concurrent user sessions</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify response time, throughput, or latency targets
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall handle concurrent user sessions</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    No traceability signals found (ID, acceptance criteria, or test reference) — evidence: <span class="evidence">The system shall handle concurrent user sessions</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R009</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 9</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall provide role-based access control
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Action &#39;provide&#39; lacks sufficient detail about how it should be performed — evidence: <span class="evidence">provide</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify how &#39;provide&#39; should be performed (e.g., when, where, under what conditions)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-critical">
+                    <span class="severity-badge critical">CRITICAL</span>
+                    User access feature &#39;access&#39; mentioned without authentication requirements — evidence: <span class="evidence">access</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Add authentication requirements (e.g., &#39;users must authenticate before accessing&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall provide role-based access control</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    No traceability signals found (ID, acceptance criteria, or test reference) — evidence: <span class="evidence">The system shall provide role-based access control</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="requirement-section">
+            <div class="requirement-header">
+                <span class="requirement-id">R010</span>
+                <span style="color: #6c757d; font-size: 0.9em;">Line 10</span>
+            </div>
+            
+            <div class="requirement-text">
+                The system shall integrate with external authentication providers
+            </div>
+            
+            
+            
+            <div class="risk-list">
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Imprecise quantifier &#39;all&#39; found - specify exact values or criteria — evidence: <span class="evidence">all</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Replace &#39;all&#39; with specific values (e.g., &#39;at least 5&#39;, &#39;within 2 seconds&#39;, &#39;99.9% uptime&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Action &#39;provide&#39; lacks sufficient detail about how it should be performed — evidence: <span class="evidence">provide</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify how &#39;provide&#39; should be performed (e.g., when, where, under what conditions)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-high">
+                    <span class="severity-badge high">HIGH</span>
+                    Actor &#39;system&#39; is unspecified or ambiguous — evidence: <span class="evidence">system</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify which &#39;system&#39; (e.g., &#39;authenticated users&#39;, &#39;system administrators&#39;, &#39;external API&#39;)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Service mention without availability/uptime specification — evidence: <span class="evidence">The system shall integrate with external authentication providers</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Missing requirement ID (e.g., R001, REQ-123, ABC-123) — evidence: <span class="evidence">The system shall integrate with external authentication providers</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Add a stable identifier (R###, REQ-#, US-#, FR-#, or ABC-123)
+                    </div>
+                    
+                </div>
+                
+                <div class="risk-item severity-medium">
+                    <span class="severity-badge medium">MEDIUM</span>
+                    Missing test reference (e.g., TC-123, &#39;Test Case&#39;, &#39;validated by QA&#39;) — evidence: <span class="evidence">The system shall integrate with external authentication providers</span>
+                    
+                    <div class="suggestion">
+                        <strong>Suggestion:</strong> Reference a test artifact (TC-###) or note how it will be verified
+                    </div>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+    </div>
+</body>
+</html>

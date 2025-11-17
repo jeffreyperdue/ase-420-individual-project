@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -20,7 +20,7 @@ class MarkdownReporter(Reporter):
         output_path = Path(output) if output else Path("report.md")
         lines = []
         lines.append(f"# StressSpec Report\n")
-        lines.append(f"Generated: {datetime.utcnow().isoformat()}Z\n")
+        lines.append(f"Generated: {datetime.now(timezone.utc).isoformat()}Z\n")
         lines.append("")
         lines.append(f"Source file: `{data.source_file}`\n")
         lines.append("")

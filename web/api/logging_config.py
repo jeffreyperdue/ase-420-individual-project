@@ -16,7 +16,7 @@ import sys
 import logging
 import logging.handlers
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import json
 import traceback
@@ -34,7 +34,7 @@ class StructuredFormatter(logging.Formatter):
     def format(self, record):
         # Create structured log entry
         log_entry = {
-            'timestamp': datetime.utcnow().isoformat() + 'Z',
+            'timestamp': datetime.now(timezone.utc).isoformat() + 'Z',
             'level': record.levelname,
             'logger': record.name,
             'message': record.getMessage(),
@@ -351,7 +351,7 @@ class LoggingMiddleware:
         request_id = scope.get("request_id", "unknown")
         method = scope["method"]
         path = scope["path"]
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Add request context to logging
         old_factory = logging.getLogRecordFactory()
@@ -376,7 +376,7 @@ class LoggingMiddleware:
             await self.app(scope, receive, send_wrapper)
         finally:
             # Log request
-            duration = (datetime.utcnow() - start_time).total_seconds()
+            duration = (datetime.now(timezone.utc) - start_time).total_seconds()
             
             # Get client info if available
             client = scope.get("client")
@@ -416,14 +416,14 @@ def monitor_performance(operation_name: str):
     
     def decorator(func):
         def wrapper(*args, **kwargs):
-            start_time = datetime.utcnow()
+            start_time = datetime.now(timezone.utc)
             try:
                 result = func(*args, **kwargs)
-                duration = (datetime.utcnow() - start_time).total_seconds()
+                duration = (datetime.now(timezone.utc) - start_time).total_seconds()
                 log_performance(operation_name, duration, success=True)
                 return result
             except Exception as e:
-                duration = (datetime.utcnow() - start_time).total_seconds()
+                duration = (datetime.now(timezone.utc) - start_time).total_seconds()
                 log_performance(operation_name, duration, success=False, error=str(e))
                 raise
         return wrapper

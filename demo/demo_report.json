@@ -1,0 +1,1106 @@
+{
+  "source_file": "data/sample_requirements.txt",
+  "requirements": [
+    {
+      "id": "R001",
+      "line_number": 1,
+      "text": "The system shall allow users to login with email and password",
+      "risks": [
+        {
+          "id": "R001-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R001-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'allow' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "allow",
+          "suggestion": "Specify how 'allow' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R001-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'user' is unspecified or ambiguous",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "user",
+          "suggestion": "Specify which 'user' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R001-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R001-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "The system shall allow users to login with email and password",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R001-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "The system shall allow users to login with email and password",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "id": "R002",
+      "line_number": 2,
+      "text": "The system shall display user dashboard after successful login",
+      "risks": [
+        {
+          "id": "R002-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R002",
+          "line_number": 2,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R002-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'user' is unspecified or ambiguous",
+          "requirement_id": "R002",
+          "line_number": 2,
+          "evidence": "user",
+          "suggestion": "Specify which 'user' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R002-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R002",
+          "line_number": 2,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R002-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R002",
+          "line_number": 2,
+          "evidence": "The system shall display user dashboard after successful login",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R002-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R002",
+          "line_number": 2,
+          "evidence": "The system shall display user dashboard after successful login",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "id": "R003",
+      "line_number": 3,
+      "text": "The system shall support password reset functionality",
+      "risks": [
+        {
+          "id": "R003-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R003-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'support' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "support",
+          "suggestion": "Specify how 'support' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R003-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R003-PER-001",
+          "category": "performance",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Performance-related feature without measurable performance specification",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "The system shall support password reset functionality",
+          "suggestion": "Specify response time, throughput, or latency targets"
+        },
+        {
+          "id": "R003-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "The system shall support password reset functionality",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R003-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "The system shall support password reset functionality",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "id": "R004",
+      "line_number": 4,
+      "text": "The system shall validate email format during registration",
+      "risks": [
+        {
+          "id": "R004-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R004",
+          "line_number": 4,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R004-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R004",
+          "line_number": 4,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R004-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R004",
+          "line_number": 4,
+          "evidence": "The system shall validate email format during registration",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R004-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R004",
+          "line_number": 4,
+          "evidence": "The system shall validate email format during registration",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "id": "R005",
+      "line_number": 5,
+      "text": "The system shall store user data securely in encrypted format",
+      "risks": [
+        {
+          "id": "R005-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R005",
+          "line_number": 5,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R005-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'user' is unspecified or ambiguous",
+          "requirement_id": "R005",
+          "line_number": 5,
+          "evidence": "user",
+          "suggestion": "Specify which 'user' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R005-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R005",
+          "line_number": 5,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R005-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R005",
+          "line_number": 5,
+          "evidence": "The system shall store user data securely in encrypted format",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R005-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R005",
+          "line_number": 5,
+          "evidence": "The system shall store user data securely in encrypted format",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "id": "R006",
+      "line_number": 6,
+      "text": "The system shall support multi-factor authentication",
+      "risks": [
+        {
+          "id": "R006-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R006-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'support' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "support",
+          "suggestion": "Specify how 'support' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R006-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R006-PER-001",
+          "category": "performance",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Performance-related feature without measurable performance specification",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "The system shall support multi-factor authentication",
+          "suggestion": "Specify response time, throughput, or latency targets"
+        },
+        {
+          "id": "R006-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "The system shall support multi-factor authentication",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R006-TRA-001",
+          "category": "traceability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Missing requirement ID (e.g., R001, REQ-123, ABC-123)",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "The system shall support multi-factor authentication",
+          "suggestion": "Add a stable identifier (R###, REQ-#, US-#, FR-#, or ABC-123)"
+        },
+        {
+          "id": "R006-TRA-001",
+          "category": "traceability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Missing test reference (e.g., TC-123, 'Test Case', 'validated by QA')",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "The system shall support multi-factor authentication",
+          "suggestion": "Reference a test artifact (TC-###) or note how it will be verified"
+        }
+      ]
+    },
+    {
+      "id": "R007",
+      "line_number": 7,
+      "text": "The system shall log all user activities for audit purposes",
+      "risks": [
+        {
+          "id": "R007-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R007",
+          "line_number": 7,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R007-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'user' is unspecified or ambiguous",
+          "requirement_id": "R007",
+          "line_number": 7,
+          "evidence": "user",
+          "suggestion": "Specify which 'user' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R007-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R007",
+          "line_number": 7,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R007-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R007",
+          "line_number": 7,
+          "evidence": "The system shall log all user activities for audit purposes",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R007-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R007",
+          "line_number": 7,
+          "evidence": "The system shall log all user activities for audit purposes",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "id": "R008",
+      "line_number": 8,
+      "text": "The system shall handle concurrent user sessions",
+      "risks": [
+        {
+          "id": "R008-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R008-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'handle' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "handle",
+          "suggestion": "Specify how 'handle' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R008-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'user' is unspecified or ambiguous",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "user",
+          "suggestion": "Specify which 'user' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R008-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R008-PER-001",
+          "category": "performance",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Performance-related feature without measurable performance specification",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "The system shall handle concurrent user sessions",
+          "suggestion": "Specify response time, throughput, or latency targets"
+        },
+        {
+          "id": "R008-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "The system shall handle concurrent user sessions",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R008-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "The system shall handle concurrent user sessions",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "id": "R009",
+      "line_number": 9,
+      "text": "The system shall provide role-based access control",
+      "risks": [
+        {
+          "id": "R009-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R009-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'provide' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "provide",
+          "suggestion": "Specify how 'provide' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R009-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R009-SEC-001",
+          "category": "security",
+          "severity": 4,
+          "severity_name": "CRITICAL",
+          "description": "User access feature 'access' mentioned without authentication requirements",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "access",
+          "suggestion": "Add authentication requirements (e.g., 'users must authenticate before accessing')"
+        },
+        {
+          "id": "R009-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "The system shall provide role-based access control",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R009-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "The system shall provide role-based access control",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "id": "R010",
+      "line_number": 10,
+      "text": "The system shall integrate with external authentication providers",
+      "risks": [
+        {
+          "id": "R010-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R010",
+          "line_number": 10,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R010-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'provide' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R010",
+          "line_number": 10,
+          "evidence": "provide",
+          "suggestion": "Specify how 'provide' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R010-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R010",
+          "line_number": 10,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R010-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R010",
+          "line_number": 10,
+          "evidence": "The system shall integrate with external authentication providers",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R010-TRA-001",
+          "category": "traceability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Missing requirement ID (e.g., R001, REQ-123, ABC-123)",
+          "requirement_id": "R010",
+          "line_number": 10,
+          "evidence": "The system shall integrate with external authentication providers",
+          "suggestion": "Add a stable identifier (R###, REQ-#, US-#, FR-#, or ABC-123)"
+        },
+        {
+          "id": "R010-TRA-001",
+          "category": "traceability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Missing test reference (e.g., TC-123, 'Test Case', 'validated by QA')",
+          "requirement_id": "R010",
+          "line_number": 10,
+          "evidence": "The system shall integrate with external authentication providers",
+          "suggestion": "Reference a test artifact (TC-###) or note how it will be verified"
+        }
+      ]
+    }
+  ],
+  "top_5_riskiest": [
+    {
+      "requirement_id": "R008",
+      "line_number": 8,
+      "text": "The system shall handle concurrent user sessions",
+      "total_score": 19,
+      "avg_severity": 2.71,
+      "risk_count": 7,
+      "risks": [
+        {
+          "id": "R008-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R008-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'handle' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "handle",
+          "suggestion": "Specify how 'handle' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R008-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'user' is unspecified or ambiguous",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "user",
+          "suggestion": "Specify which 'user' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R008-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R008-PER-001",
+          "category": "performance",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Performance-related feature without measurable performance specification",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "The system shall handle concurrent user sessions",
+          "suggestion": "Specify response time, throughput, or latency targets"
+        },
+        {
+          "id": "R008-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "The system shall handle concurrent user sessions",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R008-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R008",
+          "line_number": 8,
+          "evidence": "The system shall handle concurrent user sessions",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "requirement_id": "R006",
+      "line_number": 6,
+      "text": "The system shall support multi-factor authentication",
+      "total_score": 17,
+      "avg_severity": 2.43,
+      "risk_count": 7,
+      "risks": [
+        {
+          "id": "R006-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R006-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'support' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "support",
+          "suggestion": "Specify how 'support' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R006-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R006-PER-001",
+          "category": "performance",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Performance-related feature without measurable performance specification",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "The system shall support multi-factor authentication",
+          "suggestion": "Specify response time, throughput, or latency targets"
+        },
+        {
+          "id": "R006-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "The system shall support multi-factor authentication",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R006-TRA-001",
+          "category": "traceability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Missing requirement ID (e.g., R001, REQ-123, ABC-123)",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "The system shall support multi-factor authentication",
+          "suggestion": "Add a stable identifier (R###, REQ-#, US-#, FR-#, or ABC-123)"
+        },
+        {
+          "id": "R006-TRA-001",
+          "category": "traceability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Missing test reference (e.g., TC-123, 'Test Case', 'validated by QA')",
+          "requirement_id": "R006",
+          "line_number": 6,
+          "evidence": "The system shall support multi-factor authentication",
+          "suggestion": "Reference a test artifact (TC-###) or note how it will be verified"
+        }
+      ]
+    },
+    {
+      "requirement_id": "R009",
+      "line_number": 9,
+      "text": "The system shall provide role-based access control",
+      "total_score": 17,
+      "avg_severity": 2.83,
+      "risk_count": 6,
+      "risks": [
+        {
+          "id": "R009-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R009-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'provide' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "provide",
+          "suggestion": "Specify how 'provide' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R009-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R009-SEC-001",
+          "category": "security",
+          "severity": 4,
+          "severity_name": "CRITICAL",
+          "description": "User access feature 'access' mentioned without authentication requirements",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "access",
+          "suggestion": "Add authentication requirements (e.g., 'users must authenticate before accessing')"
+        },
+        {
+          "id": "R009-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "The system shall provide role-based access control",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R009-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R009",
+          "line_number": 9,
+          "evidence": "The system shall provide role-based access control",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "requirement_id": "R001",
+      "line_number": 1,
+      "text": "The system shall allow users to login with email and password",
+      "total_score": 16,
+      "avg_severity": 2.67,
+      "risk_count": 6,
+      "risks": [
+        {
+          "id": "R001-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R001-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'allow' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "allow",
+          "suggestion": "Specify how 'allow' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R001-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'user' is unspecified or ambiguous",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "user",
+          "suggestion": "Specify which 'user' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R001-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R001-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "The system shall allow users to login with email and password",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R001-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R001",
+          "line_number": 1,
+          "evidence": "The system shall allow users to login with email and password",
+          "suggestion": null
+        }
+      ]
+    },
+    {
+      "requirement_id": "R003",
+      "line_number": 3,
+      "text": "The system shall support password reset functionality",
+      "total_score": 16,
+      "avg_severity": 2.67,
+      "risk_count": 6,
+      "risks": [
+        {
+          "id": "R003-AMB-001",
+          "category": "ambiguity",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Imprecise quantifier 'all' found - specify exact values or criteria",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "all",
+          "suggestion": "Replace 'all' with specific values (e.g., 'at least 5', 'within 2 seconds', '99.9% uptime')"
+        },
+        {
+          "id": "R003-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Action 'support' lacks sufficient detail about how it should be performed",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "support",
+          "suggestion": "Specify how 'support' should be performed (e.g., when, where, under what conditions)"
+        },
+        {
+          "id": "R003-MIS-001",
+          "category": "missing_detail",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Actor 'system' is unspecified or ambiguous",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "system",
+          "suggestion": "Specify which 'system' (e.g., 'authenticated users', 'system administrators', 'external API')"
+        },
+        {
+          "id": "R003-PER-001",
+          "category": "performance",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "Performance-related feature without measurable performance specification",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "The system shall support password reset functionality",
+          "suggestion": "Specify response time, throughput, or latency targets"
+        },
+        {
+          "id": "R003-AVA-001",
+          "category": "availability",
+          "severity": 2,
+          "severity_name": "MEDIUM",
+          "description": "Service mention without availability/uptime specification",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "The system shall support password reset functionality",
+          "suggestion": "Specify uptime target (e.g., 99.9%), maintenance windows, or SLOs"
+        },
+        {
+          "id": "R003-TRA-001",
+          "category": "traceability",
+          "severity": 3,
+          "severity_name": "HIGH",
+          "description": "No traceability signals found (ID, acceptance criteria, or test reference)",
+          "requirement_id": "R003",
+          "line_number": 3,
+          "evidence": "The system shall support password reset functionality",
+          "suggestion": null
+        }
+      ]
+    }
+  ]
+}

@@ -15,9 +15,19 @@ StressSpec acts as a "wind tunnel" for requirements, helping project managers, b
 3. **Risk Detection** - 8 categories: Ambiguity, Missing Detail, Security, Conflict, Performance, Availability, Traceability, Scope
 4. **Configurable Rules** - JSON-driven rules in `data/rules.json` with severities and enable switches
 5. **Risk Scoring & Analytics** - Combined risk scores per requirement with "Top 5 Riskiest Requirements" analysis
-6. **Reporting** - Multi-format outputs: Markdown, CSV, JSON (all include top 5 riskiest)
+6. **Reporting** - Multi-format outputs: Markdown, CSV, JSON, HTML (all include top 5 riskiest)
 7. **CLI Interface** - Report format selection and output path
-8. **Testing** - Comprehensive unit and integration tests
+8. **Testing** - Comprehensive unit and integration tests (86 tests, 100% pass rate)
+
+### Sprint 2 Enhancements (Weeks 6-10)
+
+**Completed Sprint 2 Features:**
+- ✅ **Complete Test Coverage** - 86 tests passing with 100% reliability
+- ✅ **8-Category Risk Detection** - Added Traceability and Scope detectors (Privacy detector was planned but not implemented; 8 categories achieved via Traceability + Scope)
+- ✅ **Top 5 Riskiest Requirements** - Advanced scoring system with automatic prioritization across all report formats
+- ✅ **HTML Report Generation** - Standalone HTML reports with professional styling for stakeholder presentations
+
+**Note on Risk Categories:** Privacy detector was originally planned but not implemented. However, the 8-category goal was achieved through the implementation of Traceability and Scope detectors, completing the original plan.
 
 ### Project Structure
 
@@ -216,7 +226,7 @@ Tests cover:
 - All 8 risk detectors (ambiguity, missing detail, security, conflict, performance, availability, traceability, scope)
 - Risk scoring and top 5 analysis (Week 8)
 - Reporting integration and end-to-end pipeline
-- Multi-format report generation (Markdown, CSV, JSON)
+- Multi-format report generation (Markdown, CSV, JSON, HTML)
 
 ## Sample Output
 

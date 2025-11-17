@@ -16,7 +16,7 @@ import sys
 import json
 import traceback
 import platform
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 from pathlib import Path
 import logging
@@ -203,7 +203,7 @@ def get_error_context(error: Exception, request: Optional[Request] = None) -> Di
             'error_type': type(error).__name__,
             'error_message': str(error),
             'stack_trace': traceback.format_exc(),
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'python_path': sys.path,
             'working_directory': os.getcwd()
         }
@@ -238,7 +238,7 @@ async def get_debug_info(request: Request):
     
     try:
         debug_info = DebugInfo(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             system_info=get_system_info(),
             application_info=get_application_info(),
             request_info={
@@ -252,7 +252,7 @@ async def get_debug_info(request: Request):
         
         logger.info("Debug info requested", extra={'extra_fields': {'client_ip': request.client.host if request.client else None}})
         
-        return debug_info.dict()
+        return debug_info.model_dump()
         
     except Exception as e:
         logger.error(f"Failed to get debug info: {str(e)}")
@@ -319,7 +319,7 @@ async def report_error(error_report: ErrorReport, request: Request):
         # Log the error report
         logger.error(f"Error report received: {error_report.error_id}", extra={
             'extra_fields': {
-                'error_report': error_report.dict(),
+                'error_report': error_report.model_dump(),
                 'client_ip': request.client.host if request.client else None
             }
         })
@@ -330,7 +330,7 @@ async def report_error(error_report: ErrorReport, request: Request):
         
         report_file = reports_dir / f"{error_report.error_id}.json"
         with open(report_file, 'w', encoding='utf-8') as f:
-            json.dump(error_report.dict(), f, indent=2, default=str)
+            json.dump(error_report.model_dump(), f, indent=2, default=str)
         
         # Send notification (in a real application, this might send an email or create a ticket)
         logger.info(f"Error report saved: {report_file}")
@@ -359,7 +359,7 @@ async def detailed_health_check():
     
     try:
         health_info = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'status': 'healthy',
             'system': get_system_info(),
             'application': get_application_info(),
@@ -428,7 +428,7 @@ async def detailed_health_check():
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
         return {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'status': 'unhealthy',
             'error': str(e)
         }
@@ -446,7 +446,7 @@ async def get_performance_metrics():
     
     try:
         metrics = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'system': {},
             'application': {}
         }
@@ -512,7 +512,7 @@ def create_error_report(error: Exception, context: Dict[str, Any] = None,
     
     return ErrorReport(
         error_id=error_id,
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         error_type=type(error).__name__,
         error_message=str(error),
         stack_trace=traceback.format_exc(),
@@ -536,7 +536,7 @@ def save_error_report(error_report: ErrorReport) -> str:
     
     report_file = reports_dir / f"{error_report.error_id}.json"
     with open(report_file, 'w', encoding='utf-8') as f:
-        json.dump(error_report.dict(), f, indent=2, default=str)
+        json.dump(error_report.model_dump(), f, indent=2, default=str)
     
     logger.info(f"Error report saved: {report_file}")
     return str(report_file)

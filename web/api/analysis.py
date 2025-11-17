@@ -203,7 +203,7 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
             status="completed",
             progress=100,
             message="Analysis completed successfully",
-            results=analysis_results[analysis_id].dict()
+            results=analysis_results[analysis_id].model_dump()
         )
         
     except Exception as e:

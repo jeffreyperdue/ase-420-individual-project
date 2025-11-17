@@ -96,12 +96,12 @@ async def health_check():
     - Useful for load balancers and monitoring systems
     - Returns basic status information
     """
-    from datetime import datetime
+    from datetime import datetime, timezone
     return {
         "status": "healthy",
         "service": "StressSpec Web UI",
         "version": "1.0.0",
-        "timestamp": datetime.utcnow().isoformat() + "Z"
+        "timestamp": datetime.now(timezone.utc).isoformat() + "Z"
     }
 
 @app.get("/about", response_class=HTMLResponse)

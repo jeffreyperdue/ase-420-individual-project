@@ -1,0 +1,6 @@
+rank,requirement_id,line_number,requirement_text,total_score,avg_severity,risk_count
+1,R008,8,The system shall handle concurrent user sessions,19,2.71,7
+2,R006,6,The system shall support multi-factor authentication,17,2.43,7
+3,R009,9,The system shall provide role-based access control,17,2.83,6
+4,R001,1,The system shall allow users to login with email and password,16,2.67,6
+5,R003,3,The system shall support password reset functionality,16,2.67,6
