@@ -12,12 +12,16 @@ BEGINNER NOTES:
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional
-import json
-from pathlib import Path
+from typing import List, Dict, Any, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.factories.risk_factory import RiskFactory
 
 from src.models.requirement import Requirement
 from src.models.risk import Risk, RiskCategory, SeverityLevel
+from src.utils.text_normalizer import TextNormalizer
+from src.utils.risk_id_generator import RiskIdGenerator
+from src.config.detector_config_manager import DetectorConfigManager
 
 
 class RiskDetector(ABC):
@@ -87,42 +91,32 @@ class BaseRiskDetector(RiskDetector):
     - Severity mapping and risk creation helpers
     """
     
-    def __init__(self, rules_file: str = "data/rules.json"):
+    def __init__(self, rules_file: str = "data/rules.json",
+                 text_normalizer: Optional[TextNormalizer] = None,
+                 risk_id_generator: Optional[RiskIdGenerator] = None,
+                 config_manager: Optional[DetectorConfigManager] = None,
+                 risk_factory: Optional['RiskFactory'] = None):
         """
         Initialize the base detector with configuration.
         
         Args:
             rules_file: Path to the rules configuration file
+            text_normalizer: Optional TextNormalizer instance (for dependency injection/testing)
+            risk_id_generator: Optional RiskIdGenerator instance (for dependency injection/testing)
+            config_manager: Optional DetectorConfigManager instance (for dependency injection/testing)
+            risk_factory: Optional RiskFactory instance (for dependency injection/testing)
         """
         self.rules_file = rules_file
-        self.config = self._load_configuration()
+        self.config_manager = config_manager or DetectorConfigManager(rules_file)
+        self.text_normalizer = text_normalizer or TextNormalizer()
+        id_gen = risk_id_generator or RiskIdGenerator()
+        if risk_factory is None:
+            # Lazy import to avoid circular dependency
+            from src.factories.risk_factory import RiskFactory
+            self.risk_factory = RiskFactory(id_gen)
+        else:
+            self.risk_factory = risk_factory
         self._setup_detector()
-    
-    def _load_configuration(self) -> Dict[str, Any]:
-        """
-        Load configuration from rules.json file.
-        
-        Returns:
-            Dictionary containing detector configuration
-            
-        Raises:
-            FileNotFoundError: If rules file doesn't exist
-            ValueError: If rules file is invalid JSON
-        """
-        try:
-            rules_path = Path(self.rules_file)
-            if not rules_path.exists():
-                raise FileNotFoundError(f"Rules file not found: {self.rules_file}")
-            
-            with open(rules_path, 'r', encoding='utf-8') as f:
-                config = json.load(f)
-            
-            return config
-            
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON in rules file {self.rules_file}: {e}")
-        except Exception as e:
-            raise ValueError(f"Error loading rules file {self.rules_file}: {e}")
     
     def _setup_detector(self) -> None:
         """
@@ -135,16 +129,16 @@ class BaseRiskDetector(RiskDetector):
         """
         # Get detector-specific config
         detector_name = self.get_category().value
-        self.detector_config = self.config.get('detectors', {}).get(detector_name, {})
+        self.detector_config = self.config_manager.get_detector_config(detector_name)
         
         # Get severity mapping
-        self.severity_mapping = self.config.get('severity_mapping', {})
+        self.severity_mapping = self.config_manager.get_severity_mapping()
         
-        # Get global settings
-        self.global_settings = self.config.get('global_settings', {})
+        # Get global settings (store as dict for backward compatibility)
+        self.global_settings = self.config_manager.config.get('global_settings', {})
         
         # Check if detector is enabled
-        if not self.detector_config.get('enabled', False):
+        if not self.config_manager.is_detector_enabled(detector_name):
             raise ValueError(f"Detector {detector_name} is disabled in configuration")
     
     def get_severity_level(self, severity_str: str) -> SeverityLevel:
@@ -193,24 +187,34 @@ class BaseRiskDetector(RiskDetector):
         Returns:
             Risk object with all metadata filled in
         """
-        # Generate unique risk ID
-        risk_id = f"{requirement.id}-{self.get_category().value.upper()[:3]}-001"
-        
         # Get severity level
         if severity is None:
             severity = self.detector_config.get('severity', 'medium')
         severity_level = self.get_severity_level(severity)
         
-        return Risk(
-            id=risk_id,
-            category=self.get_category(),
-            severity=severity_level,
-            description=description,
-            requirement_id=requirement.id,
-            line_number=requirement.line_number,
-            evidence=evidence,
-            suggestion=suggestion
-        )
+        # Use risk factory if provided, otherwise create directly
+        if self.risk_factory:
+            return self.risk_factory.create_risk(
+                requirement=requirement,
+                category=self.get_category(),
+                description=description,
+                evidence=evidence,
+                severity=severity_level,
+                suggestion=suggestion
+            )
+        else:
+            # Fallback: create risk directly (for backward compatibility)
+            risk_id = self.risk_id_generator.generate_id(requirement.id, self.get_category())
+            return Risk(
+                id=risk_id,
+                category=self.get_category(),
+                severity=severity_level,
+                description=description,
+                requirement_id=requirement.id,
+                line_number=requirement.line_number,
+                evidence=evidence,
+                suggestion=suggestion
+            )
     
     def normalize_text(self, text: str) -> str:
         """
@@ -222,9 +226,8 @@ class BaseRiskDetector(RiskDetector):
         Returns:
             Normalized text
         """
-        if not self.global_settings.get('case_sensitive', False):
-            text = text.lower()
-        return text.strip()
+        case_sensitive = self.global_settings.get('case_sensitive', False)
+        return self.text_normalizer.normalize_text(text, case_sensitive)
     
     def contains_keywords(self, text: str, keywords: List[str]) -> List[str]:
         """
@@ -237,15 +240,8 @@ class BaseRiskDetector(RiskDetector):
         Returns:
             List of keywords found in the text
         """
-        normalized_text = self.normalize_text(text)
-        found_keywords = []
-        
-        for keyword in keywords:
-            normalized_keyword = self.normalize_text(keyword)
-            if normalized_keyword in normalized_text:
-                found_keywords.append(keyword)
-        
-        return found_keywords
+        case_sensitive = self.global_settings.get('case_sensitive', False)
+        return self.text_normalizer.contains_keywords(text, keywords, case_sensitive)
     
     def get_rule_config(self, rule_name: str) -> Dict[str, Any]:
         """

@@ -11,7 +11,8 @@ BEGINNER NOTES:
 """
 
 from .detector_factory import RiskDetectorFactory
+from .reporter_factory import ReporterFactory
 
 # Define what gets imported when someone does "from src.factories import *"
-__all__ = ['RiskDetectorFactory']
+__all__ = ['RiskDetectorFactory', 'ReporterFactory']
 

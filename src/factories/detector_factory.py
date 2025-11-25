@@ -11,9 +11,10 @@ BEGINNER NOTES:
 - All detectors are created through this factory, making it easy to add new ones
 """
 
-from typing import Dict, List, Type
+from typing import Dict, List, Type, Optional
 from src.models.risk import RiskCategory
 from src.detectors.base import RiskDetector
+from src.config.detector_config_manager import DetectorConfigManager
 from src.detectors.ambiguity_detector import AmbiguityDetector
 from src.detectors.missing_detail_detector import MissingDetailDetector
 from src.detectors.security_detector import SecurityDetector
@@ -53,14 +54,17 @@ class RiskDetectorFactory:
         'scope': ScopeDetector,
     }
     
-    def __init__(self, rules_file: str = "data/rules.json"):
+    def __init__(self, rules_file: str = "data/rules.json",
+                 config_manager: Optional[DetectorConfigManager] = None):
         """
         Initialize the factory with configuration.
         
         Args:
             rules_file: Path to the rules configuration file
+            config_manager: Optional DetectorConfigManager instance (for dependency injection/testing)
         """
         self.rules_file = rules_file
+        self.config_manager = config_manager or DetectorConfigManager(rules_file)
         self._detector_cache: Dict[str, RiskDetector] = {}
     
     def create_detector(self, detector_type: str) -> RiskDetector:
@@ -142,23 +146,17 @@ class RiskDetectorFactory:
         """
         enabled_detectors = []
         
-        # Load configuration to check which detectors are enabled
-        import json
-        from pathlib import Path
-        
         try:
-            rules_path = Path(self.rules_file)
-            if not rules_path.exists():
-                # If no rules file, return all detectors
+            # Get all detector names from configuration
+            detector_names = self.config_manager.get_all_detector_names()
+            
+            # If no detectors in config, return all detectors
+            if not detector_names:
                 return self.create_all_detectors()
             
-            with open(rules_path, 'r', encoding='utf-8') as f:
-                config = json.load(f)
-            
-            detectors_config = config.get('detectors', {})
-            
-            for detector_type, detector_config in detectors_config.items():
-                if detector_config.get('enabled', False):
+            # Create only enabled detectors
+            for detector_type in detector_names:
+                if self.config_manager.is_detector_enabled(detector_type):
                     try:
                         detector = self.create_detector(detector_type)
                         enabled_detectors.append(detector)

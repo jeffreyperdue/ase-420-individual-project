@@ -15,6 +15,7 @@ import os          # For operating system operations
 from pathlib import Path  # For handling file paths (works on Windows, Mac, Linux)
 from typing import List, Dict   # For type hints (makes code more readable)
 from .requirement_structure_detector import RequirementStructureDetector
+from .exceptions import FileLoadError
 
 
 class FileLoader:
@@ -75,7 +76,7 @@ class FileLoader:
         
         # Make sure we got something useful
         if not valid_requirements:
-            raise ValueError(f"File contains no valid requirements: {file_path}")
+            raise FileLoadError(file_path, "File contains no valid requirements")
         
         return valid_requirements
 
@@ -95,23 +96,28 @@ class FileLoader:
             List of raw lines from the file
             
         Raises:
-            FileNotFoundError: If the file doesn't exist
+            FileLoadError: If the file cannot be loaded
         """
         # Convert string path to Path object
         path = Path(file_path)
         
         # Check if the file exists
         if not path.exists():
-            raise FileNotFoundError(f"Requirements file not found: {file_path}")
+            raise FileLoadError(file_path, "File not found")
         
         # Read all lines from the file
         try:
             with open(path, 'r', encoding='utf-8') as file:
                 return file.readlines()
-        except UnicodeDecodeError:
+        except UnicodeDecodeError as e:
             # If UTF-8 fails, try with latin-1
-            with open(path, 'r', encoding='latin-1') as file:
-                return file.readlines()
+            try:
+                with open(path, 'r', encoding='latin-1') as file:
+                    return file.readlines()
+            except Exception as e2:
+                raise FileLoadError(file_path, f"Failed to decode file: {e2}")
+        except Exception as e:
+            raise FileLoadError(file_path, f"Failed to read file: {e}")
 
     def load_file(self, file_path: str) -> List[str]:
         """
@@ -137,11 +143,12 @@ class FileLoader:
         
         # Step 1: Check if file exists (like checking if a book is in the library)
         if not path.exists():
-            raise FileNotFoundError(f"File not found: {file_path}")
+            raise FileLoadError(file_path, "File not found")
         
         # Step 2: Check if file type is supported (like checking if it's a book, not a DVD)
         if path.suffix.lower() not in self.SUPPORTED_EXTENSIONS:
-            raise ValueError(
+            raise FileLoadError(
+                file_path,
                 f"Unsupported file extension: {path.suffix}. "
                 f"Supported extensions: {', '.join(self.SUPPORTED_EXTENSIONS)}"
             )
@@ -153,15 +160,20 @@ class FileLoader:
                 lines = file.readlines()  # Read all lines into a list
         except UnicodeDecodeError:
             # If UTF-8 fails, try with latin-1 (handles older files)
-            with open(path, 'r', encoding='latin-1') as file:
-                lines = file.readlines()
+            try:
+                with open(path, 'r', encoding='latin-1') as file:
+                    lines = file.readlines()
+            except Exception as e:
+                raise FileLoadError(file_path, f"Failed to decode file: {e}")
+        except Exception as e:
+            raise FileLoadError(file_path, f"Failed to read file: {e}")
         
         # Step 4: Clean up the lines (remove empty lines, comments, etc.)
         processed_lines = self._process_lines(lines)
         
         # Step 5: Make sure we got something useful
         if not processed_lines:
-            raise ValueError(f"File contains no valid requirements: {file_path}")
+            raise FileLoadError(file_path, "File contains no valid requirements")
         
         return processed_lines
     

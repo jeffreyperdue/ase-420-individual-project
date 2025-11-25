@@ -24,6 +24,7 @@ from src.requirement_parser import RequirementParser
 from src.factories.detector_factory import RiskDetectorFactory
 from src.analyzer import analyze_requirements
 from src.scoring import calculate_risk_scores, get_top_riskiest
+from src.constants import AnalysisProgress
 
 # Create router for analysis endpoints
 router = APIRouter()
@@ -82,7 +83,7 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
         analysis_status[analysis_id] = AnalysisStatus(
             analysis_id=analysis_id,
             status="processing",
-            progress=10,
+            progress=AnalysisProgress.LOADING,
             message="Loading file..."
         )
         
@@ -91,7 +92,7 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
         structured_requirements = file_loader.load_file_structured(file_path)
         
         # Update progress
-        analysis_status[analysis_id].progress = 30
+        analysis_status[analysis_id].progress = AnalysisProgress.PARSING
         analysis_status[analysis_id].message = "Parsing requirements..."
         
         # Parse structured requirements
@@ -99,7 +100,7 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
         requirements = parser.parse_structured_requirements(structured_requirements)
         
         # Update progress
-        analysis_status[analysis_id].progress = 50
+        analysis_status[analysis_id].progress = AnalysisProgress.DETECTING
         analysis_status[analysis_id].message = "Running risk detectors..."
         
         # Create detectors
@@ -110,7 +111,7 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
         risks_by_requirement = analyze_requirements(requirements, detectors)
         
         # Update progress
-        analysis_status[analysis_id].progress = 70
+        analysis_status[analysis_id].progress = AnalysisProgress.SCORING
         analysis_status[analysis_id].message = "Calculating risk scores..."
         
         # Calculate risk scores and identify top 5 riskiest (Week 8 feature)
@@ -118,7 +119,7 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
         top_5_riskiest = get_top_riskiest(requirements, risk_scores, top_n=5)
         
         # Update progress
-        analysis_status[analysis_id].progress = 80
+        analysis_status[analysis_id].progress = AnalysisProgress.GENERATING
         analysis_status[analysis_id].message = "Generating results..."
         
         # Calculate summary
@@ -201,7 +202,7 @@ async def run_analysis(analysis_id: str, file_id: str, file_path: str):
         analysis_status[analysis_id] = AnalysisStatus(
             analysis_id=analysis_id,
             status="completed",
-            progress=100,
+            progress=AnalysisProgress.COMPLETE,
             message="Analysis completed successfully",
             results=analysis_results[analysis_id].model_dump()
         )
