@@ -13,13 +13,18 @@
         {{ $pdfPath := .Params.pdf }}
         {{ $pdfURL := $pdfPath | relURL }}
         {{ $pdfFilename := index (split $pdfPath "/") -1 }}
+        {{ $absoluteURL := printf "%s%s" (strings.TrimSuffix "/" .Site.BaseURL) $pdfPath }}
         <iframe src="{{ $pdfURL }}" class="pdf-viewer" type="application/pdf">
             <p>Your browser does not support PDFs. 
-            <a href="{{ $pdfURL }}" class="pdf-download" download="{{ $pdfFilename }}">Download the PDF</a> instead.</p>
+            <a href="{{ $absoluteURL }}" class="pdf-download" type="application/pdf" download="{{ $pdfFilename }}">Download the PDF</a> instead.</p>
         </iframe>
-        <a href="{{ $pdfURL }}" class="pdf-download" download="{{ $pdfFilename }}">Download PDF</a>
+        <div style="margin-top: 1rem;">
+            <a href="{{ $absoluteURL }}" class="pdf-download" type="application/pdf" download="{{ $pdfFilename }}">Download PDF</a>
+            <span style="margin: 0 1rem; color: #666;">|</span>
+            <a href="{{ $absoluteURL }}" target="_blank" style="color: #667eea; text-decoration: none;">Open in New Tab</a>
+        </div>
         <p style="margin-top: 1rem; font-size: 0.9em; color: #666;">
-            <strong>Direct link:</strong> <a href="{{ $pdfURL }}" target="_blank">{{ $pdfURL }}</a>
+            <strong>Direct link:</strong> <code style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 3px;">{{ $absoluteURL }}</code>
         </p>
     </div>
     {{ end }}
