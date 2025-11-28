@@ -38,15 +38,33 @@ jobs:
       - name: Build with Hugo
         working-directory: ./hugo
         run: |
+          echo "Building Hugo site..."
+          echo "Base URL: ${{ steps.pages.outputs.base_url }}/"
+          echo "Checking static files before build:"
+          ls -la static/pdfs/ || echo "Static PDFs not found"
           hugo \
             --gc \
             --minify \
-            --baseURL "${{ steps.pages.outputs.base_url }}/"
+            --baseURL "${{ steps.pages.outputs.base_url }}/" \
+            --verbose
+      - name: Ensure .nojekyll in root
+        run: |
+          touch hugo/docs/.nojekyll
+          echo "Created .nojekyll file in root"
       - name: Verify PDFs in build output
         run: |
-          echo "Checking for PDFs in build output..."
-          ls -la hugo/docs/pdfs/ || echo "PDFs directory not found"
+          echo "=== Checking build output structure ==="
+          echo "Root files:"
+          ls -la hugo/docs/ | head -20
+          echo ""
+          echo "Checking for PDFs:"
+          ls -la hugo/docs/pdfs/ 2>/dev/null || echo "PDFs directory not found in docs/"
+          echo ""
+          echo "Searching for PDFs:"
           find hugo/docs -name "*.pdf" -type f || echo "No PDF files found"
+          echo ""
+          echo "Checking for .nojekyll:"
+          ls -la hugo/docs/.nojekyll || echo ".nojekyll not found"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
