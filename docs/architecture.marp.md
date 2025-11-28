@@ -90,6 +90,9 @@ style: |
 └──────────┬──────────────────────────────────────────────┘
            │
            ▼
+```
+---
+```
 ┌─────────────────────────────────────────────────────────┐
 │                    Core Processing                       │
 ├─────────────────────────────────────────────────────────┤
@@ -104,7 +107,6 @@ style: |
 │  - Ambiguity, Security, Conflict, etc.                  │
 └─────────────────────────────────────────────────────────┘
 ```
-
 ---
 
 # Core Components
@@ -119,7 +121,7 @@ style: |
 - Coordinates file loading, parsing, analysis, and reporting
 - Manages progress notifications via Observer pattern
 - Provides dependency injection for testing
-
+---
 **Key Methods:**
 - `analyze_file()`: Complete end-to-end analysis
 - `add_progress_observer()`: Register progress observers
@@ -136,7 +138,7 @@ style: |
 - Supports `.txt` and `.md` formats
 - Handles file encoding and errors
 - Provides structured parsing for complex formats
-
+---
 ### `RequirementParser`
 **Location:** `src/requirement_parser.py`
 
@@ -158,7 +160,7 @@ style: |
 - Applies risk filters (Chain of Responsibility)
 - Handles detector errors gracefully
 - Aggregates risks by requirement
-
+---
 **Key Function:**
 ```python
 analyze_requirements(
@@ -210,7 +212,7 @@ analyze_requirements(
 - Aggregates severity values (1-5 scale)
 - Identifies top N riskiest requirements
 - Provides ranking and prioritization
-
+---
 **Key Functions:**
 - `calculate_risk_scores()`: Computes total/avg scores
 - `get_top_riskiest()`: Returns top N requirements
@@ -230,6 +232,8 @@ Average Severity = Total Score / Risk Count
 **Base Interface:**
 - `Reporter`: Abstract interface
 - `write(data: ReportData, output: Optional[str]) -> Path`
+
+---
 
 **Report Formats:**
 - `MarkdownReporter`: Technical documentation
@@ -325,6 +329,7 @@ service.add_progress_observer(ConsoleProgressObserver())
 - `DuplicateRiskFilter`: Remove duplicates
 - `CategoryFilter`: Filter by category
 
+---
 **Usage:**
 ```python
 filter_chain = SeverityThresholdFilter(
@@ -435,6 +440,7 @@ class Risk:
     suggestion: Optional[str]  # Fix suggestion
 ```
 
+---
 **Severity Levels:**
 - LOW = 1
 - MEDIUM = 2
@@ -454,17 +460,11 @@ class Risk:
 - **Jinja2**: Template engine
 - **Pydantic**: Data validation
 
+---
 ## Testing
 
 - **pytest**: Testing framework
 - **pytest-cov**: Coverage reporting
-
-## Development Tools
-
-- **typing**: Type hints
-- **dataclasses**: Data models
-- **pathlib**: File path handling
-- **enum**: Enumerations
 
 ---
 
@@ -504,6 +504,8 @@ StressSpec/
 
 **Location:** `data/rules.json`
 
+---
+
 **Structure:**
 ```json
 {
@@ -524,6 +526,7 @@ StressSpec/
 }
 ```
 
+---
 ## Configuration Management
 
 **Components:**
@@ -554,6 +557,7 @@ StressSpec/
 - CORS middleware
 - GZip compression
 
+---
 ## API Endpoints
 
 **Upload:**
@@ -565,6 +569,7 @@ StressSpec/
 - `GET /api/analysis/results/{id}`: Get results
 - `GET /api/analysis/list`: List all analyses
 
+---
 **Reports:**
 - `GET /api/reports/{id}/{format}`: Download report
 
@@ -587,6 +592,7 @@ StressSpec/
 - Returns empty risk list on failure
 - Allows other detectors to continue
 
+---
 **Benefits:**
 - Resilient to individual detector failures
 - Graceful degradation
@@ -612,6 +618,7 @@ StressSpec/
            return RiskCategory.NEW_CATEGORY
    ```
 
+---
 2. **Register in Factory:**
    ```python
    factory.register_detector('new_type', NewDetector)
@@ -672,6 +679,7 @@ StressSpec/
 - **Acceptance Tests**: End-to-end workflows
 - **Regression Tests**: Prevent regressions
 
+---
 ## Test Coverage
 
 - Detector logic
@@ -695,6 +703,7 @@ StressSpec/
    - Configuration loaded on demand
    - Detectors created only when needed
 
+---
 3. **Async Processing:**
    - Web API uses background tasks
    - Non-blocking file operations
@@ -714,34 +723,13 @@ StressSpec/
 - File size limits
 - Content type validation
 
+---
 ## Future Enhancements
 
 - Authentication/authorization
 - Rate limiting
 - Input sanitization
 - Secure file storage
-
----
-
-# Deployment Architecture
-
-## Development
-
-```
-python web_utils/run_web.py
-```
-- Single process
-- Auto-reload enabled
-- Debug mode
-
-## Production (Recommended)
-
-```
-uvicorn web.main:app --host 0.0.0.0 --port 8000
-```
-- Multiple workers
-- Reverse proxy (nginx)
-- Process manager (systemd/supervisor)
 
 ---
 
@@ -758,7 +746,7 @@ uvicorn web.main:app --host 0.0.0.0 --port 8000
    - Trend analysis
    - Risk prediction
    - Comparative analysis
-
+---
 3. **Integration:**
    - CI/CD plugins
    - JIRA integration
@@ -771,29 +759,6 @@ uvicorn web.main:app --host 0.0.0.0 --port 8000
 
 ---
 
-# Best Practices
-
-## Code Organization
-
-- **Single Responsibility**: Each class has one job
-- **Dependency Injection**: Testable, flexible
-- **Interface Segregation**: Small, focused interfaces
-- **Open/Closed**: Extensible without modification
-
-## Error Handling
-
-- **Fail Gracefully**: Don't crash on single failures
-- **Log Everything**: Comprehensive logging
-- **User-Friendly Messages**: Clear error messages
-
-## Testing
-
-- **Test Coverage**: Aim for >80%
-- **Isolated Tests**: No dependencies between tests
-- **Mock External**: Mock file system, network
-
----
-
 # Conclusion
 
 ## Key Takeaways
@@ -803,7 +768,7 @@ uvicorn web.main:app --host 0.0.0.0 --port 8000
 3. **Testable**: Dependency injection throughout
 4. **Scalable**: Can handle large requirement sets
 5. **Flexible**: Multiple interfaces (CLI, Web, API)
-
+---
 ## Architecture Strengths
 
 - Clear separation of concerns
@@ -828,8 +793,4 @@ uvicorn web.main:app --host 0.0.0.0 --port 8000
 - Beginner-friendly explanations
 - Design pattern references
 - Usage examples
-
----
-
-**End of Architecture Document**
 

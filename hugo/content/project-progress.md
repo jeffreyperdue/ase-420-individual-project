@@ -1,7 +1,7 @@
 ---
 title: "Project Progress"
 date: 2025-01-27
-pdf: "/pdfs/StressSpec_Project_Progress.pdf"
+pdf: "/pdfs/StressSpec_Project_Progress.marp.pdf"
 ---
 
 # StressSpec Project Progress
