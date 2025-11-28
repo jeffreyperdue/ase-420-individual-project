@@ -24,8 +24,11 @@
                     👁️ View PDF
                 </a>
                 <button onclick="downloadPDF('{{ $absoluteURL }}', '{{ $pdfFilename }}')" class="pdf-download" style="border: none; cursor: pointer; font-size: inherit; font-family: inherit;">
-                    ⬇️ Download PDF
+                    ⬇️ Download PDF (JS)
                 </button>
+                <a href="{{ $absoluteURL }}" download="{{ $pdfFilename }}" class="pdf-download" style="text-decoration: none;">
+                    ⬇️ Download PDF (Direct)
+                </a>
             </div>
         </div>
         
@@ -47,9 +50,26 @@
     
     <script>
     function downloadPDF(url, filename) {
-        fetch(url)
-            .then(response => response.blob())
+        console.log('Downloading PDF:', url, filename);
+        
+        // First, try using fetch with proper error handling
+        fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache'
+        })
+            .then(response => {
+                console.log('Fetch response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.blob();
+            })
             .then(blob => {
+                console.log('Blob created, size:', blob.size);
+                if (blob.size === 0) {
+                    throw new Error('Empty blob received');
+                }
                 const link = document.createElement('a');
                 link.href = window.URL.createObjectURL(blob);
                 link.download = filename;
@@ -57,11 +77,19 @@
                 link.click();
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(link.href);
+                console.log('Download completed');
             })
             .catch(error => {
                 console.error('Download failed:', error);
-                // Fallback to direct link
-                window.open(url, '_blank');
+                console.log('Falling back to direct download link');
+                // Fallback: create a link with download attribute
+                const fallbackLink = document.createElement('a');
+                fallbackLink.href = url;
+                fallbackLink.download = filename;
+                fallbackLink.target = '_blank';
+                document.body.appendChild(fallbackLink);
+                fallbackLink.click();
+                document.body.removeChild(fallbackLink);
             });
     }
     </script>
