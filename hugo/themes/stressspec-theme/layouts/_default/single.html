@@ -13,19 +13,58 @@
         {{ $pdfPath := .Params.pdf }}
         {{ $pdfFilename := index (split $pdfPath "/") -1 }}
         {{ $absoluteURL := printf "%s%s" (strings.TrimSuffix "/" .Site.BaseURL) $pdfPath }}
-        <iframe src="{{ $absoluteURL }}" class="pdf-viewer" type="application/pdf" title="PDF Viewer">
-            <p>Your browser does not support PDFs. 
-            <a href="{{ $absoluteURL }}" class="pdf-download" type="application/pdf" download="{{ $pdfFilename }}">Download the PDF</a> instead.</p>
-        </iframe>
-        <div style="margin-top: 1rem;">
-            <a href="{{ $absoluteURL }}" class="pdf-download" type="application/pdf" download="{{ $pdfFilename }}" onclick="this.download='{{ $pdfFilename }}';">Download PDF</a>
-            <span style="margin: 0 1rem; color: #666;">|</span>
-            <a href="{{ $absoluteURL }}" target="_blank" style="color: #667eea; text-decoration: none;">Open in New Tab</a>
+        
+        <div style="border: 2px dashed #ddd; padding: 2rem; text-align: center; background: #f9f9f9; border-radius: 8px; margin: 2rem 0;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">📄</div>
+            <h3 style="margin-bottom: 0.5rem;">PDF Document: {{ $pdfFilename }}</h3>
+            <p style="color: #666; margin-bottom: 1.5rem;">Click the buttons below to view or download this document.</p>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ $absoluteURL }}" target="_blank" class="pdf-download" style="text-decoration: none;">
+                    👁️ View PDF
+                </a>
+                <button onclick="downloadPDF('{{ $absoluteURL }}', '{{ $pdfFilename }}')" class="pdf-download" style="border: none; cursor: pointer; font-size: inherit; font-family: inherit;">
+                    ⬇️ Download PDF
+                </button>
+            </div>
         </div>
-        <p style="margin-top: 1rem; font-size: 0.9em; color: #666;">
-            <strong>Direct link:</strong> <code style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 3px;">{{ $absoluteURL }}</code>
-        </p>
+        
+        <div style="margin-top: 2rem;">
+            <object data="{{ $absoluteURL }}" type="application/pdf" class="pdf-viewer" style="display: none;" id="pdf-object">
+                <embed src="{{ $absoluteURL }}" type="application/pdf" class="pdf-viewer" />
+                <p>Your browser does not support PDFs. 
+                <a href="{{ $absoluteURL }}" target="_blank">Open in new tab</a> to view.</p>
+            </object>
+        </div>
+        
+        <div style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px;">
+            <p style="margin: 0; font-size: 0.9em; color: #666;">
+                <strong>Direct link:</strong> 
+                <a href="{{ $absoluteURL }}" target="_blank" style="color: #667eea; word-break: break-all;">{{ $absoluteURL }}</a>
+            </p>
+        </div>
     </div>
+    
+    <script>
+    function downloadPDF(url, filename) {
+        fetch(url)
+            .then(response => response.blob())
+            .then(blob => {
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(link.href);
+            })
+            .catch(error => {
+                console.error('Download failed:', error);
+                // Fallback to direct link
+                window.open(url, '_blank');
+            });
+    }
+    </script>
     {{ end }}
 </article>
 {{ end }}
