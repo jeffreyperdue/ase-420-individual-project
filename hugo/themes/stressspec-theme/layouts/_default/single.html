@@ -11,15 +11,14 @@
     {{ if .Params.pdf }}
     <div class="pdf-container">
         {{ $pdfPath := .Params.pdf }}
-        {{ $pdfURL := $pdfPath | relURL }}
         {{ $pdfFilename := index (split $pdfPath "/") -1 }}
         {{ $absoluteURL := printf "%s%s" (strings.TrimSuffix "/" .Site.BaseURL) $pdfPath }}
-        <iframe src="{{ $pdfURL }}" class="pdf-viewer" type="application/pdf">
+        <iframe src="{{ $absoluteURL }}" class="pdf-viewer" type="application/pdf" title="PDF Viewer">
             <p>Your browser does not support PDFs. 
             <a href="{{ $absoluteURL }}" class="pdf-download" type="application/pdf" download="{{ $pdfFilename }}">Download the PDF</a> instead.</p>
         </iframe>
         <div style="margin-top: 1rem;">
-            <a href="{{ $absoluteURL }}" class="pdf-download" type="application/pdf" download="{{ $pdfFilename }}">Download PDF</a>
+            <a href="{{ $absoluteURL }}" class="pdf-download" type="application/pdf" download="{{ $pdfFilename }}" onclick="this.download='{{ $pdfFilename }}';">Download PDF</a>
             <span style="margin: 0 1rem; color: #666;">|</span>
             <a href="{{ $absoluteURL }}" target="_blank" style="color: #667eea; text-decoration: none;">Open in New Tab</a>
         </div>
