@@ -38,6 +38,10 @@ publishDir = 'docs'
   url = "/user-guide/"
   weight = 5
 
+# Static files configuration
+[static]
+  # Ensure static files are copied correctly
+
 # Markup configuration
 [markup]
   [markup.goldmark]

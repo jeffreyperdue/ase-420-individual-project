@@ -10,11 +10,12 @@
     
     {{ if .Params.pdf }}
     <div class="pdf-container">
-        <iframe src="{{ .Params.pdf }}" class="pdf-viewer" type="application/pdf">
+        {{ $pdfURL := .Params.pdf | relURL }}
+        <iframe src="{{ $pdfURL }}" class="pdf-viewer" type="application/pdf">
             <p>Your browser does not support PDFs. 
-            <a href="{{ .Params.pdf }}" class="pdf-download">Download the PDF</a> instead.</p>
+            <a href="{{ $pdfURL }}" class="pdf-download" download="{{ index (split .Params.pdf "/") -1 }}">Download the PDF</a> instead.</p>
         </iframe>
-        <a href="{{ .Params.pdf }}" class="pdf-download" download>Download PDF</a>
+        <a href="{{ $pdfURL }}" class="pdf-download" download="{{ index (split .Params.pdf "/") -1 }}">Download PDF</a>
     </div>
     {{ end }}
 </article>

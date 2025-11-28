@@ -42,6 +42,11 @@ jobs:
             --gc \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
+      - name: Verify PDFs in build output
+        run: |
+          echo "Checking for PDFs in build output..."
+          ls -la hugo/docs/pdfs/ || echo "PDFs directory not found"
+          find hugo/docs -name "*.pdf" -type f || echo "No PDF files found"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
