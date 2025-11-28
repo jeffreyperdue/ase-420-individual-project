@@ -1,0 +1,11 @@
+name = "stressspec-theme"
+license = "MIT"
+licenselink = "https://github.com/jeffreyperdue/ase-420-individual-project/blob/main/LICENSE"
+description = "Custom theme for StressSpec documentation site"
+tags = ["documentation", "minimal"]
+features = []
+min_version = "0.41.0"
+
+[author]
+  name = "Jeffrey Perdue"
+

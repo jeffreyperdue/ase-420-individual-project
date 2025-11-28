@@ -1,0 +1,46 @@
+baseURL = 'https://jeffreyperdue.github.io/ase-420-individual-project/'
+languageCode = 'en-us'
+title = 'StressSpec - Requirements Stress Tester'
+theme = 'stressspec-theme'
+
+# GitHub Pages configuration
+publishDir = 'docs'
+
+# Site parameters
+[params]
+  description = "A comprehensive solution for detecting risks in requirement documents before development begins"
+  author = "Jeffrey Perdue"
+  github = "https://github.com/jeffreyperdue/ase-420-individual-project"
+
+# Menu configuration
+[[menu.main]]
+  name = "Home"
+  url = "/"
+  weight = 1
+
+[[menu.main]]
+  name = "Final Presentation"
+  url = "/final-presentation/"
+  weight = 2
+
+[[menu.main]]
+  name = "Architecture"
+  url = "/architecture/"
+  weight = 3
+
+[[menu.main]]
+  name = "Project Progress"
+  url = "/project-progress/"
+  weight = 4
+
+[[menu.main]]
+  name = "User Guide"
+  url = "/user-guide/"
+  weight = 5
+
+# Markup configuration
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+

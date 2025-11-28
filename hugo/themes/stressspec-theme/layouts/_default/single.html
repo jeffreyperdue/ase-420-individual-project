@@ -1,0 +1,22 @@
+{{ define "main" }}
+<article>
+    <h1>{{ .Title }}</h1>
+    
+    {{ if .Content }}
+    <div class="content">
+        {{ .Content }}
+    </div>
+    {{ end }}
+    
+    {{ if .Params.pdf }}
+    <div class="pdf-container">
+        <iframe src="{{ .Params.pdf }}" class="pdf-viewer" type="application/pdf">
+            <p>Your browser does not support PDFs. 
+            <a href="{{ .Params.pdf }}" class="pdf-download">Download the PDF</a> instead.</p>
+        </iframe>
+        <a href="{{ .Params.pdf }}" class="pdf-download" download>Download PDF</a>
+    </div>
+    {{ end }}
+</article>
+{{ end }}
+
