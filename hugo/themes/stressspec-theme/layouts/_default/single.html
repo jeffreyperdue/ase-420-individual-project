@@ -10,8 +10,7 @@
     
     {{ if .Params.pdf }}
     <div class="pdf-container">
-        {{ $pdfPath := .Params.pdf }}
-        {{ $pdfFilename := index (split $pdfPath "/") -1 }}
+        {{ $pdfFilename := index (split .Params.pdf "/") -1 }}
         
         <div style="border: 2px dashed #ddd; padding: 2rem; text-align: center; background: #f9f9f9; border-radius: 8px; margin: 2rem 0;">
             <div style="font-size: 4rem; margin-bottom: 1rem;">📄</div>
@@ -19,72 +18,15 @@
             <p style="color: #666; margin-bottom: 1.5rem;">Click the buttons below to view or download this document.</p>
             
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="{{ $pdfPath }}" target="_blank" class="pdf-download" style="text-decoration: none;">
+                <a href="{{ .Params.pdf }}" target="_blank" class="pdf-download" style="text-decoration: none;">
                     👁️ View PDF
                 </a>
-                <button onclick="downloadPDF('{{ $pdfPath }}', '{{ $pdfFilename }}')" class="pdf-download" style="border: none; cursor: pointer; font-size: inherit; font-family: inherit;">
-                    ⬇️ Download PDF (JS)
-                </button>
-                <a href="{{ $pdfPath }}" download="{{ $pdfFilename }}" class="pdf-download" style="text-decoration: none;">
-                    ⬇️ Download PDF (Direct)
+                <a href="{{ .Params.pdf }}" download="{{ $pdfFilename }}" class="pdf-download" style="text-decoration: none;">
+                    ⬇️ Download PDF
                 </a>
             </div>
         </div>
-        
-        <div style="margin-top: 2rem;">
-            <object data="{{ $pdfPath }}" type="application/pdf" class="pdf-viewer" style="display: none;" id="pdf-object">
-                <embed src="{{ $pdfPath }}" type="application/pdf" class="pdf-viewer" />
-                <p>Your browser does not support PDFs. 
-                <a href="{{ $pdfPath }}" target="_blank">Open in new tab</a> to view.</p>
-            </object>
-        </div>
     </div>
-    
-    <script>
-    function downloadPDF(url, filename) {
-        // Convert relative URL to absolute if needed
-        const absoluteUrl = url.startsWith('http') ? url : window.location.origin + url;
-        console.log('Downloading PDF:', absoluteUrl, filename);
-        
-        fetch(absoluteUrl, {
-            method: 'GET',
-            mode: 'cors',
-            cache: 'no-cache'
-        })
-            .then(response => {
-                console.log('Fetch response status:', response.status);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                console.log('Blob created, size:', blob.size);
-                if (blob.size === 0) {
-                    throw new Error('Empty blob received');
-                }
-                const link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(link.href);
-                console.log('Download completed');
-            })
-            .catch(error => {
-                console.error('Download failed:', error);
-                // Fallback: create a link with download attribute
-                const fallbackLink = document.createElement('a');
-                fallbackLink.href = url;
-                fallbackLink.download = filename;
-                fallbackLink.target = '_blank';
-                document.body.appendChild(fallbackLink);
-                fallbackLink.click();
-                document.body.removeChild(fallbackLink);
-            });
-    }
-    </script>
     {{ end }}
 </article>
 {{ end }}
