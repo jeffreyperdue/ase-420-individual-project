@@ -12,11 +12,6 @@
     <div class="pdf-container">
         {{ $pdfPath := .Params.pdf }}
         {{ $pdfFilename := index (split $pdfPath "/") -1 }}
-        {{ $baseURL := strings.TrimSuffix "/" .Site.BaseURL }}
-        {{ $absoluteURL := printf "%s%s" $baseURL $pdfPath }}
-        {{ $absURL := $pdfPath | absURL }}
-        {{ $relURL := $pdfPath | relURL }}
-        {{ $staticURL := printf "%s/%s" (strings.TrimSuffix "/" .Site.BaseURL) (strings.TrimPrefix "/" $pdfPath) }}
         
         <div style="border: 2px dashed #ddd; padding: 2rem; text-align: center; background: #f9f9f9; border-radius: 8px; margin: 2rem 0;">
             <div style="font-size: 4rem; margin-bottom: 1rem;">📄</div>
@@ -24,43 +19,34 @@
             <p style="color: #666; margin-bottom: 1.5rem;">Click the buttons below to view or download this document.</p>
             
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="{{ $staticURL }}" target="_blank" class="pdf-download" style="text-decoration: none;">
+                <a href="{{ $pdfPath }}" target="_blank" class="pdf-download" style="text-decoration: none;">
                     👁️ View PDF
                 </a>
-                <button onclick="downloadPDF('{{ $staticURL }}', '{{ $pdfFilename }}')" class="pdf-download" style="border: none; cursor: pointer; font-size: inherit; font-family: inherit;">
+                <button onclick="downloadPDF('{{ $pdfPath }}', '{{ $pdfFilename }}')" class="pdf-download" style="border: none; cursor: pointer; font-size: inherit; font-family: inherit;">
                     ⬇️ Download PDF (JS)
                 </button>
-                <a href="{{ $staticURL }}" download="{{ $pdfFilename }}" class="pdf-download" style="text-decoration: none;">
+                <a href="{{ $pdfPath }}" download="{{ $pdfFilename }}" class="pdf-download" style="text-decoration: none;">
                     ⬇️ Download PDF (Direct)
                 </a>
             </div>
         </div>
         
         <div style="margin-top: 2rem;">
-            <object data="{{ $staticURL }}" type="application/pdf" class="pdf-viewer" style="display: none;" id="pdf-object">
-                <embed src="{{ $staticURL }}" type="application/pdf" class="pdf-viewer" />
+            <object data="{{ $pdfPath }}" type="application/pdf" class="pdf-viewer" style="display: none;" id="pdf-object">
+                <embed src="{{ $pdfPath }}" type="application/pdf" class="pdf-viewer" />
                 <p>Your browser does not support PDFs. 
-                <a href="{{ $staticURL }}" target="_blank">Open in new tab</a> to view.</p>
+                <a href="{{ $pdfPath }}" target="_blank">Open in new tab</a> to view.</p>
             </object>
-        </div>
-        
-        <div style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px;">
-            <p style="margin: 0; font-size: 0.9em; color: #666;">
-                <strong>Direct link:</strong> 
-                <a href="{{ $absoluteURL }}" target="_blank" style="color: #667eea; word-break: break-all;">{{ $absoluteURL }}</a>
-            </p>
-            <p style="margin: 0.5rem 0 0 0; font-size: 0.8em; color: #999;">
-                Debug: absURL={{ $absURL }}, relURL={{ $relURL }}, staticURL={{ $staticURL }}, baseURL={{ .Site.BaseURL }}
-            </p>
         </div>
     </div>
     
     <script>
     function downloadPDF(url, filename) {
-        console.log('Downloading PDF:', url, filename);
+        // Convert relative URL to absolute if needed
+        const absoluteUrl = url.startsWith('http') ? url : window.location.origin + url;
+        console.log('Downloading PDF:', absoluteUrl, filename);
         
-        // First, try using fetch with proper error handling
-        fetch(url, {
+        fetch(absoluteUrl, {
             method: 'GET',
             mode: 'cors',
             cache: 'no-cache'
@@ -88,7 +74,6 @@
             })
             .catch(error => {
                 console.error('Download failed:', error);
-                console.log('Falling back to direct download link');
                 // Fallback: create a link with download attribute
                 const fallbackLink = document.createElement('a');
                 fallbackLink.href = url;
