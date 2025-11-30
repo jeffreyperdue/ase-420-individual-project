@@ -49,7 +49,7 @@
       }
     },
     "missing_detail": {
-      "enabled": true,
+      "enabled": false,
       "severity": "high",
       "description": "Detects incomplete or missing detail in requirements",
       "rules": {

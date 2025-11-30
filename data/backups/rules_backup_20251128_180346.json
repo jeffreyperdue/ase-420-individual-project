@@ -1,0 +1,176 @@
+{
+  "version": "1.0",
+  "description": "Risk detection rules for StressSpec",
+  "detectors": {
+    "ambiguity": {
+      "enabled": true,
+      "severity": "medium",
+      "description": "Detects vague or ambiguous language in requirements",
+      "rules": {
+        "vague_terms": {
+          "keywords": ["should", "might", "could", "possibly", "maybe", "perhaps", "sort of", "kind of"],
+          "description": "Vague terms that make requirements unclear"
+        },
+        "imprecise_quantifiers": {
+          "keywords": ["some", "many", "few", "several", "most", "all", "fast", "slow", "user-friendly", "etc"],
+          "description": "Imprecise quantifiers and subjective terms"
+        },
+        "weak_requirements": {
+          "keywords": ["preferably", "ideally", "hopefully", "wish", "want", "desire"],
+          "description": "Weak requirement language"
+        }
+      }
+    },
+    "missing_detail": {
+      "enabled": true,
+      "severity": "high",
+      "description": "Detects incomplete or missing detail in requirements",
+      "rules": {
+        "incomplete_phrases": {
+          "patterns": ["the system shall", "the system will", "the system must", "the system should"],
+          "description": "Requirements that end without specifying what the system should do"
+        },
+        "missing_specifications": {
+          "keywords": ["handle", "process", "manage", "support", "provide", "allow", "enable"],
+          "context_required": true,
+          "description": "Actions without specific details about how they should be performed"
+        },
+        "unspecified_actors": {
+          "keywords": ["user", "admin", "system", "they", "someone"],
+          "description": "Unspecified or ambiguous actors"
+        }
+      }
+    },
+    "security": {
+      "enabled": true,
+      "severity": "critical",
+      "description": "Detects missing security requirements",
+      "rules": {
+        "missing_authentication": {
+          "triggers": ["login", "access", "user account", "profile", "dashboard"],
+          "required_with": ["authentication", "login", "password", "credentials", "auth"],
+          "description": "User access features without authentication requirements"
+        },
+        "missing_authorization": {
+          "triggers": ["admin", "delete", "modify", "change", "update", "create", "remove"],
+          "required_with": ["permission", "role", "access control", "authorization"],
+          "description": "Administrative actions without authorization requirements"
+        },
+        "missing_data_protection": {
+          "triggers": ["store", "save", "database", "data", "personal information", "sensitive"],
+          "required_with": ["encryption", "secure", "protect", "privacy", "confidential"],
+          "description": "Data storage without protection requirements"
+        },
+        "insecure_communication": {
+          "triggers": ["transfer", "send", "receive", "communication", "api", "network"],
+          "required_with": ["https", "ssl", "tls", "secure", "encrypted"],
+          "description": "Data transmission without security requirements"
+        }
+      }
+    },
+    "conflict": {
+      "enabled": true,
+      "severity": "high",
+      "description": "Detects duplicate or contradictory requirements",
+      "rules": {
+        "duplicate_requirements": {
+          "similarity_threshold": 0.8,
+          "description": "Requirements that are very similar to each other"
+        },
+        "contradictory_terms": {
+          "pairs": [
+            ["must", "must not"],
+            ["shall", "shall not"],
+            ["will", "will not"],
+            ["always", "never"],
+            ["required", "optional"],
+            ["mandatory", "prohibited"]
+          ],
+          "description": "Requirements with contradictory language"
+        },
+        "conflicting_priorities": {
+          "keywords": ["urgent", "critical", "immediate", "asap"],
+          "context_required": true,
+          "description": "Multiple urgent requirements that may conflict"
+        }
+      }
+    },
+    "performance": {
+      "enabled": true,
+      "severity": "high",
+      "description": "Detects missing performance requirements",
+      "rules": {
+        "missing_performance_specs": {
+          "triggers": ["load", "process", "handle", "support", "concurrent"],
+          "required_with": ["response time", "throughput", "latency", "performance", "speed"],
+          "description": "System operations without performance specifications"
+        }
+      }
+    },
+    "availability": {
+      "enabled": true,
+      "severity": "medium",
+      "description": "Detects missing availability requirements",
+      "rules": {
+        "missing_uptime_specs": {
+          "triggers": ["system", "service", "application", "platform"],
+          "required_with": ["uptime", "availability", "downtime", "reliability", "99.9"],
+          "description": "System services without availability specifications"
+        }
+      }
+    },
+    "traceability": {
+      "enabled": true,
+      "severity": "high",
+      "description": "Detects missing traceability signals (IDs, acceptance criteria, test references)",
+      "rules": {
+        "missing_requirement_id": {
+          "patterns": ["R", "REQ-", "US-", "FR-", "-"],
+          "description": "Common requirement ID patterns (permissive substring matching)"
+        },
+        "missing_acceptance_criteria": {
+          "keywords": ["given", "when", "then", "acceptance criteria", "ac:"],
+          "description": "Acceptance criteria markers (BDD or labeled section)"
+        },
+        "missing_test_reference": {
+          "keywords": ["tc-", "test case", "unit test", "integration test", "verification", "validated by", "qa"],
+          "description": "References to test artifacts or verification language"
+        }
+      }
+    },
+    "scope": {
+      "enabled": true,
+      "severity": "medium",
+      "description": "Detects scope creep and undefined boundaries",
+      "rules": {
+        "out_of_scope_terms": {
+          "keywords": ["any api", "all platforms", "every browser", "all providers", "support everything"],
+          "description": "Overly broad scope language"
+        },
+        "undefined_system_boundary": {
+          "keywords": ["external system", "third-party service", "partner api", "legacy system"],
+          "description": "References to external dependencies without defined boundaries"
+        },
+        "third_party_dependency_without_spec": {
+          "triggers": ["integrate", "connect", "sync"],
+          "required_with": ["provider", "version", "protocol", "contract", "sla"],
+          "description": "Integrations lacking provider/version/protocol constraints"
+        }
+      }
+    }
+  },
+  "severity_mapping": {
+    "low": 1,
+    "medium": 2,
+    "high": 3,
+    "critical": 4,
+    "blocker": 5
+  },
+  "global_settings": {
+    "case_sensitive": false,
+    "ignore_comments": true,
+    "min_requirement_length": 10,
+    "max_similarity_check": 100
+  }
+}
+

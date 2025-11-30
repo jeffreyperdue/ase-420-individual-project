@@ -3,7 +3,7 @@
   "description": "Risk detection rules for StressSpec",
   "detectors": {
     "ambiguity": {
-      "enabled": true,
+      "enabled": false,
       "severity": "medium",
       "description": "Detects vague or ambiguous language in requirements",
       "rules": {
