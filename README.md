@@ -4,6 +4,7 @@
 
 StressSpec acts as a "wind tunnel" for requirements, helping project managers, business analysts, and development teams identify hidden risks in requirement documents early in the development process.
 
+# Full demo video can be found here:  https://youtu.be/5GrgyyQQoiY
 ---
 
 ## 🚀 Quick Start
